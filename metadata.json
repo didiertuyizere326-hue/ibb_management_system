@@ -1,0 +1,6 @@
+{
+  "name": "Institut Baptiste de Buberuka (IBB)",
+  "description": "Official School Management System & Portal for Institut Baptiste de Buberuka (IBB) in Rwanda. Features student admissions, academic management, food inventory & stock tracking, role-based staff dashboards, and audit logs.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,196 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Roboto Mono', ui-monospace, monospace;
+  
+  /* Legacy aliases for backward compatibility */
+  --color-ibb-navy: #071A33;
+  --color-ibb-dark-navy: #0B1930;
+  --color-ibb-blue: #1769FF;
+  --color-ibb-emerald: #009B72;
+  --color-ibb-light-blue: #EAF2FC;
+  --color-ibb-light-gray: #F4F7FB;
+  --color-ibb-border: #DCE5F0;
+
+  /* Binance Midnight Dark Theme Token System */
+  --color-b-canvas: #0B0E11;       /* Level 1: Canvas */
+  --color-b-sub: #11151B;          /* Level 2: Sidebar, Header */
+  --color-b-card: #181D24;         /* Level 3: Cards, Tables */
+  --color-b-elevated: #202630;     /* Level 4: Modals, Elevated items */
+  --color-b-hover: #262D38;        /* Hover surface */
+  --color-b-border: #2B3139;       /* Standard stroke */
+  --color-b-divider: #252B33;      /* Subtle separator */
+  --color-b-text: #F0F3F6;         /* Primary text */
+  --color-b-subtext: #A0AAB8;      /* Secondary text */
+  --color-b-dim: #707A8A;          /* Muted metadata */
+
+  /* Binance Financial Accents */
+  --color-b-gold: #FCD535;         /* Primary Accent */
+  --color-b-blue: #3B82F6;         /* Secondary Accent */
+  --color-b-green: #0ECB81;        /* Success / Admitted */
+  --color-b-yellow: #F0B90B;       /* Warning / Pending */
+  --color-b-red: #F6465D;          /* Danger / Rejected */
+  --color-b-cyan: #38BDF8;         /* Information */
+  --color-b-purple: #8B5CF6;       /* Level 5 / Special */
+}
+
+/* ======================================================== */
+/* REFINED WHITE / LIGHT THEME: COMFORTABLE & BALANCED      */
+/* Glare-free canvas, high text contrast, distinct cards    */
+/* ======================================================== */
+:root {
+  color-scheme: light;
+  --bg-app: #EEF2F6;            /* Soft executive light canvas, eliminating bright glare */
+  --bg-dashboard: #EEF2F6;      /* High distinction from white cards */
+  --bg-sidebar: #FFFFFF;        /* Clean distinct sidebar */
+  --bg-card: #FFFFFF;           /* Elevated card surface */
+  --bg-card-secondary: #F8FAFD;
+  --bg-elevated: #FFFFFF;
+  --bg-hover: #E2E8F0;
+  --border-app: #CBD5E1;        /* Crisp, clear structure */
+  --border-divider: #E2E8F0;
+  --text-main: #0F172A;         /* Slate-900 high contrast */
+  --text-muted: #334155;        /* Slate-700 legible secondary */
+  --text-dim: #64748B;          /* Slate-500 readable metadata */
+  --accent-primary: #1769FF;
+  --accent-success: #059669;
+  --accent-warning: #B45309;    /* Legible amber in light mode */
+  --accent-danger: #DC2626;
+  --accent-info: #0284C7;
+}
+
+/* ======================================================== */
+/* PRESERVED BINANCE MIDNIGHT DARK THEME (100% UNTOUCHED)   */
+/* ======================================================== */
+html.dark {
+  color-scheme: dark;
+  --bg-app: #0B0E11;
+  --bg-dashboard: #0B0E11;
+  --bg-sidebar: #11151B;
+  --bg-card: #181D24;
+  --bg-card-secondary: #181D24;
+  --bg-elevated: #202630;
+  --bg-hover: #262D38;
+  --border-app: #2B3139;
+  --border-divider: #252B33;
+  --text-main: #F0F3F6;
+  --text-muted: #A0AAB8;
+  --text-dim: #707A8A;
+  --accent-primary: #FCD535;
+  --accent-success: #0ECB81;
+  --accent-warning: #F0B90B;
+  --accent-danger: #F6465D;
+  --accent-info: #38BDF8;
+}
+
+body {
+  font-family: var(--font-sans);
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-app);
+  color: var(--text-main);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Smooth custom financial scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 9999px;
+}
+html.dark ::-webkit-scrollbar-thumb {
+  background: #2B3139;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: #3B4350;
+}
+
+/* Smooth Carousel Keyframe Animations */
+@keyframes slideInRight {
+  0% {
+    opacity: 0;
+    transform: translateX(18px) scale(0.97);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes slideInLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-18px) scale(0.97);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slideInRight {
+  animation: slideInRight 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slideInLeft {
+  animation: slideInLeft 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.25s ease-out forwards;
+}
+
+/* Financial Sparkline / Glow Utilities */
+.gold-glow {
+  box-shadow: 0 0 20px -5px rgba(252, 213, 53, 0.15);
+}
+
+.blue-glow {
+  box-shadow: 0 0 20px -5px rgba(59, 130, 246, 0.15);
+}
+
+.emerald-glow {
+  box-shadow: 0 0 20px -5px rgba(14, 203, 129, 0.15);
+}
+
+/* Light Theme Card Depth Utilities */
+html:not(.dark) .light-card-shadow {
+  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.06), 0 1px 2px -1px rgba(15, 23, 42, 0.04);
+}
+
+/* Print Styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  body {
+    background: white !important;
+    color: black !important;
+  }
+}

@@ -1,0 +1,1014 @@
+# MASTER PROJECT PROMPT — BUILD A COMPLETE ADVANCED IBB SCHOOL MANAGEMENT SYSTEM AND PREMIUM SCHOOL WEBSITE
+
+Act as a Senior Software Architect, Full-Stack Developer, Database Engineer, Cybersecurity Specialist, UI/UX Designer and Performance Optimization Engineer.
+
+Your task is to design and build a complete, modern, advanced, secure and production-ready School Management System for:
+
+**INSTITUT BAPTISTE DE BUBERUKA (IBB) — RWANDA**
+
+This is a new project request. Treat the requirements below as the complete project specification. Do not assume that an existing application or database is available.
+
+The final product must be a complete working software system, not merely a visual prototype, static website, dashboard mockup or collection of disconnected pages.
+
+The application must combine:
+1. A premium public school website.
+2. A complete School Management System.
+3. Secure staff authentication.
+4. Three role-based administrative dashboards.
+5. Student admissions and academic management.
+6. Food inventory and stock management.
+7. Supplier and financial management.
+8. Contact message management.
+9. Reports, analytics and exports.
+10. Notifications and audit logs.
+
+---
+
+# 1. DESIGN REFERENCE — IMPORTANT
+
+Use this shared visual reference as the primary design inspiration:
+
+https://chatgpt.com/s/m_6ae8a95ed20481919cdb3a3bd1701018
+
+The reference is titled **StockAnd Dashboard: Dark and Light Themes**.
+
+First, inspect the reference if it is accessible. Understand its visual language, dashboard organization, spacing, typography, card layouts, navigation, colors, data presentation and Light/Dark theme appearance.
+
+Create an IBB design that follows the same general level of visual quality and professionalism while maintaining IBB's own identity.
+
+Do not copy unrelated branding or content from the reference.
+
+If the shared reference cannot be accessed, use the following design direction:
+
+- Modern premium SaaS dashboard.
+- Clean and organized layouts.
+- Professional sidebar navigation.
+- Elegant dashboard cards.
+- Clearly structured tables.
+- Attractive analytics charts.
+- Balanced whitespace.
+- Modern typography.
+- Consistent icons.
+- Smooth but subtle interactions.
+- Professional forms and dialogs.
+- High-quality responsive layouts.
+
+**The design must look like a premium, professionally developed school management platform, not a basic student project.**
+
+# 2. TECHNOLOGY STACK
+
+Use the following technologies:
+
+## Frontend
+- React.js.
+- React Router.
+- Axios.
+- Tailwind CSS or a consistent modern CSS architecture.
+- Lucide React icons.
+- Recharts for analytics.
+- React Context or an appropriate state-management solution.
+
+## Backend
+- Node.js.
+- Express.js.
+- REST APIs.
+- Socket.IO for real-time notifications where appropriate.
+
+## Database
+- MySQL.
+- Relational database design.
+- Foreign keys.
+- Proper indexes.
+- Database transactions for critical operations.
+
+## Security
+- bcrypt password hashing.
+- Secure session or JWT authentication.
+- Backend role-based access control.
+- Google OAuth 2.0 / OpenID Connect.
+- Input validation and sanitization.
+- Rate limiting.
+- Secure cookies where appropriate.
+- Audit logs.
+- Environment variables for secrets.
+
+Use maintainable, modular code. Separate frontend, backend, routes, controllers, services, middleware, database configuration and reusable components.
+
+Do not use localStorage as a replacement for the MySQL database.
+
+# 3. IBB BRAND IDENTITY AND DESIGN SYSTEM
+
+School name:
+
+**INSTITUT BAPTISTE DE BUBERUKA (IBB)**
+
+Use this color palette:
+
+- Deep Navy: #071A33
+- Dark Navy: #0B1930
+- Royal Blue: #1769FF
+- Emerald Green: #009B72
+- White: #FFFFFF
+- Light Blue: #EAF2FC
+- Light Gray: #F4F7FB
+- Border Gray: #DCE5F0
+
+Create a consistent design system for the public website and all dashboards.
+
+Requirements:
+- Professional typography.
+- Consistent spacing.
+- Reusable buttons.
+- Consistent form controls.
+- Clear headings and subtitles.
+- Well-designed tables.
+- Professional cards.
+- Attractive icons.
+- Appropriate shadows.
+- Clear loading indicators.
+- Empty states.
+- Error and success messages.
+- Confirmation dialogs.
+- Accessible colors and contrast.
+
+## Light Theme
+
+Use:
+- White and light-gray backgrounds.
+- Dark readable text.
+- Visible borders.
+- Clear input fields.
+- Properly contrasted buttons and charts.
+
+## Dark Theme
+
+Use:
+- Deep navy and dark backgrounds.
+- Readable white and muted text.
+- Clearly visible form fields.
+- Appropriate borders.
+- Properly contrasted charts and tables.
+- Consistent accent colors.
+
+Do not simply invert colors. Design both themes intentionally.
+
+The theme switcher must work throughout the entire application and preserve the user's selected preference.
+
+# 4. COMPLETE ENGLISH AND KINYARWANDA SUPPORT
+
+Implement a complete language-switching system.
+
+Supported languages:
+1. English.
+2. Kinyarwanda.
+
+The language selector must work throughout:
+
+- Homepage.
+- About page.
+- Programs.
+- Admissions.
+- Application tracking.
+- Contact Us.
+- Login.
+- Director dashboard.
+- Accountant dashboard.
+- Animator dashboard.
+- Forms.
+- Tables.
+- Navigation.
+- Reports.
+- Notifications.
+- Validation messages.
+- Confirmation dialogs.
+- Empty states.
+- Error messages.
+- Buttons and tooltips.
+
+Requirements:
+- Use a centralized translation system.
+- Translate actual interface content.
+- Do not translate only the homepage.
+- Do not leave important buttons permanently in English when Kinyarwanda is selected.
+- Preserve the selected language after refresh and navigation.
+- Allow language switching without losing form data.
+- Use understandable and accurate Kinyarwanda.
+- Ensure translated text fits responsive layouts.
+
+# 5. PUBLIC SCHOOL WEBSITE
+
+Create a premium, modern and responsive public website with:
+
+- Home.
+- About IBB.
+- Our Programs.
+- Software Development.
+- Automobile Technology.
+- Admissions.
+- Track Application.
+- Contact Us.
+- Apply Now.
+- Secure Staff Login.
+
+The public website must present IBB as a professional technical education institution.
+
+## Homepage Hero
+
+Include:
+- School campus background image.
+- Appropriate dark overlay.
+- Professional headline.
+- School introduction.
+- Admissions announcement.
+- Apply for Admission button.
+- Explore Programs button.
+- Track Application button.
+
+All buttons must navigate to their correct pages.
+
+## Leadership and Administration Team
+
+Place a compact leadership carousel inside the existing campus hero background, immediately below the three hero buttons and above the statistics section.
+
+Show exactly four separate staff positions:
+
+1. Director.
+2. Accountant.
+3. Animator.
+4. Animatrice.
+
+Each profile displays only:
+- Actual staff photograph.
+- Full name, when available.
+- Official position.
+
+Do not invent staff names or photographs.
+
+If information is missing, display a professional initials-based placeholder and the official role.
+
+Carousel behavior:
+- Start with Director.
+- Automatically change every 5 seconds.
+- Sequence: Director → Accountant → Animator → Animatrice → Director.
+- Smoothly move the next profile into the center.
+- Show smaller neighboring profiles on desktop.
+- Keep photographs compact.
+- Preserve visibility of the campus background.
+- Support mobile, tablet and desktop.
+- Respect reduced-motion preferences.
+- Avoid layout shifts and unnecessary image downloads.
+
+Do not create a separate large background section for the carousel.
+
+## Homepage Statistics
+
+Display real database-backed statistics where available:
+- Total students.
+- Academic programs.
+- Approved admissions.
+- School achievements.
+
+Never invent statistics.
+
+# 6. ABOUT AND ACADEMIC PROGRAMS
+
+Create professional pages explaining the school, its mission, vision, values and educational programs.
+
+Programs:
+1. Software Development.
+2. Automobile Technology.
+
+Each program page should include:
+- Program introduction.
+- Skills students acquire.
+- Learning outcomes.
+- Relevant academic levels.
+- Admission information.
+- Apply Now action.
+
+Use real school information where provided. Do not invent official accreditation, awards or institutional claims.
+
+# 7. STUDENT ADMISSIONS MANAGEMENT
+
+Allow prospective students to apply online without creating staff accounts.
+
+Application form fields:
+- Student full names.
+- Date of birth.
+- Gender.
+- Father's full name.
+- Mother's full name.
+- Phone number.
+- Email address.
+- Residence.
+- Previous school.
+- Requested academic level.
+- Requested department.
+- Result-slip image showing S3 marks.
+- Passport photograph.
+
+Academic levels:
+- L3.
+- L4.
+- L5.
+
+Departments:
+- Software Development.
+- Automobile Technology.
+
+After submission:
+- Save the application in MySQL.
+- Generate a unique tracking number, for example IBB-2026-0001.
+- Display a confirmation.
+- Allow applicants to track their applications using the tracking number.
+
+Application statuses:
+- Pending.
+- Under Review.
+- Approved.
+- Rejected.
+
+Only the Director can approve or reject applications.
+
+The Director must be able to:
+- View applications.
+- Inspect uploaded documents.
+- Review marks.
+- Approve applications.
+- Reject applications with a reason.
+- View approved students by level and department.
+
+## Admission Rules
+
+Allow the Director to configure:
+- Minimum admission marks.
+- Grading thresholds.
+- Boarding qualification threshold.
+- Other applicable admission requirements.
+
+Apply the requested initial rules:
+- Below 50% = failing / repeat according to the school's configured policy.
+- Above 80% = qualifies for boarding consideration.
+- Applicants below the Director-configured minimum admission score can be automatically rejected.
+
+Make these settings configurable instead of hardcoding them throughout the application.
+
+Protect uploaded documents and validate file types and sizes.
+
+# 8. STAFF ACCOUNTS AND ROLE-BASED ACCESS CONTROL
+
+Create three staff roles.
+
+## A. DIRECTOR — SUPER ADMIN
+
+The Director is the head of the institution and has full administrative authority.
+
+Permissions:
+- Manage staff accounts.
+- Create and disable staff accounts.
+- Manage roles and permissions.
+- Approve and reject admissions.
+- View approved students.
+- Manage academic settings.
+- Manage inventory.
+- Manage suppliers.
+- Configure Stock Out schedules.
+- View reports and analytics.
+- View audit logs.
+- Manage system settings.
+- View all administrative notifications.
+- Manage contact messages.
+- Control Accountant and Animator access.
+
+The Director must be able to disable staff accounts and manage their permitted modules.
+
+## B. ACCOUNTANT
+
+Permissions:
+- Create suppliers.
+- View suppliers.
+- Edit suppliers.
+- Delete suppliers subject to historical transaction protection.
+- Create and edit food products.
+- Record Stock In.
+- View inventory.
+- View Stock In and Stock Out history.
+- View inventory valuation.
+- View permitted financial and inventory reports.
+- Receive stock notifications.
+- View contact messages according to assigned permissions.
+
+The Accountant must not approve student admissions or manage Director permissions.
+
+## C. ANIMATOR
+
+Permissions:
+- View available stock.
+- Record daily Stock Out during authorized hours.
+- View permitted stock history.
+- Receive relevant notifications.
+- View contact messages according to assigned permissions.
+
+The Animator must not:
+- Manage staff accounts.
+- Change permissions.
+- Manage suppliers.
+- Create or edit products.
+- Delete suppliers.
+- Approve admissions.
+
+Enforce all permissions on the backend. Hiding frontend buttons is not sufficient security.
+
+# 9. AUTHENTICATION AND PASSWORD SECURITY
+
+Implement secure email/password authentication.
+
+**Do not implement OTP login verification.**
+
+After successful email/password authentication, users must enter the application directly.
+
+Password requirements for new and changed passwords:
+- Minimum 8 characters.
+- At least one uppercase letter.
+- At least one lowercase letter.
+- At least one number.
+- At least one special character.
+
+Implement:
+- Frontend validation.
+- Independent backend validation.
+- Password strength indicator: Weak, Medium, Strong.
+- Show/hide password control.
+- Confirm password field.
+- Clear validation messages.
+- bcrypt hashing.
+
+Never store plaintext passwords.
+
+Allow authenticated staff to:
+- View and edit permitted profile information.
+- Change their own passwords.
+- Enter their current password.
+- Enter and confirm a new strong password.
+
+Verify the current password on the backend.
+
+Do not allow ordinary users to change their own roles or permissions.
+
+Invalidate existing sessions or tokens after a successful password change where appropriate.
+
+Never send passwords through email.
+
+# 10. REAL GOOGLE SIGN-IN
+
+Implement official Google OAuth 2.0 / OpenID Connect.
+
+The login page must include a professional **Continue with Google** button.
+
+Authentication flow:
+1. User clicks Continue with Google.
+2. Google authentication opens.
+3. User selects a Google account.
+4. Backend verifies Google's identity token.
+5. Backend checks the verified email against an existing authorized IBB staff account.
+6. Disabled or unauthorized accounts are rejected.
+7. Authorized users receive the normal authenticated session.
+8. User is redirected to the correct role-based dashboard.
+
+Security:
+- Verify token signature.
+- Validate issuer.
+- Validate audience.
+- Require verified email.
+- Never trust frontend-supplied email addresses.
+- Do not automatically create staff accounts.
+- Do not grant roles based on Google profile data.
+- Preserve existing backend role-based access control.
+- Keep client secrets on the backend.
+
+Use environment variables:
+
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GOOGLE_CALLBACK_URL=
+
+Create a backend .env.example with placeholders only.
+
+Never expose secrets in React code or commit real credentials to GitHub.
+
+Use deployment-specific callback URLs. Do not hardcode localhost for production.
+
+If credentials are missing, show a clear configuration message. Do not simulate successful authentication.
+
+Document the exact Google Cloud Console configuration required.
+
+# 11. FOOD INVENTORY AND STOCK MANAGEMENT
+
+Create a complete food inventory system.
+
+Initial products:
+- Rice.
+- Maize flour.
+- Cooking oil.
+- Cabbage.
+- Sweet potatoes.
+- Sugar.
+- Salt.
+
+Allow authorized users to configure products and measurement units.
+
+## Supplier Management
+
+Accountant and Director can:
+- Create suppliers.
+- View suppliers.
+- Edit suppliers.
+- Delete suppliers subject to transaction-history protection.
+
+Animator cannot create, edit or delete suppliers.
+
+Backend authorization is mandatory.
+
+If a supplier is linked to historical Stock In transactions, prevent destructive permanent deletion. Use safe deactivation or soft deletion where appropriate.
+
+Record supplier changes in audit logs.
+
+## Stock In
+
+Accountant records:
+- Product.
+- Supplier.
+- Quantity.
+- Unit.
+- Unit cost where applicable.
+- Total cost.
+- Date.
+- Notes.
+
+Save transactions in MySQL.
+
+## Stock Out
+
+Animator records:
+- Product.
+- Quantity issued.
+- Date.
+- Time.
+- Permitted notes.
+
+Prevent Stock Out if available quantity is insufficient.
+
+Never allow negative inventory.
+
+## Stock Calculation
+
+Available Quantity = Total Stock In − Total Stock Out.
+
+Use database transactions and reliable queries.
+
+Preserve historical transaction records. Do not permanently delete completed stock transactions without an authorized correction or reversal process and an audit reason.
+
+# 12. DIRECTOR-CONTROLLED STOCK WORKING HOURS
+
+The Director must configure authorized Stock Out periods.
+
+Default morning period:
+06:00–08:00.
+
+Allow the Director to configure evening periods and other schedules.
+
+The Animator's Stock Out button must:
+- Be enabled only during authorized periods.
+- Be disabled outside authorized periods.
+- Display why it is disabled.
+- Display the next permitted opening time where possible.
+- Update automatically when an authorized period begins.
+- Use backend time validation.
+
+Use timezone:
+Africa/Kigali.
+
+Changing the computer clock must not bypass server-side restrictions.
+
+If the Director changes the schedule, apply the new settings through the backend.
+
+Emergency overrides are allowed only for authorized Director accounts, require a reason and must be audited.
+
+# 13. CONTACT US AND MESSAGE MANAGEMENT
+
+Fix and implement a reliable Contact Us message workflow.
+
+The public Contact Us form must:
+1. Validate submitted information.
+2. Save every valid message in MySQL.
+3. Generate a unique message reference number.
+4. Record submission date and time.
+5. Display success only after successful database storage.
+6. Make messages visible in the authorized administration inbox.
+
+The Director must have full access to all contact messages.
+
+Accountant and Animator must receive appropriate notifications and access only according to assigned permissions.
+
+Message statuses:
+- New.
+- Read.
+- Replied.
+- Closed.
+
+Preserve message history.
+
+Where email is configured, send real email notifications.
+
+Where SMS or WhatsApp is configured, use real providers and credentials.
+
+Never claim delivery if it has not been confirmed.
+
+Do not expose private messages publicly.
+
+# 14. NOTIFICATIONS AND REAL-TIME UPDATES
+
+Use the existing notification architecture or Socket.IO where appropriate.
+
+Generate relevant notifications for:
+- New admission applications.
+- Admission approvals and rejections.
+- Stock In.
+- Stock Out.
+- Low stock.
+- Supplier changes.
+- Staff account changes.
+- Permission changes.
+- Stock schedule changes.
+- Contact messages.
+- Important administrative activities.
+
+Avoid unnecessary repeated requests.
+
+Use real-time events only where they add value.
+
+# 15. REPORTS, ANALYTICS, PRINTING AND EXPORTS
+
+Create functional reporting for:
+- Student reports.
+- Admission reports.
+- Approved students.
+- Stock In.
+- Stock Out.
+- Inventory.
+- Suppliers.
+- Financial summaries.
+- Audit logs.
+
+Provide:
+- Date filters.
+- Level filters.
+- Department filters.
+- Product filters.
+- Supplier filters.
+- Search.
+- PDF export.
+- Excel export.
+- Browser printing.
+
+Every visible Print, Export, Download and Report button must work.
+
+Exports must:
+- Use actual filtered database data.
+- Include school name.
+- Include report title.
+- Include generation date.
+- Use readable formatting.
+- Handle empty results.
+- Avoid unrelated records.
+- Preserve correct dates and numerical values.
+- Display a clear error if export fails.
+
+Never create decorative nonfunctional buttons.
+
+# 16. AUDIT LOGS
+
+Maintain a reliable audit trail for important actions.
+
+Record:
+- User ID.
+- User role.
+- Action.
+- Affected record.
+- Date and time.
+- Relevant metadata.
+- Reason where required.
+
+Audit events include:
+- Login attempts.
+- Admission decisions.
+- Stock transactions.
+- Supplier changes.
+- Staff account changes.
+- Permission changes.
+- Schedule changes.
+- Emergency overrides.
+- Important exports.
+
+Protect audit logs from unauthorized modification.
+
+Do not record passwords, tokens or secrets.
+
+# 17. DASHBOARD DESIGN AND FUNCTIONALITY
+
+Create three separate role-based dashboards.
+
+All dashboards must use the same professional design system but display different permitted information.
+
+## Director Dashboard
+
+Display:
+- Total applications.
+- Pending applications.
+- Approved students.
+- Students by level.
+- Students by department.
+- Food stock health.
+- Inventory valuation.
+- Low-stock warnings.
+- Recent transactions.
+- Staff activity.
+- Admission statistics.
+- Financial summaries.
+- Contact messages.
+- Important notifications.
+
+Provide meaningful charts using real database data.
+
+## Accountant Dashboard
+
+Display:
+- Current inventory.
+- Stock In and Stock Out.
+- Supplier information.
+- Low-stock alerts.
+- Inventory valuation.
+- Recent transactions.
+- Reports.
+- Relevant notifications.
+
+## Animator Dashboard
+
+Display:
+- Available stock.
+- Today's Stock Out.
+- Authorized Stock Out hours.
+- Stock Out form.
+- Stock history.
+- Schedule status.
+- Relevant notifications.
+
+Do not show unauthorized actions or information.
+
+All statistics must come from actual database records, not hardcoded sample values.
+
+# 18. PROFESSIONAL DASHBOARD NAVIGATION
+
+Organize the Director sidebar into these seven categories:
+
+1. Dashboard Overview
+   - Director Executive Overview.
+
+2. Students & Academic Management
+   - Student Admissions Management.
+   - Approved Students Register.
+   - Academic Grading & Admission Settings.
+
+3. Inventory & Stock Management
+   - Food Inventory Management.
+   - Stock Working Hours & Scheduling.
+   - Supplier Relationship Management.
+
+4. Staff & Access Control
+   - Staff Accounts.
+   - Centralized Staff Access Control.
+   - Roles and Permissions.
+
+5. Reports & Analytics
+   - Reporting & Analytics.
+
+6. System Audit & Activity
+   - System Audit Logs.
+
+7. Account & Profile
+   - Director Administrative Profile.
+
+Use collapsible groups, appropriate icons, active navigation highlighting, clear labels and consistent spacing.
+
+Preserve all routes and functionality.
+
+Keep Accountant and Animator navigation separate and appropriate to their permissions.
+
+# 19. RESPONSIVE DESIGN — EVERY PAGE
+
+The public website and all dashboards must work correctly on:
+- Desktop.
+- Laptop.
+- Tablet.
+- Mobile phone.
+
+Requirements:
+- Functional mobile hamburger navigation.
+- No horizontal overflow.
+- Responsive tables.
+- Responsive forms.
+- Properly scaled charts.
+- Readable typography.
+- Accessible buttons.
+- Correct image sizing.
+- Usable dialogs and dropdowns.
+- Consistent spacing.
+- Responsive dashboard cards.
+
+Do not optimize only the homepage. Test every important page and workflow.
+
+# 20. PERFORMANCE AND CODE QUALITY
+
+Build a fast and maintainable application.
+
+Requirements:
+- Avoid unnecessary API calls.
+- Avoid repeated image downloads.
+- Use pagination for large datasets.
+- Use efficient database queries.
+- Add appropriate indexes.
+- Avoid unnecessary React re-renders.
+- Clean up timers and event listeners.
+- Lazy-load suitable images and components.
+- Avoid heavy unnecessary dependencies.
+- Avoid loading all database records at once.
+- Provide loading states.
+- Handle errors without crashing unrelated pages.
+
+Do not sacrifice usability, accessibility or security for animations.
+
+Use reusable components and clear naming conventions.
+
+Do not duplicate business logic between frontend and backend.
+
+# 21. DATABASE AND DATA INTEGRITY
+
+Create a suitable normalized MySQL schema for:
+- Staff accounts.
+- Roles and permissions.
+- Students.
+- Admissions.
+- Academic levels.
+- Departments.
+- Products.
+- Suppliers.
+- Stock In transactions.
+- Stock Out transactions.
+- Stock schedules.
+- Contact messages.
+- Notifications.
+- Audit logs.
+- System settings.
+
+Use foreign keys, indexes, validation and transactions where appropriate.
+
+Preserve historical records.
+
+Prevent duplicate records.
+
+Never expose sensitive database information through public APIs.
+
+Provide safe database migrations and setup scripts.
+
+# 22. SECURITY REQUIREMENTS
+
+Apply security throughout the application:
+- Backend authentication and authorization.
+- Password hashing.
+- Secure session management.
+- Input validation.
+- SQL injection protection using parameterized queries.
+- XSS protection.
+- CSRF protection where applicable.
+- Rate limiting.
+- Secure file uploads.
+- Environment variables.
+- Proper error handling.
+- Access restrictions for private documents.
+- Role-based API protection.
+
+Never trust frontend role information.
+
+Every sensitive operation must be authorized by the backend.
+
+# 23. TESTING AND QUALITY ASSURANCE
+
+Test the actual application.
+
+## Authentication
+- Email/password login works without OTP.
+- Existing authorized accounts can sign in.
+- Disabled accounts are rejected.
+- Strong password rules work.
+- Password changes verify the current password.
+- Google authentication works with real credentials.
+
+## Admissions
+- Applications save successfully.
+- Tracking numbers are generated.
+- Applicants can track status.
+- Director can approve and reject applications.
+
+## Inventory
+- Accountant can manage suppliers and stock.
+- Animator can record Stock Out only during authorized hours.
+- Stock Out is disabled outside authorized periods.
+- Negative stock is prevented.
+- Historical records remain intact.
+
+## Contact Us
+- Messages are saved in MySQL.
+- Authorized administrators can view messages.
+- Notifications are generated.
+- Message statuses work.
+
+## Reports
+- Printing works.
+- PDF export works.
+- Excel export works.
+- Filters produce correct results.
+
+## Languages and Themes
+- English works throughout.
+- Kinyarwanda works throughout.
+- Light theme works.
+- Dark theme works.
+- Language switching does not break forms or navigation.
+
+## Responsive Design
+- Desktop works.
+- Tablet works.
+- Mobile works.
+- No major horizontal overflow.
+- Navigation works on all screen sizes.
+
+Do not claim a test passed unless it was actually executed.
+
+# 24. IMPLEMENTATION PLAN
+
+Build the project in logical stages:
+
+1. Establish project architecture and MySQL database.
+2. Implement authentication and backend authorization.
+3. Implement the public website.
+4. Implement admissions and application tracking.
+5. Implement staff accounts and role permissions.
+6. Implement Director dashboard.
+7. Implement Accountant dashboard.
+8. Implement Animator dashboard.
+9. Implement inventory and supplier management.
+10. Implement Stock Out scheduling.
+11. Implement Contact Us and notifications.
+12. Implement reports and exports.
+13. Implement audit logs.
+14. Implement English/Kinyarwanda translations.
+15. Implement Light/Dark themes.
+16. Optimize responsive design and performance.
+17. Test and fix the entire application.
+
+Do not stop after creating the homepage or dashboards. Complete the actual workflows and connect them to the backend and database.
+
+If the development environment has execution limits, prioritize a working end-to-end foundation and continue module by module. Do not replace unfinished features with fake functionality.
+
+# 25. FINAL DELIVERY
+
+Provide:
+- Complete frontend source code.
+- Complete backend source code.
+- MySQL schema and setup instructions.
+- Environment variable example file.
+- API documentation.
+- Google OAuth setup instructions.
+- Installation and startup instructions.
+- Test results.
+- List of any external credentials still required.
+
+Clearly identify anything that remains unconfigured or untested.
+
+Never fabricate successful integrations or test results.
+
+# FINAL GOAL
+
+Deliver a complete, modern, advanced, secure and responsive School Management System for **INSTITUT BAPTISTE DE BUBERUKA (IBB)**.
+
+The public website must look premium and professional.
+
+The dashboards must follow the visual quality and design direction of the shared StockAnd Dashboard reference, with excellent Light and Dark themes.
+
+The system must support English and Kinyarwanda throughout.
+
+All three staff roles must have correct permissions.
+
+Admissions, stock management, supplier management, contact messages, notifications, reports, exports, authentication and Google Sign-In must be real and functional.
+
+**Prioritize excellent UI/UX, reliable functionality, security, database integrity, responsive design, performance and maintainable code. Build a complete working product from beginning to final delivery—not just a beautiful interface.**
