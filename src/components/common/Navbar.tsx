@@ -56,7 +56,7 @@ export const Navbar: React.FC = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-white/95 dark:bg-[#11151B]/95 backdrop-blur-md border-b border-slate-200 dark:border-[#2B3139] transition-colors shadow-2xs">
+    <header className="sticky top-0 z-50 w-full max-w-full overflow-x-clip bg-white/95 dark:bg-[#11151B]/95 backdrop-blur-md border-b border-slate-200 dark:border-[#2B3139] transition-colors shadow-2xs">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-18 gap-2 sm:gap-4">
           
@@ -80,14 +80,14 @@ export const Navbar: React.FC = () => {
           </Link>
 
           {/* Zone 2: Desktop Navigation Links (Visible on large desktop: xl / >=1280px) */}
-          <nav className="hidden xl:flex items-center gap-3 2xl:gap-6 text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-[#A0AAB8]">
+          <nav className="hidden xl:flex items-center gap-1.5 2xl:gap-5 text-[11px] 2xl:text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-[#A0AAB8]">
             {navLinks.map((link) => {
               const isActive = location.pathname === link.to;
               return (
                 <Link
                   key={link.to}
                   to={link.to}
-                  className={`whitespace-nowrap px-2 py-1.5 relative transition-colors ${
+                  className={`whitespace-nowrap px-1.5 2xl:px-2.5 py-1.5 relative transition-colors ${
                     isActive
                       ? 'text-[#B37800] dark:text-[#FCD535] font-bold'
                       : 'hover:text-slate-900 dark:hover:text-[#F0F3F6]'
@@ -103,7 +103,7 @@ export const Navbar: React.FC = () => {
           </nav>
 
           {/* Zone 3: Interactive Controls & Portal CTA (Desktop: xl / >=1280px) */}
-          <div className="hidden xl:flex items-center gap-2.5 shrink-0">
+          <div className="hidden xl:flex items-center gap-2 2xl:gap-2.5 shrink-0">
             {/* Language Selector with Flags */}
             <LanguageSwitcher />
 
@@ -126,7 +126,7 @@ export const Navbar: React.FC = () => {
             {isAuthenticated ? (
               <Link
                 to={getDashboardRoute()}
-                className="flex items-center gap-2 px-3.5 py-2 text-xs font-bold text-slate-950 bg-[#FCD535] hover:bg-[#E5A910] rounded-xl shadow-xs transition-all whitespace-nowrap shrink-0 active:scale-95"
+                className="flex items-center gap-1.5 2xl:gap-2 px-3 2xl:px-3.5 py-2 text-xs font-bold text-slate-950 bg-[#FCD535] hover:bg-[#E5A910] rounded-xl shadow-xs transition-all whitespace-nowrap shrink-0 active:scale-95"
               >
                 <LayoutDashboard className="w-3.5 h-3.5 stroke-[2.2]" />
                 <span>{t('navDashboard')}</span>
@@ -134,10 +134,11 @@ export const Navbar: React.FC = () => {
             ) : (
               <Link
                 to="/login"
-                className="flex items-center gap-2 px-3.5 py-2 text-xs font-bold text-slate-950 bg-[#FCD535] hover:bg-[#E5A910] rounded-xl shadow-xs transition-all whitespace-nowrap shrink-0 active:scale-95"
+                className="flex items-center gap-1.5 2xl:gap-2 px-3 2xl:px-3.5 py-2 text-xs font-bold text-slate-950 bg-[#FCD535] hover:bg-[#E5A910] rounded-xl shadow-xs transition-all whitespace-nowrap shrink-0 active:scale-95"
               >
                 <LogIn className="w-3.5 h-3.5 stroke-[2.2]" />
-                <span>{t('navStaffLogin')}</span>
+                <span className="hidden 2xl:inline">{t('navStaffLogin')}</span>
+                <span className="inline 2xl:hidden">{t('navLoginShort') || t('navStaffLogin')}</span>
               </Link>
             )}
           </div>

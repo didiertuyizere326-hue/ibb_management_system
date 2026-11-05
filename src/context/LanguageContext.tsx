@@ -4,7 +4,8 @@ import { translations, Language } from '../i18n/translations';
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
-  t: (key: keyof typeof translations.en) => string;
+  t: (key: string) => string;
+  tr: (en: string, rw: string) => string;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -20,13 +21,17 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     localStorage.setItem('ibb_lang', lang);
   };
 
-  const t = (key: keyof typeof translations.en): string => {
-    const currentDict = translations[language] || translations.en;
-    return currentDict[key] || translations.en[key] || (key as string);
+  const t = (key: string): string => {
+    const currentDict = (translations as any)[language] || translations.en;
+    return currentDict[key] || (translations.en as any)[key] || key;
+  };
+
+  const tr = (en: string, rw: string): string => {
+    return language === 'rw' ? rw : en;
   };
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+    <LanguageContext.Provider value={{ language, setLanguage, t, tr }}>
       {children}
     </LanguageContext.Provider>
   );

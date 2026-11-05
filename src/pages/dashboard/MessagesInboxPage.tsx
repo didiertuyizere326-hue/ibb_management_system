@@ -5,7 +5,7 @@ import { ContactMessage } from '../../types';
 import { Inbox, Mail, Phone, Clock, CheckCircle2, MessageSquare, X } from 'lucide-react';
 
 export const MessagesInboxPage: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [messages, setMessages] = useState<ContactMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('all');
@@ -53,12 +53,12 @@ export const MessagesInboxPage: React.FC = () => {
         status: newStatus,
         replyNotes: replyNotes.trim(),
       });
-      setNotice('Message status updated.');
+      setNotice(language === 'rw' ? 'Imiterere y’ubutumwa yahinduwe neza.' : 'Message status updated.');
       setActiveMessage(null);
       fetchMessages();
       setTimeout(() => setNotice(null), 3000);
     } catch (err: any) {
-      alert(err.response?.data?.error || 'Failed to update message.');
+      alert(err.response?.data?.error || (language === 'rw' ? 'Guhindura byanze.' : 'Failed to update message.'));
     }
   };
 
@@ -70,29 +70,33 @@ export const MessagesInboxPage: React.FC = () => {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-[#F0F3F6] tracking-tight">
-              Contact Inquiries & Communications
+              {language === 'rw' ? 'Ubutumwa n’Ibibazo by’Abasura Urubuga' : 'Contact Inquiries & Communications'}
             </h1>
             <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#38BDF8]/15 text-[#38BDF8] border border-[#38BDF8]/30">
-              PUBLIC INBOX
+              {language === 'rw' ? 'UBUTUMWA RUSANGE' : 'PUBLIC INBOX'}
             </span>
           </div>
           <p className="text-xs text-slate-500 dark:text-[#A0AAB8] mt-1">
-            Parent and student inquiries submitted through the IBB public portal with follow-up tracking.
+            {language === 'rw'
+              ? 'Ibibazo n’ubutumwa byoherejwe n’ababyeyi n’abanyeshuri binyuze ku rubuga rwa IBB hamwe no kubisubiza.'
+              : 'Parent and student inquiries submitted through the IBB public portal with follow-up tracking.'}
           </p>
         </div>
 
         <div className="flex items-center gap-1.5 text-xs">
-          <span className="text-slate-500 dark:text-[#707A8A] text-[11px] font-mono font-medium">Status:</span>
+          <span className="text-slate-500 dark:text-[#707A8A] text-[11px] font-mono font-medium">
+            {language === 'rw' ? 'Imiterere:' : 'Status:'}
+          </span>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
             className="px-3 py-1.5 text-xs rounded-lg bg-white dark:bg-[#181D24] border border-slate-200 dark:border-[#2B3139] text-slate-800 dark:text-[#F0F3F6] focus:outline-none focus:border-[#FCD535]"
           >
-            <option value="all">All Messages</option>
-            <option value="New">New Unread</option>
-            <option value="Read">Read</option>
-            <option value="Replied">Replied</option>
-            <option value="Closed">Closed</option>
+            <option value="all">{language === 'rw' ? 'Ubutumwa bwose' : 'All Messages'}</option>
+            <option value="New">{language === 'rw' ? 'Bushya butarasomwa' : 'New Unread'}</option>
+            <option value="Read">{language === 'rw' ? 'Bwarasomwe' : 'Read'}</option>
+            <option value="Replied">{language === 'rw' ? 'Bwasubijwe' : 'Replied'}</option>
+            <option value="Closed">{language === 'rw' ? 'Bwarangijwe' : 'Closed'}</option>
           </select>
         </div>
       </div>
@@ -212,28 +216,28 @@ export const MessagesInboxPage: React.FC = () => {
               <form onSubmit={handleUpdateStatus} className="space-y-3 pt-2">
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 dark:text-[#A0AAB8] mb-1">
-                    Update Message Status
+                    {language === 'rw' ? 'Hindura Imiterere y’Ubutumwa' : 'Update Message Status'}
                   </label>
                   <select
                     value={newStatus}
                     onChange={(e: any) => setNewStatus(e.target.value)}
                     className="w-full px-3 py-2 text-xs rounded-lg bg-slate-50 dark:bg-[#11151B] border border-slate-200 dark:border-[#2B3139] text-slate-900 dark:text-[#F0F3F6] focus:outline-none focus:border-[#FCD535]"
                   >
-                    <option value="Read">Mark as Read</option>
-                    <option value="Replied">Mark as Replied</option>
-                    <option value="Closed">Close Inquiry</option>
+                    <option value="Read">{language === 'rw' ? 'Kugaragaza ko bwasomwe' : 'Mark as Read'}</option>
+                    <option value="Replied">{language === 'rw' ? 'Kugaragaza ko bwasubijwe' : 'Mark as Replied'}</option>
+                    <option value="Closed">{language === 'rw' ? 'Kugena ko bwarangiye' : 'Close Inquiry'}</option>
                   </select>
                 </div>
 
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 dark:text-[#A0AAB8] mb-1">
-                    Internal Reply / Follow-up Notes
+                    {language === 'rw' ? 'Inyandiko y’Igisubizo / Icyakozwe' : 'Internal Reply / Follow-up Notes'}
                   </label>
                   <textarea
                     rows={3}
                     value={replyNotes}
                     onChange={(e) => setReplyNotes(e.target.value)}
-                    placeholder="Document call made to parent, email response sent, or next actions taken..."
+                    placeholder={language === 'rw' ? 'Andika ubutumwa waganiriyeho n’umubyeyi cyangwa icyakozwe...' : 'Document call made to parent, email response sent, or next actions taken...'}
                     className="w-full p-2.5 text-xs rounded-lg bg-slate-50 dark:bg-[#11151B] border border-slate-200 dark:border-[#2B3139] text-slate-900 dark:text-[#F0F3F6] focus:outline-none focus:border-[#FCD535]"
                   />
                 </div>
@@ -244,13 +248,13 @@ export const MessagesInboxPage: React.FC = () => {
                     onClick={() => setActiveMessage(null)}
                     className="px-4 py-2 text-xs font-medium text-slate-600 dark:text-[#A0AAB8] hover:bg-slate-100 dark:hover:bg-[#262D38] rounded-lg transition-colors"
                   >
-                    Close
+                    {language === 'rw' ? 'Funga' : 'Close'}
                   </button>
                   <button
                     type="submit"
                     className="px-5 py-2 text-xs font-bold text-slate-950 bg-[#FCD535] hover:bg-[#E5A910] rounded-lg shadow-sm transition-colors"
                   >
-                    Save Status Update
+                    {language === 'rw' ? 'Bika Impinduka' : 'Save Status Update'}
                   </button>
                 </div>
               </form>

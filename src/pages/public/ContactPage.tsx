@@ -4,7 +4,7 @@ import { api } from '../../services/api';
 import { MapPin, Phone, Mail, Clock, Send, CheckCircle2, AlertCircle } from 'lucide-react';
 
 export const ContactPage: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -39,7 +39,7 @@ export const ContactPage: React.FC = () => {
         message: '',
       });
     } catch (err: any) {
-      setErrorMsg(err.response?.data?.error || 'Failed to transmit message. Please check connection.');
+      setErrorMsg(err.response?.data?.error || (language === 'rw' ? 'Kohereza ubutumwa byanze. Reba murandasi yawe.' : 'Failed to transmit message. Please check connection.'));
     } finally {
       setIsSubmitting(false);
     }
@@ -52,7 +52,7 @@ export const ContactPage: React.FC = () => {
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto">
           <span className="text-xs font-bold uppercase tracking-wider text-[#FCD535] block mb-2">
-            Get in Touch
+            {language === 'rw' ? 'Twandikire / Tubaze' : 'Get in Touch'}
           </span>
           <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
             {t('contactTitle')}
@@ -67,7 +67,7 @@ export const ContactPage: React.FC = () => {
           {/* Coordinates Card (Level 3 Surface) */}
           <div className="lg:col-span-1 bg-white dark:bg-[#181D24] rounded-3xl p-8 border border-slate-200 dark:border-[#2B3139] shadow-sm space-y-6">
             <h3 className="text-base font-bold text-slate-900 dark:text-white">
-              Campus Coordinates
+              {language === 'rw' ? 'Aho Ishuri Riherereye' : 'Campus Coordinates'}
             </h3>
 
             <div className="space-y-4 text-xs text-slate-600 dark:text-[#A0AAB8]">
@@ -76,8 +76,10 @@ export const ContactPage: React.FC = () => {
                   <MapPin className="w-4 h-4" />
                 </div>
                 <div>
-                  <strong className="block text-slate-900 dark:text-[#F0F3F6] mb-0.5">Physical Campus</strong>
-                  <span>Buberuka District, Northern Province, Rwanda</span>
+                  <strong className="block text-slate-900 dark:text-[#F0F3F6] mb-0.5">
+                    {language === 'rw' ? 'Aho Ishuri Riri' : 'Physical Campus'}
+                  </strong>
+                  <span>{language === 'rw' ? "Akarere ka Burera, Intara y'Amajyaruguru, Rwanda" : 'Buberuka District, Northern Province, Rwanda'}</span>
                 </div>
               </div>
 
@@ -86,10 +88,12 @@ export const ContactPage: React.FC = () => {
                   <Phone className="w-4 h-4" />
                 </div>
                 <div>
-                  <strong className="block text-slate-900 dark:text-[#F0F3F6] mb-0.5">Telephone</strong>
-                  <span>+250 788 123 456 (Director Office)</span>
+                  <strong className="block text-slate-900 dark:text-[#F0F3F6] mb-0.5">
+                    {language === 'rw' ? 'Telefone' : 'Telephone'}
+                  </strong>
+                  <span>+250 788 123 456 ({language === 'rw' ? 'Ibiro by’Umuyobozi' : 'Director Office'})</span>
                   <br />
-                  <span>+250 788 234 567 (Accounts & Registrar)</span>
+                  <span>+250 788 234 567 ({language === 'rw' ? 'Ubucungamari n’Ukwandika' : 'Accounts & Registrar'})</span>
                 </div>
               </div>
 
@@ -98,7 +102,9 @@ export const ContactPage: React.FC = () => {
                   <Mail className="w-4 h-4" />
                 </div>
                 <div>
-                  <strong className="block text-slate-900 dark:text-[#F0F3F6] mb-0.5">Official Inquiries</strong>
+                  <strong className="block text-slate-900 dark:text-[#F0F3F6] mb-0.5">
+                    {language === 'rw' ? 'Imeli Yemewe' : 'Official Inquiries'}
+                  </strong>
                   <span>info@ibb.ac.rw · admissions@ibb.ac.rw</span>
                 </div>
               </div>
@@ -108,16 +114,20 @@ export const ContactPage: React.FC = () => {
                   <Clock className="w-4 h-4" />
                 </div>
                 <div>
-                  <strong className="block text-slate-900 dark:text-[#F0F3F6] mb-0.5">Administration Office Hours</strong>
-                  <span>Monday – Friday: 08:00 – 17:00 CAT</span>
+                  <strong className="block text-slate-900 dark:text-[#F0F3F6] mb-0.5">
+                    {language === 'rw' ? 'Amasaha y’Akazi' : 'Administration Office Hours'}
+                  </strong>
+                  <span>{language === 'rw' ? 'Kuwa Mbere – Kuwa Gatanu: 08:00 – 17:00 CAT' : 'Monday – Friday: 08:00 – 17:00 CAT'}</span>
                   <br />
-                  <span>Saturday: 09:00 – 12:30 CAT</span>
+                  <span>{language === 'rw' ? 'Kuwa Gatandatu: 09:00 – 12:30 CAT' : 'Saturday: 09:00 – 12:30 CAT'}</span>
                 </div>
               </div>
             </div>
 
             <div className="p-4 rounded-xl bg-slate-50 dark:bg-[#202630] border border-slate-200 dark:border-[#2B3139] text-xs text-slate-700 dark:text-[#A0AAB8]">
-              Parent visits and student admission interviews are conducted weekdays from 09:00 to 16:00.
+              {language === 'rw'
+                ? 'Gusura ishuri ku babyeyi no kugenzura abanyeshuri bikorwa mu minsi y’akazi kuva 09:00 kugeza 16:00.'
+                : 'Parent visits and student admission interviews are conducted weekdays from 09:00 to 16:00.'}
             </div>
           </div>
 

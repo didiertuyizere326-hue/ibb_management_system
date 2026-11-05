@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 
 export const ReportsPage: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const [datasetKey, setDatasetKey] = useState<string>('approved_students');
   const [reportData, setReportData] = useState<any[]>([]);
@@ -125,14 +125,16 @@ export const ReportsPage: React.FC = () => {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-[#F0F3F6] tracking-tight">
-              Institutional Reports & Audits
+              {language === 'rw' ? 'Raporo n’Igenzura ry’Ishuri' : 'Institutional Reports & Audits'}
             </h1>
             <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#FCD535]/15 text-[#B37800] dark:text-[#FCD535] border border-[#FCD535]/30">
               CSV / PDF READY
             </span>
           </div>
           <p className="text-xs text-slate-500 dark:text-[#A0AAB8] mt-1">
-            Exportable database datasets, compliance registers, stock procurement ledger, and print-ready schedules.
+            {language === 'rw'
+              ? 'Amakuru yandikwa mu bubiko, ibitabo by’amategeko, igitabo cy’ibicuruzwa n’ingengabihe yo gucapa.'
+              : 'Exportable database datasets, compliance registers, stock procurement ledger, and print-ready schedules.'}
           </p>
         </div>
 
@@ -147,12 +149,12 @@ export const ReportsPage: React.FC = () => {
       {/* DATASET SELECTOR SEGMENTED CONTROL (Binance Level 3 Surface) */}
       <div className="bg-white dark:bg-[#181D24] rounded-xl p-1.5 border border-slate-200 dark:border-[#2B3139] shadow-xs flex flex-wrap gap-1.5 no-print">
         {[
-          { key: 'approved_students', label: 'Approved Students Register' },
-          { key: 'admissions_all', label: 'All Admissions Ledger' },
-          { key: 'stock_in', label: 'Stock In Deliveries' },
-          { key: 'stock_out', label: 'Daily Stock Out Issues' },
-          { key: 'inventory_valuation', label: 'Food Reserves & Valuation' },
-          { key: 'suppliers', label: 'Suppliers Directory' },
+          { key: 'approved_students', label: language === 'rw' ? 'Abemerewe Kwiga' : 'Approved Students Register' },
+          { key: 'admissions_all', label: language === 'rw' ? 'Abasabye Bose' : 'All Admissions Ledger' },
+          { key: 'stock_in', label: language === 'rw' ? 'Ibyinjijwe mu Bubiko' : 'Stock In Deliveries' },
+          { key: 'stock_out', label: language === 'rw' ? 'Ibisohoka buri Munsi' : 'Daily Stock Out Issues' },
+          { key: 'inventory_valuation', label: language === 'rw' ? 'Agaciro k’Ububiko' : 'Food Reserves & Valuation' },
+          { key: 'suppliers', label: language === 'rw' ? 'Abagemuzi b’Ibiribwa' : 'Suppliers Directory' },
         ].map((tab) => (
           <button
             key={tab.key}

@@ -100,7 +100,7 @@ export const StockRemainingOverview: React.FC<StockRemainingOverviewProps> = ({
       return (
         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-rose-500/15 text-[#991B1B] dark:text-[#F6465D] border border-rose-500/30">
           <XCircle className="w-3 h-3" />
-          <span>Out of Stock</span>
+          <span>{language === 'rw' ? 'Byashize' : 'Out of Stock'}</span>
         </span>
       );
     }
@@ -108,14 +108,14 @@ export const StockRemainingOverview: React.FC<StockRemainingOverviewProps> = ({
       return (
         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-amber-500/15 text-[#92400E] dark:text-[#F0B90B] border border-amber-500/30">
           <AlertTriangle className="w-3 h-3" />
-          <span>Low Reserve</span>
+          <span>{language === 'rw' ? 'Biri Hasi' : 'Low Reserve'}</span>
         </span>
       );
     }
     return (
       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-emerald-500/15 text-[#065F46] dark:text-[#0ECB81] border border-emerald-500/30">
         <CheckCircle2 className="w-3 h-3" />
-        <span>Sufficient</span>
+        <span>{language === 'rw' ? 'Bihagije' : 'Sufficient'}</span>
       </span>
     );
   };
@@ -133,12 +133,12 @@ export const StockRemainingOverview: React.FC<StockRemainingOverviewProps> = ({
               {title || (language === 'rw' ? 'Ijanisha ry’Ibiribwa Bisigaye mu Bubiko' : 'Inventory Food Reserves & Remaining Capacity')}
             </h3>
             <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-blue-500/10 text-[#1D4ED8] dark:text-[#38BDF8] border border-blue-500/20">
-              {totalItems} STAPLES
+              {totalItems} {language === 'rw' ? 'IBIRIBWA' : 'STAPLES'}
             </span>
           </div>
           <p className="text-xs text-slate-500 dark:text-[#707A8A]">
             {subtitle || (language === 'rw'
-              ? 'Igereranya ry’ibiribwa bihari n’ingano y’ibanze (Available vs. Reference Capacity) kuri buri funguro.'
+              ? 'Igereranya ry’ibiribwa bihari n’ingano y’ibanze (Available vs. Baseline Capacity) kuri buri funguro.'
               : 'Real-time available quantities vs. defined baseline storage capacity with calculated remaining percentage.')}
           </p>
         </div>
@@ -156,7 +156,7 @@ export const StockRemainingOverview: React.FC<StockRemainingOverviewProps> = ({
                   : 'text-slate-600 dark:text-[#A0AAB8] hover:text-slate-900'
               }`}
             >
-              All ({totalItems})
+              {language === 'rw' ? 'Byose' : 'All'} ({totalItems})
             </button>
             <button
               type="button"
@@ -167,7 +167,7 @@ export const StockRemainingOverview: React.FC<StockRemainingOverviewProps> = ({
                   : 'text-slate-600 dark:text-[#A0AAB8] hover:text-slate-900'
               }`}
             >
-              Sufficient ({healthyCount})
+              {language === 'rw' ? 'Bihagije' : 'Sufficient'} ({healthyCount})
             </button>
             <button
               type="button"
@@ -178,7 +178,7 @@ export const StockRemainingOverview: React.FC<StockRemainingOverviewProps> = ({
                   : 'text-slate-600 dark:text-[#A0AAB8] hover:text-slate-900'
               }`}
             >
-              Low Alert ({lowOrOutCount})
+              {language === 'rw' ? 'Biri Hasi' : 'Low Alert'} ({lowOrOutCount})
             </button>
           </div>
 
@@ -262,13 +262,13 @@ export const StockRemainingOverview: React.FC<StockRemainingOverviewProps> = ({
             <table className="w-full text-left text-xs min-w-[700px]">
               <thead className="bg-slate-50 dark:bg-[#11151B] text-slate-500 dark:text-[#707A8A] uppercase font-mono tracking-wider text-[10px] border-b border-slate-200 dark:border-[#252B33]">
                 <tr>
-                  <th className="py-3 px-4 font-bold">1. Food Item Name</th>
-                  <th className="py-3 px-4 font-bold">Category</th>
-                  <th className="py-3 px-4 font-bold text-right">2. Available Quantity</th>
-                  <th className="py-3 px-4 font-bold text-right">4. Reference Quantity</th>
-                  <th className="py-3 px-4 font-bold text-center">5. Remaining %</th>
-                  <th className="py-3 px-4 font-bold text-center min-w-[160px]">6. Progress Bar</th>
-                  <th className="py-3 px-4 font-bold text-center">7. Stock Status</th>
+                  <th className="py-3 px-4 font-bold">{language === 'rw' ? 'Ikiribwa' : 'Food Item Name'}</th>
+                  <th className="py-3 px-4 font-bold">{language === 'rw' ? 'Icyiciro' : 'Category'}</th>
+                  <th className="py-3 px-4 font-bold text-right">{language === 'rw' ? 'Ibihari Ubu' : 'Available Stock'}</th>
+                  <th className="py-3 px-4 font-bold text-right">{language === 'rw' ? 'Ingano y’Ibanze' : 'Baseline Capacity'}</th>
+                  <th className="py-3 px-4 font-bold text-center">{language === 'rw' ? 'Ijanisha Risigaye' : 'Remaining %'}</th>
+                  <th className="py-3 px-4 font-bold text-center min-w-[160px]">{language === 'rw' ? 'Urugero rw’Ibisigaye' : 'Progress Bar'}</th>
+                  <th className="py-3 px-4 font-bold text-center">{language === 'rw' ? 'Imiterere' : 'Stock Status'}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-[#252B33] bg-white dark:bg-[#181D24]">
@@ -410,18 +410,18 @@ export const StockRemainingOverview: React.FC<StockRemainingOverviewProps> = ({
                           {item.unit}
                         </span>
                         <span className="text-xs text-slate-400 dark:text-[#707A8A]">
-                          available
+                          {language === 'rw' ? 'bihari' : 'available'}
                         </span>
                       </div>
 
                       <div className="text-[11px] font-mono text-slate-500 dark:text-[#707A8A] flex items-center gap-1.5">
-                        <span>Baseline Capacity:</span>
+                        <span>{language === 'rw' ? 'Ingano y’Ibanze:' : 'Baseline Capacity:'}</span>
                         <strong className="text-slate-800 dark:text-[#A0AAB8]">
                           {safeRef.toLocaleString()} {item.unit}
                         </strong>
                         {item.min_stock_alert > 0 && (
                           <span className="text-slate-400 dark:text-[#707A8A] text-[10px]">
-                            (Alert &le; {item.min_stock_alert})
+                            ({language === 'rw' ? 'Iburira' : 'Alert'} &le; {item.min_stock_alert})
                           </span>
                         )}
                       </div>
@@ -439,7 +439,7 @@ export const StockRemainingOverview: React.FC<StockRemainingOverviewProps> = ({
                         {calculatedPercentage}%
                       </div>
                       <span className="block text-[9px] uppercase font-mono font-bold tracking-wider text-slate-400 dark:text-[#707A8A] mt-0.5">
-                        Remaining Capacity
+                        {language === 'rw' ? 'Ijanisha Risigaye' : 'Remaining Capacity'}
                       </span>
                     </div>
                   </div>
@@ -456,7 +456,7 @@ export const StockRemainingOverview: React.FC<StockRemainingOverviewProps> = ({
                     <div className="flex items-center justify-between text-[9px] font-mono text-slate-400 dark:text-[#707A8A]">
                       <span>0%</span>
                       <span className="font-semibold text-slate-600 dark:text-[#A0AAB8]">
-                        {isOut ? 'Depleted (0%)' : `${calculatedPercentage}% in store`}
+                        {isOut ? (language === 'rw' ? 'Byashize (0%)' : 'Depleted (0%)') : `${calculatedPercentage}% ${language === 'rw' ? 'mu bubiko' : 'in store'}`}
                       </span>
                       <span>100% {calculatedPercentage > 100 ? `(Over: ${calculatedPercentage}%)` : ''}</span>
                     </div>

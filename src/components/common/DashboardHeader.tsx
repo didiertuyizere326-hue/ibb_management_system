@@ -247,11 +247,11 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
                 <div className="px-4 py-2.5 border-b border-[#E8EDF4] dark:border-[#252B33] flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-bold text-[#172033] dark:text-[#F0F3F6] uppercase tracking-wider">
-                      Institutional Alerts
+                      {t('institutionalAlerts')}
                     </span>
                     {unreadCount > 0 && (
                       <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-rose-500/10 text-[#DC2626] dark:text-[#F6465D]">
-                        {unreadCount} new
+                        {unreadCount} {t('newAlerts')}
                       </span>
                     )}
                   </div>
@@ -260,7 +260,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
                       onClick={markAllAsRead}
                       className="text-[11px] text-[#1769FF] dark:text-[#FCD535] hover:underline font-medium transition-colors cursor-pointer"
                     >
-                      Mark all read
+                      {t('markAllAsRead')}
                     </button>
                   )}
                 </div>
@@ -268,7 +268,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
                 <div className="max-h-80 overflow-y-auto divide-y divide-[#E8EDF4] dark:divide-[#252B33]">
                   {notifications.length === 0 ? (
                     <div className="p-6 text-center text-xs text-slate-400 dark:text-[#707A8A]">
-                      No active notifications
+                      {t('noNotifications')}
                     </div>
                   ) : (
                     notifications.map((n) => (
@@ -297,7 +297,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
                             onClick={() => setShowNotifMenu(false)}
                             className="inline-flex items-center gap-1 text-[11px] text-[#1769FF] dark:text-[#FCD535] font-semibold mt-2 hover:underline"
                           >
-                            <span>Open Module</span>
+                            <span>{t('openModule')}</span>
                             <ExternalLink className="w-3 h-3" />
                           </Link>
                         )}

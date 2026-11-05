@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 
 export const DirectorAdmissions: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const [activeTab, setActiveTab] = useState<'applications' | 'paymentNotice'>('applications');
   const [applications, setApplications] = useState<Application[]>([]);
@@ -68,14 +68,14 @@ export const DirectorAdmissions: React.FC = () => {
       await api.put(`/admissions/${id}/decision`, {
         decision: 'Approved',
       });
-      setActionNotice('Application approved successfully. Student enrolled in official academic register.');
+      setActionNotice(language === 'rw' ? 'Dosiyeti yemejwe neza. Umunyeshuri yanditswe mu gitabo cy’abanyeshuri bemerewe.' : 'Application approved successfully. Student enrolled in official academic register.');
       fetchApplications();
       if (selectedApp?.id === id) {
         setSelectedApp(null);
       }
       setTimeout(() => setActionNotice(null), 3000);
     } catch (err: any) {
-      setErrorNotice(err.response?.data?.error || 'Failed to approve application.');
+      setErrorNotice(err.response?.data?.error || (language === 'rw' ? 'Kwemezwa byanze.' : 'Failed to approve application.'));
       setTimeout(() => setErrorNotice(null), 4000);
     }
   };
@@ -83,7 +83,7 @@ export const DirectorAdmissions: React.FC = () => {
   const handleRejectSubmit = async () => {
     if (!rejectingAppId) return;
     if (!rejectionReason.trim()) {
-      setErrorNotice('A clear institutional reason is mandatory when rejecting an application.');
+      setErrorNotice(language === 'rw' ? 'Gusobanura impamvu ni itegeko mu kwanga dosiyeti.' : 'A clear institutional reason is mandatory when rejecting an application.');
       return;
     }
 
@@ -92,7 +92,7 @@ export const DirectorAdmissions: React.FC = () => {
         decision: 'Rejected',
         reason: rejectionReason.trim(),
       });
-      setActionNotice('Application rejected with official record justification.');
+      setActionNotice(language === 'rw' ? 'Dosiyeti yanzwe kandi impamvu yanditswe mu gitabo cy’ubuyobozi.' : 'Application rejected with official record justification.');
       setRejectingAppId(null);
       setRejectionReason('');
       fetchApplications();
@@ -101,22 +101,22 @@ export const DirectorAdmissions: React.FC = () => {
       }
       setTimeout(() => setActionNotice(null), 3000);
     } catch (err: any) {
-      setErrorNotice(err.response?.data?.error || 'Failed to record rejection.');
+      setErrorNotice(err.response?.data?.error || (language === 'rw' ? 'Guhakana dosiyeti byanze.' : 'Failed to record rejection.'));
       setTimeout(() => setErrorNotice(null), 4000);
     }
   };
 
   // Export columns config
   const exportColumns = [
-    { header: 'Tracking Number', key: 'tracking_number' },
-    { header: 'Student Full Name', key: 'student_name' },
-    { header: 'Gender', key: 'gender' },
-    { header: 'Phone', key: 'phone' },
-    { header: 'Level', key: 'academic_level' },
-    { header: 'Department', key: 'department' },
-    { header: 'S3 Marks (%)', key: 's3_marks' },
-    { header: 'Status', key: 'status' },
-    { header: 'Decision Reason', key: 'decision_reason' },
+    { header: language === 'rw' ? 'Kode y’Ubusabe' : 'Tracking Number', key: 'tracking_number' },
+    { header: language === 'rw' ? 'Amazina y’Umunyeshuri' : 'Student Full Name', key: 'student_name' },
+    { header: language === 'rw' ? 'Igitsina' : 'Gender', key: 'gender' },
+    { header: language === 'rw' ? 'Telefone' : 'Phone', key: 'phone' },
+    { header: language === 'rw' ? 'Urwego' : 'Level', key: 'academic_level' },
+    { header: language === 'rw' ? 'Ishami' : 'Department', key: 'department' },
+    { header: language === 'rw' ? 'Amanota S3 (%)' : 'S3 Marks (%)', key: 's3_marks' },
+    { header: language === 'rw' ? 'Imiterere' : 'Status', key: 'status' },
+    { header: language === 'rw' ? 'Impamvu y’Icyemezo' : 'Decision Reason', key: 'decision_reason' },
   ];
 
   return (
@@ -127,20 +127,20 @@ export const DirectorAdmissions: React.FC = () => {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-[#F0F3F6] tracking-tight">
-              Student Admissions Evaluation
+              {t('admissionsEvalTitle')}
             </h1>
             <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#FCD535]/15 text-[#B37800] dark:text-[#FCD535] border border-[#FCD535]/30">
-              DIRECTOR AUTHORIZED
+              {language === 'rw' ? 'UBURYO BW’UMUYOBOZI' : 'DIRECTOR AUTHORIZED'}
             </span>
           </div>
           <p className="text-xs text-slate-500 dark:text-[#A0AAB8] mt-1">
-            Review incoming dossiers, inspect verified national S3 marks, and sign off official admissions.
+            {t('admissionsEvalDesc')}
           </p>
         </div>
 
         {/* Export and Print Controls */}
         <ExportControls
-          title="Student Admissions Ledger"
+          title={language === 'rw' ? 'Igitabo cy’Abasabye Kwiga IBB' : 'Student Admissions Ledger'}
           data={applications}
           columns={exportColumns}
           fileNamePrefix="IBB_Admissions"
@@ -173,7 +173,7 @@ export const DirectorAdmissions: React.FC = () => {
           }`}
         >
           <FileText className="w-4 h-4" />
-          <span>Applications Ledger ({applications.length})</span>
+          <span>{t('applicationsLedgerTab')} ({applications.length})</span>
         </button>
 
         <button
@@ -186,7 +186,7 @@ export const DirectorAdmissions: React.FC = () => {
           }`}
         >
           <CreditCard className="w-4 h-4" />
-          <span>Official Parent Payment Notice & Bank Slip</span>
+          <span>{t('paymentNoticeTab')}</span>
         </button>
       </div>
 
@@ -204,36 +204,36 @@ export const DirectorAdmissions: React.FC = () => {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search candidate name, phone, or tracking ref..."
+            placeholder={t('searchApplicant')}
             className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg bg-slate-50 dark:bg-[#11151B] border border-slate-200 dark:border-[#2B3139] text-slate-900 dark:text-[#F0F3F6] placeholder-slate-400 dark:placeholder-[#707A8A] focus:outline-none focus:border-[#FCD535]"
           />
         </form>
 
         {/* Status Filter */}
         <div className="flex items-center gap-1.5 text-xs">
-          <span className="text-slate-500 dark:text-[#707A8A] text-[11px] font-mono font-medium">Status:</span>
+          <span className="text-slate-500 dark:text-[#707A8A] text-[11px] font-mono font-medium">{t('filterStatus')}:</span>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
             className="px-2.5 py-1.5 text-xs rounded-lg bg-slate-50 dark:bg-[#11151B] border border-slate-200 dark:border-[#2B3139] text-slate-800 dark:text-[#F0F3F6] focus:outline-none focus:border-[#FCD535]"
           >
-            <option value="all">All Statuses</option>
-            <option value="Pending">Pending</option>
-            <option value="Under Review">Under Review</option>
-            <option value="Approved">Approved</option>
-            <option value="Rejected">Rejected</option>
+            <option value="all">{t('allStatuses')}</option>
+            <option value="Pending">{language === 'rw' ? 'Bitegerejwe' : 'Pending'}</option>
+            <option value="Under Review">{language === 'rw' ? 'Gusuzumwa' : 'Under Review'}</option>
+            <option value="Approved">{language === 'rw' ? 'Byemejwe' : 'Approved'}</option>
+            <option value="Rejected">{language === 'rw' ? 'Byanzwe' : 'Rejected'}</option>
           </select>
         </div>
 
         {/* Level Filter */}
         <div className="flex items-center gap-1.5 text-xs">
-          <span className="text-slate-500 dark:text-[#707A8A] text-[11px] font-mono font-medium">Level:</span>
+          <span className="text-slate-500 dark:text-[#707A8A] text-[11px] font-mono font-medium">{t('filterLevel')}:</span>
           <select
             value={levelFilter}
             onChange={(e) => setLevelFilter(e.target.value)}
             className="px-2.5 py-1.5 text-xs rounded-lg bg-slate-50 dark:bg-[#11151B] border border-slate-200 dark:border-[#2B3139] text-slate-800 dark:text-[#F0F3F6] focus:outline-none focus:border-[#FCD535]"
           >
-            <option value="all">All Levels</option>
+            <option value="all">{t('allLevels')}</option>
             <option value="L3">L3</option>
             <option value="L4">L4</option>
             <option value="L5">L5</option>
@@ -242,15 +242,15 @@ export const DirectorAdmissions: React.FC = () => {
 
         {/* Dept Filter */}
         <div className="flex items-center gap-1.5 text-xs">
-          <span className="text-slate-500 dark:text-[#707A8A] text-[11px] font-mono font-medium">Dept:</span>
+          <span className="text-slate-500 dark:text-[#707A8A] text-[11px] font-mono font-medium">{t('filterDept')}:</span>
           <select
             value={deptFilter}
             onChange={(e) => setDeptFilter(e.target.value)}
             className="px-2.5 py-1.5 text-xs rounded-lg bg-slate-50 dark:bg-[#11151B] border border-slate-200 dark:border-[#2B3139] text-slate-800 dark:text-[#F0F3F6] focus:outline-none focus:border-[#FCD535]"
           >
-            <option value="all">All Departments</option>
-            <option value="Software Development">Software Development</option>
-            <option value="Automobile Technology">Automobile Technology</option>
+            <option value="all">{t('allDepartments')}</option>
+            <option value="Software Development">{language === 'rw' ? 'Ikoranabuhanga (Software)' : 'Software Development'}</option>
+            <option value="Automobile Technology">{language === 'rw' ? 'Ubukanishi bw’Ibinyabiziga' : 'Automobile Technology'}</option>
           </select>
         </div>
 
@@ -261,7 +261,7 @@ export const DirectorAdmissions: React.FC = () => {
         
         {loading ? (
           <div className="p-12 text-center text-xs text-slate-500 dark:text-[#A0AAB8] font-mono">
-            Filtering admission registers...
+            {language === 'rw' ? 'Gushakisha dosiyeti z’abasaba kwiga...' : 'Filtering admission registers...'}
           </div>
         ) : applications.length === 0 ? (
           <div className="p-12 text-center text-slate-500 dark:text-[#707A8A] space-y-2">
@@ -273,13 +273,13 @@ export const DirectorAdmissions: React.FC = () => {
             <table className="w-full text-left text-xs min-w-[700px]">
               <thead className="bg-slate-50 dark:bg-[#11151B] text-slate-500 dark:text-[#707A8A] uppercase font-mono tracking-wider text-[10px] border-b border-slate-200 dark:border-[#252B33]">
                 <tr>
-                  <th className="py-3 px-4 font-bold">Tracking #</th>
-                  <th className="py-3 px-4 font-bold">Candidate Name</th>
-                  <th className="py-3 px-4 font-bold">Level & Trade</th>
-                  <th className="py-3 px-4 font-bold text-right">S3 Marks</th>
-                  <th className="py-3 px-4 font-bold text-center">Boarding</th>
-                  <th className="py-3 px-4 font-bold text-center">Status</th>
-                  <th className="py-3 px-4 font-bold text-right">Decision Actions</th>
+                  <th className="py-3 px-4 font-bold">{t('tblTracking')}</th>
+                  <th className="py-3 px-4 font-bold">{t('tblCandidateName')}</th>
+                  <th className="py-3 px-4 font-bold">{t('tblLevelTrade')}</th>
+                  <th className="py-3 px-4 font-bold text-right">{t('tblS3Marks')}</th>
+                  <th className="py-3 px-4 font-bold text-center">{t('tblBoarding')}</th>
+                  <th className="py-3 px-4 font-bold text-center">{t('tblStatus')}</th>
+                  <th className="py-3 px-4 font-bold text-right">{t('tblDecisionActions')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-[#252B33]">
@@ -295,7 +295,7 @@ export const DirectorAdmissions: React.FC = () => {
                       </span>
                     </td>
                     <td className="py-3 px-4 text-slate-600 dark:text-[#A0AAB8]">
-                      <span className="font-bold text-slate-900 dark:text-[#F0F3F6] font-mono">{app.academic_level}</span> · {app.department}
+                      <span className="font-bold text-slate-900 dark:text-[#F0F3F6] font-mono">{app.academic_level}</span> · {app.department === 'Software Development' ? (language === 'rw' ? 'Software' : 'Software Dev') : (language === 'rw' ? 'Auto Tech' : 'Auto Tech')}
                     </td>
                     <td className="py-3 px-4 text-right font-mono font-bold tabular-nums">
                       <span className={app.s3_marks >= 80 ? 'text-[#0ECB81]' : 'text-slate-700 dark:text-[#F0F3F6]'}>
@@ -305,10 +305,12 @@ export const DirectorAdmissions: React.FC = () => {
                     <td className="py-3 px-4 text-center">
                       {app.qualifies_boarding === 1 ? (
                         <span className="inline-block px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-[#0ECB81]/15 text-[#0ECB81] border border-[#0ECB81]/30">
-                          Eligible
+                          {language === 'rw' ? 'Acumbika' : 'Eligible'}
                         </span>
                       ) : (
-                        <span className="text-[10px] text-slate-400 dark:text-[#707A8A] font-mono">Day Scholar</span>
+                        <span className="text-[10px] text-slate-400 dark:text-[#707A8A] font-mono">
+                          {language === 'rw' ? 'Umutaha' : 'Day Scholar'}
+                        </span>
                       )}
                     </td>
                     <td className="py-3 px-4 text-center">
@@ -321,7 +323,11 @@ export const DirectorAdmissions: React.FC = () => {
                           ? 'bg-[#38BDF8]/15 text-[#38BDF8] border border-[#38BDF8]/30'
                           : 'bg-[#F6465D]/15 text-[#F6465D] border border-[#F6465D]/30'
                       }`}>
-                        {app.status}
+                        {app.status === 'Approved' && language === 'rw' ? 'Yemejwe'
+                          : app.status === 'Pending' && language === 'rw' ? 'Bitegerejwe'
+                          : app.status === 'Under Review' && language === 'rw' ? 'Gusuzumwa'
+                          : app.status === 'Rejected' && language === 'rw' ? 'Yanzwe'
+                          : app.status}
                       </span>
                     </td>
                     <td className="py-3 px-4 text-right">
@@ -329,19 +335,19 @@ export const DirectorAdmissions: React.FC = () => {
                         <button
                           onClick={() => setSelectedApp(app)}
                           className="px-2.5 py-1 text-[11px] font-semibold text-slate-700 dark:text-[#A0AAB8] hover:text-slate-900 dark:hover:text-[#F0F3F6] hover:bg-slate-100 dark:hover:bg-[#262D38] rounded-md border border-slate-200 dark:border-[#2B3139] inline-flex items-center gap-1 transition-colors"
-                          title="Inspect application dossier and documents"
+                          title={language === 'rw' ? 'Suzuma dosiyeti yose n’inyandiko zashyizweho' : 'Inspect application dossier and documents'}
                         >
                           <Eye className="w-3.5 h-3.5" />
-                          <span>Review</span>
+                          <span>{t('btnInspect')}</span>
                         </button>
 
                         {app.status !== 'Approved' && (
                           <button
                             onClick={() => handleApprove(app.id)}
                             className="px-2.5 py-1 text-[11px] font-bold text-slate-950 bg-[#0ECB81] hover:bg-[#0bb372] rounded-md shadow-xs transition-colors"
-                            title="Approve admission directly"
+                            title={language === 'rw' ? 'Emeza kwandikwa ako kanya' : 'Approve admission directly'}
                           >
-                            Approve
+                            {t('btnApprove')}
                           </button>
                         )}
 
@@ -352,9 +358,9 @@ export const DirectorAdmissions: React.FC = () => {
                               setRejectionReason('');
                             }}
                             className="px-2.5 py-1 text-[11px] font-semibold text-[#F6465D] hover:bg-[#F6465D]/15 rounded-md border border-[#F6465D]/30 transition-colors"
-                            title="Reject application"
+                            title={language === 'rw' ? 'Hakana dosiyeti' : 'Reject application'}
                           >
-                            Reject
+                            {t('btnReject')}
                           </button>
                         )}
                       </div>
@@ -388,16 +394,18 @@ export const DirectorAdmissions: React.FC = () => {
           <div className="bg-white dark:bg-[#202630] rounded-xl p-6 max-w-md w-full border border-slate-200 dark:border-[#2B3139] shadow-2xl space-y-4">
             <h3 className="text-base font-bold text-slate-900 dark:text-[#F0F3F6] flex items-center gap-2">
               <XCircle className="w-5 h-5 text-[#F6465D]" />
-              Official Rejection Justification
+              {language === 'rw' ? 'Impamvu Yemewe yo Kwanga Dosiyeti' : 'Official Rejection Justification'}
             </h3>
             <p className="text-xs text-slate-600 dark:text-[#A0AAB8] leading-relaxed">
-              Institutional policy requires documenting a valid administrative rationale (e.g. S3 score below cutoff, department quota exceeded, document discrepancy).
+              {language === 'rw'
+                ? 'Amabwiriza y’ishuri asaba gutanga ibisobanuro byemewe (urugero: amanota ya S3 ari munsi y’ibipimo, umubare w’abanyeshuri wuzuye, cyangwa inyandiko zidahuye).'
+                : 'Institutional policy requires documenting a valid administrative rationale (e.g. S3 score below cutoff, department quota exceeded, document discrepancy).'}
             </p>
             <textarea
               rows={3}
               value={rejectionReason}
               onChange={(e) => setRejectionReason(e.target.value)}
-              placeholder="e.g. S3 national exam score below departmental threshold for Academic Year 2026-2027."
+              placeholder={language === 'rw' ? 'Urugero: Amanota y’ikizamini cya Leta S3 ari munsi y’ibikenewe mu mwaka w’amashuri 2026-2027.' : 'e.g. S3 national exam score below departmental threshold for Academic Year 2026-2027.'}
               required
               className="w-full p-3 text-xs rounded-lg bg-slate-50 dark:bg-[#11151B] border border-slate-200 dark:border-[#2B3139] text-slate-900 dark:text-[#F0F3F6] focus:outline-none focus:border-[#F6465D]"
             />
@@ -407,14 +415,14 @@ export const DirectorAdmissions: React.FC = () => {
                 onClick={() => setRejectingAppId(null)}
                 className="px-4 py-2 text-xs font-medium text-slate-600 dark:text-[#A0AAB8] hover:bg-slate-100 dark:hover:bg-[#262D38] rounded-lg transition-colors"
               >
-                Cancel
+                {language === 'rw' ? 'Hagarika' : 'Cancel'}
               </button>
               <button
                 type="button"
                 onClick={handleRejectSubmit}
                 className="px-4 py-2 text-xs font-bold text-white bg-[#F6465D] hover:bg-[#d93b50] rounded-lg shadow-sm transition-colors"
               >
-                Confirm Rejection
+                {language === 'rw' ? 'Emeza Kwanga' : 'Confirm Rejection'}
               </button>
             </div>
           </div>

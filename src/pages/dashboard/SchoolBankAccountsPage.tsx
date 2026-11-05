@@ -24,7 +24,7 @@ import {
 } from 'lucide-react';
 
 export const SchoolBankAccountsPage: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { user } = useAuth();
   const isAuthorized = user?.role === 'ACCOUNTANT' || user?.role === 'DIRECTOR';
   const isAccountant = user?.role === 'ACCOUNTANT';
@@ -203,14 +203,14 @@ export const SchoolBankAccountsPage: React.FC = () => {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-[#F0F3F6] tracking-tight">
-              School Bank Accounts & Payment Channels
+              {t('schoolBankAccountsTitle')}
             </h1>
             <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#FCD535]/15 text-[#B37800] dark:text-[#FCD535] border border-[#FCD535]/30">
-              ACCOUNTANT MANAGED
+              {language === 'rw' ? 'IBIRO BY’UMUBITSI' : 'ACCOUNTANT MANAGED'}
             </span>
           </div>
           <p className="text-xs text-slate-500 dark:text-[#A0AAB8] mt-1">
-            Configure institutional bank accounts and mobile merchant codes displayed on the public parent payment notice page.
+            {t('schoolBankAccountsSubtitle')}
           </p>
         </div>
 
@@ -219,7 +219,7 @@ export const SchoolBankAccountsPage: React.FC = () => {
             type="button"
             onClick={fetchAccounts}
             className="p-2.5 rounded-xl border border-slate-200 dark:border-[#2B3139] text-slate-600 dark:text-[#A0AAB8] hover:bg-slate-100 dark:hover:bg-[#202630] transition-colors cursor-pointer"
-            title="Refresh bank accounts"
+            title={language === 'rw' ? 'Vugurura amakonti' : 'Refresh bank accounts'}
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           </button>
@@ -230,7 +230,7 @@ export const SchoolBankAccountsPage: React.FC = () => {
             className="inline-flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-slate-950 bg-[#FCD535] hover:bg-[#E5A910] rounded-xl shadow-xs transition-all cursor-pointer active:scale-95"
           >
             <Plus className="w-4 h-4 stroke-[2.5]" />
-            <span>Add Bank Account</span>
+            <span>{t('addBankAccountBtn')}</span>
           </button>
         </div>
       </div>
@@ -257,7 +257,7 @@ export const SchoolBankAccountsPage: React.FC = () => {
             <Building className="w-5 h-5" />
           </div>
           <div>
-            <div className="text-[10px] uppercase font-mono text-slate-400">Total Accounts</div>
+            <div className="text-[10px] uppercase font-mono text-slate-400">{t('totalBankAccounts')}</div>
             <div className="text-xl font-black text-slate-900 dark:text-white tabular-nums">{accounts.length}</div>
           </div>
         </div>
@@ -267,7 +267,7 @@ export const SchoolBankAccountsPage: React.FC = () => {
             <CheckCircle2 className="w-5 h-5" />
           </div>
           <div>
-            <div className="text-[10px] uppercase font-mono text-slate-400">Active on Public Portal</div>
+            <div className="text-[10px] uppercase font-mono text-slate-400">{t('activeOnPortal')}</div>
             <div className="text-xl font-black text-emerald-600 dark:text-[#0ECB81] tabular-nums">{activeCount}</div>
           </div>
         </div>
@@ -277,7 +277,7 @@ export const SchoolBankAccountsPage: React.FC = () => {
             <Star className="w-5 h-5" />
           </div>
           <div>
-            <div className="text-[10px] uppercase font-mono text-slate-400">Primary Channel</div>
+            <div className="text-[10px] uppercase font-mono text-slate-400">{t('primaryPaymentChannel')}</div>
             <div className="text-xs font-bold text-slate-900 dark:text-white truncate max-w-[170px]">
               {accounts.find((a) => a.is_primary === 1)?.bank_name || 'None Selected'}
             </div>

@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 
 export const FoodInventoryPage: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { user } = useAuth();
 
   const [products, setProducts] = useState<Product[]>([]);
@@ -136,20 +136,20 @@ export const FoodInventoryPage: React.FC = () => {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-[#F0F3F6] tracking-tight">
-              Food Inventory & Valuation
+              {t('inventoryValuationHeading')}
             </h1>
             <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#0ECB81]/15 text-[#0ECB81] border border-[#0ECB81]/30">
-              AUDITED
+              {language === 'rw' ? 'BYAGENZUWE' : 'AUDITED'}
             </span>
           </div>
           <p className="text-xs text-slate-500 dark:text-[#A0AAB8] mt-1">
-            Real-time food stores tracking, measurement units, reorder alerts, and dynamic valuation ledger.
+            {t('inventoryValuationSubheading')}
           </p>
         </div>
 
         <div className="flex items-center gap-2.5">
           <ExportControls
-            title="Food Inventory Reserves & Valuation Report"
+            title={language === 'rw' ? 'Raporo y’Ibiribwa n’Agaciro Kabyo mu Bubiko' : 'Food Inventory Reserves & Valuation Report'}
             data={products}
             columns={exportColumns}
             fileNamePrefix="IBB_Food_Inventory"
@@ -161,7 +161,7 @@ export const FoodInventoryPage: React.FC = () => {
               className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-slate-950 bg-[#FCD535] hover:bg-[#E5A910] rounded-lg shadow-sm transition-all duration-150 cursor-pointer"
             >
               <Plus className="w-4 h-4 stroke-[2.5]" />
-              <span>Add Food Product</span>
+              <span>{t('addFoodProductBtn')}</span>
             </button>
           )}
         </div>
@@ -316,15 +316,15 @@ export const FoodInventoryPage: React.FC = () => {
             <table className="w-full text-left text-xs min-w-[700px]">
               <thead className="bg-slate-50 dark:bg-[#11151B] text-slate-500 dark:text-[#707A8A] uppercase font-mono tracking-wider text-[10px] border-b border-slate-200 dark:border-[#252B33]">
                 <tr>
-                  <th className="py-3 px-4 font-bold">Food Product</th>
-                  <th className="py-3 px-4 font-bold">Category</th>
-                  <th className="py-3 px-4 font-bold text-right">Available Stock</th>
-                  <th className="py-3 px-4 font-bold text-right">Min Threshold</th>
-                  <th className="py-3 px-4 font-bold text-right">Avg Unit Cost</th>
-                  <th className="py-3 px-4 font-bold text-right">Total Valuation</th>
-                  <th className="py-3 px-4 font-bold text-center">Remaining %</th>
-                  <th className="py-3 px-4 font-bold text-center">Status</th>
-                  {canManageProducts && <th className="py-3 px-4 font-bold text-right">Action</th>}
+                  <th className="py-3 px-4 font-bold">{language === 'rw' ? 'Ikiribwa' : 'Food Product'}</th>
+                  <th className="py-3 px-4 font-bold">{language === 'rw' ? 'Icyiciro' : 'Category'}</th>
+                  <th className="py-3 px-4 font-bold text-right">{language === 'rw' ? 'Ibihari Ubu' : 'Available Stock'}</th>
+                  <th className="py-3 px-4 font-bold text-right">{language === 'rw' ? 'Urugero ruto' : 'Min Threshold'}</th>
+                  <th className="py-3 px-4 font-bold text-right">{language === 'rw' ? 'Igiciro fatizo' : 'Avg Unit Cost'}</th>
+                  <th className="py-3 px-4 font-bold text-right">{language === 'rw' ? 'Agaciro kose' : 'Total Valuation'}</th>
+                  <th className="py-3 px-4 font-bold text-center">{language === 'rw' ? 'Ibisigaye %' : 'Remaining %'}</th>
+                  <th className="py-3 px-4 font-bold text-center">{language === 'rw' ? 'Imiterere' : 'Status'}</th>
+                  {canManageProducts && <th className="py-3 px-4 font-bold text-right">{language === 'rw' ? 'Igikorwa' : 'Action'}</th>}
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-[#252B33]">

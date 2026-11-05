@@ -35,7 +35,7 @@ interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const { user, logout } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const navigate = useNavigate();
 
   // Collapsible category state for Director
@@ -235,7 +235,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                         <>
                           <div className="flex items-center gap-2.5">
                             <CreditCard className={iconClasses(isActive)} />
-                            <span>School Bank Accounts</span>
+                            <span>{t('schoolBankAccounts')}</span>
                           </div>
                           {isActive && <span className="w-1.5 h-1.5 rounded-full bg-[#FCD535]" />}
                         </>
@@ -478,7 +478,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           {user.role === 'ACCOUNTANT' && (
             <div className="space-y-1">
               <span className="px-2.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-[#707A8A] block mb-2">
-                Finance & Food Inventory
+                {language === 'rw' ? 'Imari n’Ububiko bw’Ibiribwa' : 'Finance & Food Inventory'}
               </span>
               <NavLink
                 to="/dashboard/accountant/inventory"
@@ -537,7 +537,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                   <>
                     <div className="flex items-center gap-2.5">
                       <CreditCard className={iconClasses(isActive)} />
-                      <span>School Bank Accounts</span>
+                      <span>{t('schoolBankAccounts')}</span>
                     </div>
                     {isActive && <span className="w-1.5 h-1.5 rounded-full bg-[#FCD535]" />}
                   </>
@@ -616,7 +616,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           {user.role === 'ANIMATOR' && (
             <div className="space-y-1">
               <span className="px-2.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-[#707A8A] block mb-2">
-                Discipline & Stock Out
+                {language === 'rw' ? 'Uburezi n’Itangwa ry’Ibiribwa' : 'Discipline & Stock Out'}
               </span>
               <NavLink
                 to="/dashboard/animator"

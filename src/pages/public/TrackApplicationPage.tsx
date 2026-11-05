@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 
 export const TrackApplicationPage: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [searchParams] = useSearchParams();
 
   const [trackingNumber, setTrackingNumber] = useState<string>(
@@ -183,14 +183,20 @@ export const TrackApplicationPage: React.FC = () => {
                 <div className="space-y-6">
                   <div className="p-4 rounded-2xl bg-emerald-50/60 dark:bg-[#0ECB81]/10 border border-emerald-200/80 dark:border-[#0ECB81]/30 text-xs text-emerald-900 dark:text-[#0ECB81] leading-relaxed space-y-2">
                     <p className="font-semibold text-sm">
-                      Congratulations! Your application has been approved by the School Director.
+                      {language === 'rw'
+                        ? 'Urakoze cyane! Ubusabe bwawe bwo kwiga bwaremejwe n’Umuyobozi w’Ishuri.'
+                        : 'Congratulations! Your application has been approved by the School Director.'}
                     </p>
                     <p className="text-slate-700 dark:text-[#A0AAB8]">
-                      You are officially admitted into Institut Baptiste de Buberuka for the 2026-2027 Academic Year. Please print your provisional admission letter below and bring required physical documents to the school campus.
+                      {language === 'rw'
+                        ? 'Wamaze kwemererwa kwiga muri Institut Baptiste de Buberuka mu mwaka w’amashuri 2026-2027. Kanda hasi wandukure ibaruwa y’agateganyo maze uzazane inyandiko z’umwimerere ku ishuri.'
+                        : 'You are officially admitted into Institut Baptiste de Buberuka for the 2026-2027 Academic Year. Please print your provisional admission letter below and bring required physical documents to the school campus.'}
                     </p>
                     {application.qualifies_boarding === 1 && (
                       <div className="pt-1 font-bold text-[#0ECB81]">
-                        ✓ Boarding Accommodation Status: Approved for School Dormitory (S3 Score: {application.s3_marks}%)
+                        {language === 'rw'
+                          ? `✓ Amacumbi y’Ishuri: Wemerewe gucumbika mu kigo (Amanota ya S3: ${application.s3_marks}%)`
+                          : `✓ Boarding Accommodation Status: Approved for School Dormitory (S3 Score: ${application.s3_marks}%)`}
                       </div>
                     )}
                   </div>
@@ -204,46 +210,62 @@ export const TrackApplicationPage: React.FC = () => {
                         INSTITUT BAPTISTE DE BUBERUKA (IBB)
                       </h3>
                       <p className="text-xs text-slate-500 dark:text-[#A0AAB8]">
-                        Republic of Rwanda · Northern Province · Buberuka
+                        {language === 'rw' ? "Repubulika y'u Rwanda · Intara y'Amajyaruguru · Buberuka" : 'Republic of Rwanda · Northern Province · Buberuka'}
                       </p>
                       <p className="text-[11px] font-semibold text-[#FCD535]">
-                        PROVISIONAL ADMISSION VOUCHER — ACADEMIC YEAR 2026-2027
+                        {language === 'rw' ? 'ICYEMEZO CY’AGATEGANYO CYO KWEMERERWA KWIGA — 2026-2027' : 'PROVISIONAL ADMISSION VOUCHER — ACADEMIC YEAR 2026-2027'}
                       </p>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4 text-xs">
                       <div>
-                        <span className="text-slate-400 dark:text-[#707A8A] block text-[10px]">Student Name:</span>
+                        <span className="text-slate-400 dark:text-[#707A8A] block text-[10px]">
+                          {language === 'rw' ? 'Amazina y’Umunyeshuri:' : 'Student Name:'}
+                        </span>
                         <strong className="text-sm">{application.student_name}</strong>
                       </div>
                       <div>
-                        <span className="text-slate-400 dark:text-[#707A8A] block text-[10px]">Reference Code:</span>
+                        <span className="text-slate-400 dark:text-[#707A8A] block text-[10px]">
+                          {language === 'rw' ? 'Kode y’Icyemezo:' : 'Reference Code:'}
+                        </span>
                         <strong className="text-sm font-mono text-[#FCD535]">{application.tracking_number}</strong>
                       </div>
                       <div>
-                        <span className="text-slate-400 dark:text-[#707A8A] block text-[10px]">Admitted Level:</span>
+                        <span className="text-slate-400 dark:text-[#707A8A] block text-[10px]">
+                          {language === 'rw' ? 'Urwego Yemerewe:' : 'Admitted Level:'}
+                        </span>
                         <strong>{application.academic_level}</strong>
                       </div>
                       <div>
-                        <span className="text-slate-400 dark:text-[#707A8A] block text-[10px]">Department:</span>
+                        <span className="text-slate-400 dark:text-[#707A8A] block text-[10px]">
+                          {language === 'rw' ? 'Ishami:' : 'Department:'}
+                        </span>
                         <strong>{application.department}</strong>
                       </div>
                       <div>
-                        <span className="text-slate-400 dark:text-[#707A8A] block text-[10px]">NESA S3 Verified Score:</span>
+                        <span className="text-slate-400 dark:text-[#707A8A] block text-[10px]">
+                          {language === 'rw' ? 'Amanota NESA S3:' : 'NESA S3 Verified Score:'}
+                        </span>
                         <strong className="font-mono text-[#0ECB81]">{application.s3_marks}%</strong>
                       </div>
                       <div>
-                        <span className="text-slate-400 dark:text-[#707A8A] block text-[10px]">Accommodation:</span>
-                        <strong>{application.qualifies_boarding ? 'Boarding Student' : 'Day Scholar'}</strong>
+                        <span className="text-slate-400 dark:text-[#707A8A] block text-[10px]">
+                          {language === 'rw' ? 'Amacumbi:' : 'Accommodation:'}
+                        </span>
+                        <strong>
+                          {application.qualifies_boarding
+                            ? (language === 'rw' ? 'Umunyeshuri Ucumbika' : 'Boarding Student')
+                            : (language === 'rw' ? 'Umunyeshuri Umutaha' : 'Day Scholar')}
+                        </strong>
                       </div>
                     </div>
 
                     <div className="pt-4 border-t border-slate-200 dark:border-[#2B3139] flex items-center justify-between text-[11px] text-slate-500 dark:text-[#A0AAB8]">
                       <div>
-                        <span>Approved by: <strong>Rev. Habimana Celestin</strong> (School Director)</span>
+                        <span>{language === 'rw' ? 'Byemejwe na:' : 'Approved by:'} <strong>Rev. Habimana Celestin</strong> ({language === 'rw' ? 'Umuyobozi w’Ishuri' : 'School Director'})</span>
                       </div>
                       <div className="font-mono text-[10px] text-[#FCD535]">
-                        Stamp: IBB-OFFICIAL-VERIFIED
+                        {language === 'rw' ? 'Kasi: IBB-BYEMEJWE-KU-MUGARAGARO' : 'Stamp: IBB-OFFICIAL-VERIFIED'}
                       </div>
                     </div>
 
@@ -267,10 +289,12 @@ export const TrackApplicationPage: React.FC = () => {
                     {t('rejectionReasonLabel')}
                   </span>
                   <p className="leading-relaxed text-slate-700 dark:text-[#F0F3F6]">
-                    {application.decision_reason || 'Academic performance does not meet institutional quota requirements for this academic session.'}
+                    {application.decision_reason || (language === 'rw' ? 'Amanota ntabwo ahuye n’ibikenewe mu gipimo cy’uyu mwaka w’amashuri.' : 'Academic performance does not meet institutional quota requirements for this academic session.')}
                   </p>
                   <p className="text-[11px] text-rose-600 dark:text-[#F6465D] pt-2">
-                    For additional counseling or clarification, please reach out directly to the IBB Academic Registrar.
+                    {language === 'rw'
+                      ? 'Niba ukeneye ubusobanuro bwimbitse cyangwa inama, wagana ibiro by’Ushinzwe Amasomo muri IBB.'
+                      : 'For additional counseling or clarification, please reach out directly to the IBB Academic Registrar.'}
                   </p>
                 </div>
               )}
@@ -278,10 +302,14 @@ export const TrackApplicationPage: React.FC = () => {
               {(application.status === 'Pending' || application.status === 'Under Review') && (
                 <div className="p-4 rounded-2xl bg-blue-50/60 dark:bg-[#38BDF8]/10 border border-blue-200 dark:border-[#38BDF8]/30 text-xs text-blue-900 dark:text-[#38BDF8] space-y-2 leading-relaxed">
                   <p className="font-semibold">
-                    Your application is currently being evaluated by the Director and admissions board.
+                    {language === 'rw'
+                      ? 'Ubusabe bwawe buracyasuzumwa n’Umuyobozi hamwe n’inama ishinzwe kwakira abanyeshuri.'
+                      : 'Your application is currently being evaluated by the Director and admissions board.'}
                   </p>
                   <p className="text-slate-700 dark:text-[#A0AAB8]">
-                    Verification of S3 national marks and class capacities is underway. Please retain your tracking reference <strong className="text-white">{application.tracking_number}</strong> to check back.
+                    {language === 'rw'
+                      ? `Isuzuma ry’amanota y’ikizamini cya Leta S3 hamwe n’imyanya iri mu mashami rirakomeje. Bika kode yawe y’ubusabe ${application.tracking_number} kugira ngo uzongere urebe aho dosiyeti yawe igeze.`
+                      : `Verification of S3 national marks and class capacities is underway. Please retain your tracking reference ${application.tracking_number} to check back.`}
                   </p>
                 </div>
               )}

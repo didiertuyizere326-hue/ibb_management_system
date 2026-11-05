@@ -5,7 +5,7 @@ import { Sliders, CheckCircle2, AlertCircle, Save, ShieldCheck, CreditCard, Imag
 import { PaymentNoticeManager } from '../../components/common/PaymentNoticeManager';
 
 export const AcademicSettingsPage: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [activeTab, setActiveTab] = useState<'criteria' | 'notice'>('criteria');
   const [settings, setSettings] = useState({
     min_admission_marks: 55.0,
@@ -67,14 +67,14 @@ export const AcademicSettingsPage: React.FC = () => {
       <div className="pb-2 border-b border-slate-200 dark:border-[#252B33]">
         <div className="flex items-center gap-2">
           <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-[#F0F3F6] tracking-tight">
-            Academic & Admission Settings
+            {t('academicSettingsTitle')}
           </h1>
           <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#FCD535]/15 text-[#B37800] dark:text-[#FCD535] border border-[#FCD535]/30">
-            DIRECTOR PORTAL
+            {language === 'rw' ? 'IBIRO BY’UMUYOBOZI' : 'DIRECTOR PORTAL'}
           </span>
         </div>
         <p className="text-xs text-slate-500 dark:text-[#A0AAB8] mt-1">
-          Configure institutional cutoff criteria, admission grading policies, and publish the official parent fee voucher notice image.
+          {t('academicSettingsSubtitle')}
         </p>
 
         {/* Tab Switcher */}
@@ -89,7 +89,7 @@ export const AcademicSettingsPage: React.FC = () => {
             }`}
           >
             <Sliders className="w-3.5 h-3.5" />
-            <span>Grading Criteria & Cutoffs</span>
+            <span>{t('tabGrading')}</span>
           </button>
 
           <button
@@ -102,7 +102,7 @@ export const AcademicSettingsPage: React.FC = () => {
             }`}
           >
             <ImageIcon className="w-3.5 h-3.5" />
-            <span>Parent Payment Notice Image</span>
+            <span>{t('tabNotice')}</span>
           </button>
         </div>
       </div>
@@ -133,7 +133,7 @@ export const AcademicSettingsPage: React.FC = () => {
             {/* Minimum Admission Marks */}
             <div className="space-y-1.5">
               <label className="block text-xs font-semibold text-slate-700 dark:text-[#A0AAB8]">
-                Minimum Admission Cutoff Score (%)
+                {t('minAdmissionCutoff')}
               </label>
               <div className="relative">
                 <input
@@ -148,14 +148,14 @@ export const AcademicSettingsPage: React.FC = () => {
                 <span className="absolute right-3.5 top-2 text-xs font-bold text-slate-400 dark:text-[#707A8A]">%</span>
               </div>
               <span className="text-[10px] text-slate-500 dark:text-[#707A8A]">
-                Applicants below this score require special Director review or rejection. Initial rule: &lt;50% is failing.
+                {language === 'rw' ? 'Abari munsi y’aya manota basaba isuzuma ry’Umuyobozi cyangwa kwangwa.' : 'Applicants below this score require special Director review or rejection.'}
               </span>
             </div>
 
             {/* Boarding Threshold */}
             <div className="space-y-1.5">
               <label className="block text-xs font-semibold text-slate-700 dark:text-[#A0AAB8]">
-                Boarding Qualification Threshold (%)
+                {t('boardingThreshold')}
               </label>
               <div className="relative">
                 <input
@@ -170,14 +170,14 @@ export const AcademicSettingsPage: React.FC = () => {
                 <span className="absolute right-3.5 top-2 text-xs font-bold text-slate-400 dark:text-[#707A8A]">%</span>
               </div>
               <span className="text-[10px] text-slate-500 dark:text-[#707A8A]">
-                Applicants scoring above this mark automatically qualify for priority campus dormitory consideration (Policy: &ge;80%).
+                {language === 'rw' ? 'Abatsinze hejuru y’iki kigero bahabwa amahirwe ya mbere mu macumbi y’ishuri (Itegeko: ≥80%).' : 'Applicants scoring above this mark automatically qualify for priority campus dormitory consideration (Policy: ≥80%).'}
               </span>
             </div>
 
             {/* Academic Session */}
             <div className="space-y-1.5">
               <label className="block text-xs font-semibold text-slate-700 dark:text-[#A0AAB8]">
-                Active Academic Year
+                {t('academicYearLabel')}
               </label>
               <input
                 type="text"
@@ -186,25 +186,25 @@ export const AcademicSettingsPage: React.FC = () => {
                 className="w-full px-3.5 py-2 text-xs rounded-lg bg-slate-50 dark:bg-[#11151B] border border-slate-200 dark:border-[#2B3139] text-slate-900 dark:text-[#F0F3F6] focus:outline-none focus:border-[#FCD535]"
               />
               <span className="text-[10px] text-slate-500 dark:text-[#707A8A]">
-                Printed on official admission approval letters and campus registers.
+                {language === 'rw' ? 'Icandikwa ku mabaruwa n’impapuro z’abanyeshuri bemerewe.' : 'Printed on official admission approval letters and campus registers.'}
               </span>
             </div>
 
             {/* Admissions Intake Status */}
             <div className="space-y-1.5">
               <label className="block text-xs font-semibold text-slate-700 dark:text-[#A0AAB8]">
-                Public Online Admissions Status
+                {t('isAdmissionOpenLabel')}
               </label>
               <select
                 value={settings.is_admission_open}
                 onChange={(e) => setSettings({ ...settings, is_admission_open: parseInt(e.target.value, 10) })}
                 className="w-full px-3.5 py-2 text-xs rounded-lg bg-slate-50 dark:bg-[#11151B] border border-slate-200 dark:border-[#2B3139] text-slate-900 dark:text-[#F0F3F6] focus:outline-none focus:border-[#FCD535]"
               >
-                <option value={1}>Open for New Registrations</option>
-                <option value={0}>Closed (Registration Window Concluded)</option>
+                <option value={1}>{language === 'rw' ? 'Kwakira Abanyeshuri Birafunguye' : 'Open for New Registrations'}</option>
+                <option value={0}>{language === 'rw' ? 'Kwakira Abanyeshuri Birafunze' : 'Closed (Registration Window Concluded)'}</option>
               </select>
               <span className="text-[10px] text-slate-500 dark:text-[#707A8A]">
-                Controls the active status of the public application portal.
+                {language === 'rw' ? 'Igenzura niba urubuga rwemerera ababyeyi kwandikisha abanyeshuri.' : 'Controls the active status of the public application portal.'}
               </span>
             </div>
 
@@ -221,10 +221,10 @@ export const AcademicSettingsPage: React.FC = () => {
               />
               <div>
                 <span className="text-xs font-bold text-slate-900 dark:text-[#F0F3F6] block">
-                  Enable Automatic System Rejection Below Minimum Cutoff Score
+                  {t('autoRejectBelowMin')}
                 </span>
                 <span className="text-[11px] text-slate-500 dark:text-[#A0AAB8] leading-relaxed block mt-0.5">
-                  When enabled, applications submitted with an S3 score strictly below the configured cutoff ({settings.min_admission_marks}%) will be automatically marked as Rejected with the policy explanation recorded.
+                  {language === 'rw' ? `Iyo bifunguye, dosiyeti ifite amanota ari munsi y’ibipimo (${settings.min_admission_marks}%) ihita yangwa mu buryo bwikora n’ibisobanuro byandikwe.` : `When enabled, applications submitted with an S3 score strictly below the configured cutoff (${settings.min_admission_marks}%) will be automatically marked as Rejected with the policy explanation recorded.`}
                 </span>
               </div>
             </label>
@@ -237,7 +237,7 @@ export const AcademicSettingsPage: React.FC = () => {
               className="inline-flex items-center gap-2 px-6 py-2.5 text-xs font-bold text-slate-950 bg-[#FCD535] hover:bg-[#E5A910] disabled:opacity-50 rounded-lg shadow-sm transition-all duration-150 cursor-pointer"
             >
               <Save className="w-4 h-4 stroke-[2.5]" />
-              <span>{saving ? 'Saving...' : 'Save Academic Policy Settings'}</span>
+              <span>{saving ? (language === 'rw' ? 'Kubika...' : 'Saving...') : t('saveAcademicPolicyBtn')}</span>
             </button>
           </div>
 

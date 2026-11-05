@@ -5,7 +5,7 @@ import { Product, Supplier } from '../../types';
 import { ArrowDownLeft, Plus, CheckCircle2, AlertCircle, Calendar, Truck, DollarSign, Layers } from 'lucide-react';
 
 export const StockInPage: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const [products, setProducts] = useState<Product[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
@@ -78,7 +78,7 @@ export const StockInPage: React.FC = () => {
     setNotice(null);
 
     if (!formData.productId || !formData.supplierId || qty <= 0) {
-      setErrorMsg('Please select a product, supplier, and enter a valid quantity.');
+      setErrorMsg(language === 'rw' ? 'Hitamo ikiribwa, umugemuzi, kandi ushyiremo ingano nyayo.' : 'Please select a product, supplier, and enter a valid quantity.');
       return;
     }
 
@@ -86,7 +86,7 @@ export const StockInPage: React.FC = () => {
 
     try {
       const res = await api.post('/inventory/stock-in', formData);
-      setNotice(res.data.message);
+      setNotice(language === 'rw' ? 'Ibyinjijwe mu bubiko byanditswe neza.' : res.data.message);
       setFormData({
         ...formData,
         quantity: '',
@@ -95,7 +95,7 @@ export const StockInPage: React.FC = () => {
       fetchData();
       setTimeout(() => setNotice(null), 4000);
     } catch (err: any) {
-      setErrorMsg(err.response?.data?.error || 'Failed to record Stock In.');
+      setErrorMsg(err.response?.data?.error || (language === 'rw' ? 'Kwandika ibyinjijwe mu bubiko byanze.' : 'Failed to record Stock In.'));
     } finally {
       setSubmitting(false);
     }
@@ -108,10 +108,10 @@ export const StockInPage: React.FC = () => {
       <div className="pb-2 border-b border-slate-200 dark:border-[#252B33]">
         <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-[#F0F3F6] tracking-tight flex items-center gap-2">
           <ArrowDownLeft className="w-6 h-6 text-[#0ECB81]" />
-          <span>Record Food Procurement (Stock In)</span>
+          <span>{t('recordStockInHeading')}</span>
         </h1>
         <p className="text-xs text-slate-500 dark:text-[#A0AAB8] mt-1">
-          Chief Accountant module to enter vendor dispatches, increment physical food balances, and calculate weighted unit costs.
+          {t('recordStockInSubheading')}
         </p>
       </div>
 

@@ -6,7 +6,7 @@ import { ExportControls } from '../../components/common/ExportControls';
 import { FileClock, Search, Filter, ArrowDownLeft, ArrowUpRight, ShieldAlert } from 'lucide-react';
 
 export const TransactionsLedgerPage: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const [transactions, setTransactions] = useState<any[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
@@ -67,19 +67,19 @@ export const TransactionsLedgerPage: React.FC = () => {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-[#F0F3F6] tracking-tight">
-              Food Inventory Movements Ledger
+              {t('stockMovementLedgerTitle')}
             </h1>
             <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#FCD535]/15 text-[#B37800] dark:text-[#FCD535] border border-[#FCD535]/30">
-              AUDIT TRAIL
+              {language === 'rw' ? 'IBYANDITSE BYOSE' : 'AUDIT TRAIL'}
             </span>
           </div>
           <p className="text-xs text-slate-500 dark:text-[#A0AAB8] mt-1">
-            Complete transaction history of supplier deliveries (Stock In) and dining rations issued to students (Stock Out).
+            {t('stockMovementLedgerSubtitle')}
           </p>
         </div>
 
         <ExportControls
-          title="Stock In & Stock Out Historical Ledger"
+          title={language === 'rw' ? 'Igitabo cy’Urugendo rw’Ibiribwa mu Bubiko' : 'Stock In & Stock Out Historical Ledger'}
           data={transactions}
           columns={exportColumns}
           fileNamePrefix="IBB_Stock_Ledger"
@@ -91,27 +91,27 @@ export const TransactionsLedgerPage: React.FC = () => {
         
         {/* Type Filter */}
         <div className="flex items-center gap-1.5 text-xs">
-          <span className="text-slate-500 dark:text-[#707A8A] text-[11px] font-mono font-medium">Type:</span>
+          <span className="text-slate-500 dark:text-[#707A8A] text-[11px] font-mono font-medium">{t('transactionTypeFilter')}:</span>
           <select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
             className="px-2.5 py-1.5 text-xs rounded-lg bg-slate-50 dark:bg-[#11151B] border border-slate-200 dark:border-[#2B3139] text-slate-800 dark:text-[#F0F3F6] focus:outline-none focus:border-[#FCD535]"
           >
-            <option value="all">All Movements (IN & OUT)</option>
-            <option value="IN">Stock In (Deliveries)</option>
-            <option value="OUT">Stock Out (Kitchen Issues)</option>
+            <option value="all">{t('allTransactions')}</option>
+            <option value="IN">{t('typeStockInLabel')}</option>
+            <option value="OUT">{t('typeStockOutLabel')}</option>
           </select>
         </div>
 
         {/* Product Filter */}
         <div className="flex items-center gap-1.5 text-xs">
-          <span className="text-slate-500 dark:text-[#707A8A] text-[11px] font-mono font-medium">Product:</span>
+          <span className="text-slate-500 dark:text-[#707A8A] text-[11px] font-mono font-medium">{language === 'rw' ? 'Ikiribwa:' : 'Product:'}</span>
           <select
             value={productFilter}
             onChange={(e) => setProductFilter(e.target.value)}
             className="px-2.5 py-1.5 text-xs rounded-lg bg-slate-50 dark:bg-[#11151B] border border-slate-200 dark:border-[#2B3139] text-slate-800 dark:text-[#F0F3F6] focus:outline-none focus:border-[#FCD535]"
           >
-            <option value="all">All Food Products</option>
+            <option value="all">{language === 'rw' ? 'Ibiribwa Byose' : 'All Food Products'}</option>
             {products.map((p) => (
               <option key={p.id} value={p.id}>{p.name}</option>
             ))}

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Application } from '../../types';
+import { useLanguage } from '../../context/LanguageContext';
 import { X, FileText, UserCheck, Calendar, Phone, Mail, MapPin, GraduationCap } from 'lucide-react';
 
 interface DocumentModalProps {
@@ -15,6 +16,7 @@ export const DocumentModal: React.FC<DocumentModalProps> = ({
   onApprove,
   onReject,
 }) => {
+  const { language } = useLanguage();
   if (!application) return null;
 
   return (
@@ -51,30 +53,44 @@ export const DocumentModal: React.FC<DocumentModalProps> = ({
           {/* Key Metric Highlights */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div className="p-3 rounded-lg bg-slate-50 dark:bg-[#181D24] border border-slate-200 dark:border-[#2B3139]">
-              <span className="text-[11px] text-slate-500 dark:text-[#707A8A] block font-mono">S3 Score</span>
+              <span className="text-[11px] text-slate-500 dark:text-[#707A8A] block font-mono">
+                {language === 'rw' ? 'Amanota S3' : 'S3 Score'}
+              </span>
               <span className="text-lg font-bold text-slate-900 dark:text-[#F0F3F6] font-mono tabular-nums">
                 {application.s3_marks}%
               </span>
             </div>
 
             <div className="p-3 rounded-lg bg-slate-50 dark:bg-[#181D24] border border-slate-200 dark:border-[#2B3139]">
-              <span className="text-[11px] text-slate-500 dark:text-[#707A8A] block font-mono">Boarding Status</span>
+              <span className="text-[11px] text-slate-500 dark:text-[#707A8A] block font-mono">
+                {language === 'rw' ? 'Amacumbi' : 'Boarding Status'}
+              </span>
               <span className={`text-xs font-mono font-bold ${application.qualifies_boarding ? 'text-[#0ECB81]' : 'text-slate-600 dark:text-[#A0AAB8]'}`}>
-                {application.qualifies_boarding ? 'Eligible (≥80%)' : 'Day Scholar'}
+                {application.qualifies_boarding
+                  ? (language === 'rw' ? 'Acumbika (≥80%)' : 'Eligible (≥80%)')
+                  : (language === 'rw' ? 'Umutaha' : 'Day Scholar')}
               </span>
             </div>
 
             <div className="p-3 rounded-lg bg-slate-50 dark:bg-[#181D24] border border-slate-200 dark:border-[#2B3139]">
-              <span className="text-[11px] text-slate-500 dark:text-[#707A8A] block font-mono">Gender</span>
+              <span className="text-[11px] text-slate-500 dark:text-[#707A8A] block font-mono">
+                {language === 'rw' ? 'Igitsina' : 'Gender'}
+              </span>
               <span className="text-xs font-bold text-slate-800 dark:text-[#F0F3F6]">
-                {application.gender}
+                {application.gender === 'Male' && language === 'rw' ? 'Gabo' : application.gender === 'Female' && language === 'rw' ? 'Gore' : application.gender}
               </span>
             </div>
 
             <div className="p-3 rounded-lg bg-slate-50 dark:bg-[#181D24] border border-slate-200 dark:border-[#2B3139]">
-              <span className="text-[11px] text-slate-500 dark:text-[#707A8A] block font-mono">Status</span>
+              <span className="text-[11px] text-slate-500 dark:text-[#707A8A] block font-mono">
+                {language === 'rw' ? 'Imiterere' : 'Status'}
+              </span>
               <span className="text-xs font-mono font-bold text-[#3B82F6] dark:text-[#FCD535]">
-                {application.status}
+                {application.status === 'Approved' && language === 'rw' ? 'Yemejwe'
+                  : application.status === 'Pending' && language === 'rw' ? 'Bitegerejwe'
+                  : application.status === 'Under Review' && language === 'rw' ? 'Gusuzumwa'
+                  : application.status === 'Rejected' && language === 'rw' ? 'Yanzwe'
+                  : application.status}
               </span>
             </div>
           </div>
@@ -84,30 +100,30 @@ export const DocumentModal: React.FC<DocumentModalProps> = ({
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-slate-600 dark:text-[#A0AAB8]">
                 <Calendar className="w-3.5 h-3.5 text-slate-400 dark:text-[#707A8A] shrink-0" />
-                <span>DOB: <strong className="text-slate-800 dark:text-[#F0F3F6]">{application.date_of_birth}</strong></span>
+                <span>{language === 'rw' ? 'Itariki y’Amavuko:' : 'DOB:'} <strong className="text-slate-800 dark:text-[#F0F3F6]">{application.date_of_birth}</strong></span>
               </div>
               <div className="flex items-center gap-2 text-slate-600 dark:text-[#A0AAB8]">
                 <UserCheck className="w-3.5 h-3.5 text-slate-400 dark:text-[#707A8A] shrink-0" />
-                <span>Father: <strong className="text-slate-800 dark:text-[#F0F3F6]">{application.father_name}</strong></span>
+                <span>{language === 'rw' ? 'Se:' : 'Father:'} <strong className="text-slate-800 dark:text-[#F0F3F6]">{application.father_name}</strong></span>
               </div>
               <div className="flex items-center gap-2 text-slate-600 dark:text-[#A0AAB8]">
                 <UserCheck className="w-3.5 h-3.5 text-slate-400 dark:text-[#707A8A] shrink-0" />
-                <span>Mother: <strong className="text-slate-800 dark:text-[#F0F3F6]">{application.mother_name}</strong></span>
+                <span>{language === 'rw' ? 'Nyina:' : 'Mother:'} <strong className="text-slate-800 dark:text-[#F0F3F6]">{application.mother_name}</strong></span>
               </div>
             </div>
 
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-slate-600 dark:text-[#A0AAB8]">
                 <Phone className="w-3.5 h-3.5 text-slate-400 dark:text-[#707A8A] shrink-0" />
-                <span>Phone: <strong className="text-slate-800 dark:text-[#F0F3F6] font-mono">{application.phone}</strong></span>
+                <span>{language === 'rw' ? 'Telefone:' : 'Phone:'} <strong className="text-slate-800 dark:text-[#F0F3F6] font-mono">{application.phone}</strong></span>
               </div>
               <div className="flex items-center gap-2 text-slate-600 dark:text-[#A0AAB8]">
                 <Mail className="w-3.5 h-3.5 text-slate-400 dark:text-[#707A8A] shrink-0" />
-                <span>Email: <strong className="text-slate-800 dark:text-[#F0F3F6] font-mono">{application.email}</strong></span>
+                <span>{language === 'rw' ? 'Imeli:' : 'Email:'} <strong className="text-slate-800 dark:text-[#F0F3F6] font-mono">{application.email}</strong></span>
               </div>
               <div className="flex items-center gap-2 text-slate-600 dark:text-[#A0AAB8]">
                 <MapPin className="w-3.5 h-3.5 text-slate-400 dark:text-[#707A8A] shrink-0" />
-                <span>Residence: <strong className="text-slate-800 dark:text-[#F0F3F6]">{application.residence}</strong></span>
+                <span>{language === 'rw' ? 'Aho Batuye:' : 'Residence:'} <strong className="text-slate-800 dark:text-[#F0F3F6]">{application.residence}</strong></span>
               </div>
             </div>
           </div>
@@ -115,7 +131,7 @@ export const DocumentModal: React.FC<DocumentModalProps> = ({
           {/* Document Previews */}
           <div className="space-y-3">
             <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-[#707A8A]">
-              Attached Verification Documents
+              {language === 'rw' ? 'Inyandiko n’Ibyemezo Byashyizweho' : 'Attached Verification Documents'}
             </h4>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -124,9 +140,9 @@ export const DocumentModal: React.FC<DocumentModalProps> = ({
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs font-bold text-slate-800 dark:text-[#F0F3F6] flex items-center gap-1.5">
                     <FileText className="w-3.5 h-3.5 text-[#3B82F6] dark:text-[#FCD535]" />
-                    S3 Result Slip
+                    {language === 'rw' ? 'Icyemezo cy’Amanota S3' : 'S3 Result Slip'}
                   </span>
-                  <span className="text-[10px] text-slate-400 dark:text-[#707A8A] font-mono">Verified NESA</span>
+                  <span className="text-[10px] text-slate-400 dark:text-[#707A8A] font-mono">NESA Verified</span>
                 </div>
                 {application.result_slip_url ? (
                   <div className="h-44 rounded-lg overflow-hidden border border-slate-200 dark:border-[#2B3139] bg-white dark:bg-[#11151B] flex items-center justify-center">
@@ -139,8 +155,12 @@ export const DocumentModal: React.FC<DocumentModalProps> = ({
                 ) : (
                   <div className="h-44 rounded-lg border border-dashed border-slate-300 dark:border-[#2B3139] flex flex-col items-center justify-center text-slate-400 p-4 text-center">
                     <FileText className="w-8 h-8 text-slate-300 dark:text-[#707A8A] mb-2" />
-                    <span className="text-xs text-slate-600 dark:text-[#A0AAB8]">Physical slip filed at IBB Registrar</span>
-                    <span className="text-[10px] text-slate-500 dark:text-[#707A8A] mt-1 font-mono">Score: {application.s3_marks}% Verified</span>
+                    <span className="text-xs text-slate-600 dark:text-[#A0AAB8]">
+                      {language === 'rw' ? 'Icyemezo kiri mu biro bya IBB' : 'Physical slip filed at IBB Registrar'}
+                    </span>
+                    <span className="text-[10px] text-slate-500 dark:text-[#707A8A] mt-1 font-mono">
+                      {language === 'rw' ? 'Amanota:' : 'Score:'} {application.s3_marks}% Verified
+                    </span>
                   </div>
                 )}
               </div>
@@ -150,7 +170,7 @@ export const DocumentModal: React.FC<DocumentModalProps> = ({
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs font-bold text-slate-800 dark:text-[#F0F3F6] flex items-center gap-1.5">
                     <UserCheck className="w-3.5 h-3.5 text-[#0ECB81]" />
-                    Passport Photo
+                    {language === 'rw' ? 'Ifoto ya Pasiporo' : 'Passport Photo'}
                   </span>
                   <span className="text-[10px] text-slate-400 dark:text-[#707A8A] font-mono">Identity File</span>
                 </div>
@@ -168,7 +188,9 @@ export const DocumentModal: React.FC<DocumentModalProps> = ({
                       {application.student_name.slice(0, 2).toUpperCase()}
                     </div>
                     <span className="text-xs text-slate-700 dark:text-[#F0F3F6] font-semibold">{application.student_name}</span>
-                    <span className="text-[10px] text-slate-400 dark:text-[#707A8A]">Portrait on student file</span>
+                    <span className="text-[10px] text-slate-400 dark:text-[#707A8A]">
+                      {language === 'rw' ? 'Ifoto iri muri dosiyeti' : 'Portrait on student file'}
+                    </span>
                   </div>
                 )}
               </div>
@@ -179,7 +201,7 @@ export const DocumentModal: React.FC<DocumentModalProps> = ({
           {application.decision_reason && (
             <div className="p-3 rounded-lg bg-[#F0B90B]/10 border border-[#F0B90B]/30 text-xs">
               <span className="font-bold text-[#F0B90B] block mb-1">
-                Official Review Notes:
+                {language === 'rw' ? 'Impamvu n’Ibyemezo by’Ibiro:' : 'Official Review Notes:'}
               </span>
               <p className="text-slate-800 dark:text-[#F0F3F6] leading-relaxed">
                 {application.decision_reason}
@@ -195,7 +217,7 @@ export const DocumentModal: React.FC<DocumentModalProps> = ({
             onClick={onClose}
             className="px-4 py-2 text-xs font-medium text-slate-600 dark:text-[#A0AAB8] hover:bg-slate-200 dark:hover:bg-[#262D38] rounded-lg transition-colors"
           >
-            Close
+            {language === 'rw' ? 'Funga' : 'Close'}
           </button>
 
           {application.status !== 'Approved' && onApprove && onReject && (
@@ -204,13 +226,13 @@ export const DocumentModal: React.FC<DocumentModalProps> = ({
                 onClick={() => onReject(application.id)}
                 className="px-3 py-2 text-xs font-semibold text-[#F6465D] bg-[#F6465D]/10 hover:bg-[#F6465D]/20 border border-[#F6465D]/30 rounded-lg transition-colors"
               >
-                Reject with Reason
+                {language === 'rw' ? 'Hakana ubihe impamvu' : 'Reject with Reason'}
               </button>
               <button
                 onClick={() => onApprove(application.id)}
                 className="px-4 py-2 text-xs font-bold text-slate-950 bg-[#0ECB81] hover:bg-[#0bb372] rounded-lg shadow-sm transition-colors"
               >
-                Approve Admission
+                {language === 'rw' ? 'Emeza Kwandikwa' : 'Approve Admission'}
               </button>
             </div>
           )}

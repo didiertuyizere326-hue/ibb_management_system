@@ -4,7 +4,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { Code2, Wrench, CheckCircle2, Award, BookOpen, ArrowRight, Laptop, Cpu, ShieldCheck } from 'lucide-react';
 
 export const ProgramsPage: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   return (
     <div className="py-12 lg:py-16 bg-slate-50 dark:bg-[#0B0E11] min-h-screen text-slate-900 dark:text-[#F0F3F6] transition-colors">
@@ -13,13 +13,13 @@ export const ProgramsPage: React.FC = () => {
         {/* Page Header */}
         <div className="text-center max-w-3xl mx-auto">
           <span className="text-xs font-bold uppercase tracking-wider text-[#FCD535] block mb-2">
-            TVET Accredited Technical Education
+            {language === 'rw' ? 'Uburezi mu Bumenyingiro n’Imyuga Byemewe na RTB' : 'TVET Accredited Technical Education'}
           </span>
           <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-            Academic Programs & Technical Curricula
+            {t('programsTitle')}
           </h1>
           <p className="text-sm sm:text-base text-slate-600 dark:text-[#A0AAB8] mt-4 leading-relaxed">
-            Institut Baptiste de Buberuka offers dual-track vocational diplomas structured under the Rwanda TVET Board (RTB) Competency-Based Training (CBT) framework, connecting classroom theory directly to industrial shop floors.
+            {t('programsSubtitle')}
           </p>
         </div>
 
@@ -32,23 +32,23 @@ export const ProgramsPage: React.FC = () => {
                 <Code2 className="w-7 h-7" />
               </div>
               <span className="text-xs font-bold uppercase tracking-wider text-[#3B82F6]">
-                Department of ICT
+                {language === 'rw' ? 'Ishami ry’Ikoranabuhanga (ICT)' : 'Department of ICT'}
               </span>
               <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
-                Software Development
+                {t('softwareDevTitle')}
               </h2>
               <div className="text-xs font-semibold text-[#0ECB81]">
-                Levels Offered: Level 3 (L3), Level 4 (L4), Level 5 (L5 Advanced Diploma)
+                {t('softwareDevLevels')}
               </div>
               <p className="text-xs text-slate-600 dark:text-[#A0AAB8] leading-relaxed">
-                Trained to design, develop, test, and deploy resilient digital software systems. Graduates enter the job market as junior full-stack developers, mobile app creators, database admins, and tech support officers.
+                {t('softwareDevDesc')}
               </p>
               <div className="pt-2">
                 <Link
                   to="/admissions"
                   className="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-bold text-[#0B0E11] bg-[#FCD535] hover:bg-[#F0B90B] rounded-xl shadow-md transition-colors cursor-pointer"
                 >
-                  <span>Apply for Software Development</span>
+                  <span>{language === 'rw' ? 'Saba Kwiga Software Development' : 'Apply for Software Development'}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
               </div>
@@ -95,23 +95,23 @@ export const ProgramsPage: React.FC = () => {
                 <Wrench className="w-7 h-7" />
               </div>
               <span className="text-xs font-bold uppercase tracking-wider text-[#0ECB81]">
-                Department of Mechanical Engineering
+                {language === 'rw' ? 'Ishami ry’Ubukanishi n’Ubumenyingiro' : 'Department of Mechanical Engineering'}
               </span>
               <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
-                Automobile Technology
+                {t('autoTechTitle')}
               </h2>
               <div className="text-xs font-semibold text-[#0ECB81]">
-                Levels Offered: Level 3 (L3), Level 4 (L4), Level 5 (L5 Advanced Diploma)
+                {t('autoTechLevels')}
               </div>
               <p className="text-xs text-slate-600 dark:text-[#A0AAB8] leading-relaxed">
-                Trains modern automotive diagnosticians capable of troubleshooting mechanical engines, electronic control modules (ECU), hybrid batteries, braking systems, and automotive air conditioning.
+                {t('autoTechDesc')}
               </p>
               <div className="pt-2">
                 <Link
                   to="/admissions"
                   className="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-bold text-white bg-[#0ECB81] hover:bg-emerald-600 rounded-xl shadow-md transition-colors cursor-pointer"
                 >
-                  <span>Apply for Automobile Technology</span>
+                  <span>{language === 'rw' ? 'Saba Kwiga Automobile Technology' : 'Apply for Automobile Technology'}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
               </div>

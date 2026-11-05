@@ -127,7 +127,14 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
           </span>
         </span>
         <span className="font-mono text-[11px] sm:text-xs font-bold tracking-tight text-slate-800 dark:text-[#F0F3F6]">
-          {compact ? current.shortName : current.name}
+          {compact ? (
+            current.shortName
+          ) : (
+            <>
+              <span className="hidden 2xl:inline">{current.name}</span>
+              <span className="inline 2xl:hidden">{current.shortName}</span>
+            </>
+          )}
         </span>
         <ChevronDown
           className={`w-3 h-3 text-slate-400 dark:text-[#707A8A] transition-transform duration-150 ${

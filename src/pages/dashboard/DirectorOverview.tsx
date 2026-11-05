@@ -5,7 +5,6 @@ import { useTheme } from '../../context/ThemeContext';
 import { api } from '../../services/api';
 import { Application } from '../../types';
 import { DocumentModal } from '../../components/common/DocumentModal';
-import { StockRemainingOverview } from '../../components/common/StockRemainingOverview';
 import {
   Users,
   Package,
@@ -42,7 +41,7 @@ import {
 } from 'recharts';
 
 export const DirectorOverview: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   const gridStroke = isDark ? '#2B3139' : '#E2E8F0';
@@ -73,7 +72,9 @@ export const DirectorOverview: React.FC = () => {
       <div className="p-12 flex items-center justify-center min-h-[460px]">
         <div className="flex flex-col items-center gap-3 text-slate-500 dark:text-[#A0AAB8]">
           <div className="w-9 h-9 border-2 border-[#FCD535] border-t-transparent rounded-full animate-spin" />
-          <span className="text-xs font-mono tracking-wider uppercase">Loading Executive Terminal...</span>
+          <span className="text-xs font-mono tracking-wider uppercase">
+            {language === 'rw' ? 'Gutegereza Amakuru y’Ibiro...' : 'Loading Executive Terminal...'}
+          </span>
         </div>
       </div>
     );
@@ -94,10 +95,10 @@ export const DirectorOverview: React.FC = () => {
 
   // Chart data: Application breakdown
   const appBreakdown = [
-    { name: 'Admitted', count: applications?.approved_apps || 0, color: '#0ECB81' },
-    { name: 'Pending', count: applications?.pending_apps || 0, color: '#F0B90B' },
-    { name: 'Review', count: applications?.review_apps || 0, color: '#38BDF8' },
-    { name: 'Rejected', count: applications?.rejected_apps || 0, color: '#F6465D' },
+    { name: language === 'rw' ? 'Bemerewe' : 'Admitted', count: applications?.approved_apps || 0, color: '#0ECB81' },
+    { name: language === 'rw' ? 'Bategereje' : 'Pending', count: applications?.pending_apps || 0, color: '#F0B90B' },
+    { name: language === 'rw' ? 'Gusuzumwa' : 'Review', count: applications?.review_apps || 0, color: '#38BDF8' },
+    { name: language === 'rw' ? 'Banzwe' : 'Rejected', count: applications?.rejected_apps || 0, color: '#F6465D' },
   ];
 
   const DONUT_COLORS = ['#FCD535', '#3B82F6', '#0ECB81', '#8B5CF6'];
@@ -178,7 +179,7 @@ export const DirectorOverview: React.FC = () => {
         <div className="bg-white dark:bg-[#181D24] rounded-xl p-5 border border-slate-200 dark:border-[#2B3139] shadow-xs hover:border-[#FCD535]/40 transition-all duration-200 group">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-[#707A8A]">
-              Admissions Pipeline
+              {language === 'rw' ? 'Abasabye Kwiga' : 'Admissions Pipeline'}
             </span>
             <div className="w-8 h-8 rounded-lg bg-[#3B82F6]/10 text-[#3B82F6] flex items-center justify-center">
               <Users className="w-4 h-4" />
@@ -196,8 +197,12 @@ export const DirectorOverview: React.FC = () => {
             </div>
             
             <div className="mt-2.5 flex items-center justify-between text-[11px] font-mono pt-2 border-t border-slate-100 dark:border-[#252B33]">
-              <span className="text-[#0ECB81] font-semibold">{applications?.approved_apps || 0} Admitted</span>
-              <span className="text-[#F0B90B] font-medium">{applications?.pending_apps || 0} Pending</span>
+              <span className="text-[#0ECB81] font-semibold">
+                {applications?.approved_apps || 0} {language === 'rw' ? 'Bemerewe' : 'Admitted'}
+              </span>
+              <span className="text-[#F0B90B] font-medium">
+                {applications?.pending_apps || 0} {language === 'rw' ? 'Bategereje' : 'Pending'}
+              </span>
             </div>
           </div>
         </div>
@@ -206,7 +211,7 @@ export const DirectorOverview: React.FC = () => {
         <div className="bg-white dark:bg-[#181D24] rounded-xl p-5 border border-slate-200 dark:border-[#2B3139] shadow-xs hover:border-[#0ECB81]/40 transition-all duration-200 group">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-[#707A8A]">
-              Boarding Qualified (≥80%)
+              {language === 'rw' ? 'Abemerewe Amacumbi (≥80%)' : 'Boarding Qualified (≥80%)'}
             </span>
             <div className="w-8 h-8 rounded-lg bg-[#0ECB81]/10 text-[#0ECB81] flex items-center justify-center">
               <CheckCircle2 className="w-4 h-4" />
@@ -217,12 +222,18 @@ export const DirectorOverview: React.FC = () => {
               <span className="text-3xl font-extrabold text-[#0ECB81] font-mono tabular-nums tracking-tight">
                 {applications?.boarding_qualified || 0}
               </span>
-              <span className="text-[11px] text-slate-500 dark:text-[#707A8A]">Scholars</span>
+              <span className="text-[11px] text-slate-500 dark:text-[#707A8A]">
+                {language === 'rw' ? 'Abanyeshuri' : 'Scholars'}
+              </span>
             </div>
 
             <div className="mt-2.5 flex items-center justify-between text-[11px] font-mono pt-2 border-t border-slate-100 dark:border-[#252B33]">
-              <span className="text-slate-600 dark:text-[#A0AAB8]">S3 National Benchmark</span>
-              <span className="text-[#0ECB81] font-bold">100% Eligible</span>
+              <span className="text-slate-600 dark:text-[#A0AAB8]">
+                {language === 'rw' ? 'Ipimo ry’Igihugu S3' : 'S3 National Benchmark'}
+              </span>
+              <span className="text-[#0ECB81] font-bold">
+                {language === 'rw' ? '100% Bemerewe' : '100% Eligible'}
+              </span>
             </div>
           </div>
         </div>
@@ -231,7 +242,7 @@ export const DirectorOverview: React.FC = () => {
         <div className="bg-white dark:bg-[#181D24] rounded-xl p-5 border border-slate-200 dark:border-[#2B3139] shadow-xs hover:border-[#FCD535]/40 transition-all duration-200 group">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-[#707A8A]">
-              Food Stock Valuation
+              {language === 'rw' ? 'Agaciro k’Ibiribwa mu Bubiko' : 'Food Stock Valuation'}
             </span>
             <div className="w-8 h-8 rounded-lg bg-[#FCD535]/15 text-[#B37800] dark:text-[#FCD535] flex items-center justify-center">
               <Wallet className="w-4 h-4" />
@@ -246,14 +257,18 @@ export const DirectorOverview: React.FC = () => {
             </div>
 
             <div className="mt-2.5 flex items-center justify-between text-[11px] font-mono pt-2 border-t border-slate-100 dark:border-[#252B33]">
-              <span className="text-slate-600 dark:text-[#A0AAB8]">{inventory?.total_products || 0} Staples Active</span>
+              <span className="text-slate-600 dark:text-[#A0AAB8]">
+                {inventory?.total_products || 0} {language === 'rw' ? 'Biri mu Bubiko' : 'Staples Active'}
+              </span>
               {inventory?.low_stock_count > 0 ? (
                 <span className="text-[#F6465D] font-bold flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#F6465D] animate-ping" />
-                  {inventory.low_stock_count} Low Alert
+                  {inventory.low_stock_count} {language === 'rw' ? 'Biri Hasi' : 'Low Alert'}
                 </span>
               ) : (
-                <span className="text-[#0ECB81] font-semibold">Reserves Optimal</span>
+                <span className="text-[#0ECB81] font-semibold">
+                  {language === 'rw' ? 'Bihagije Neza' : 'Reserves Optimal'}
+                </span>
               )}
             </div>
           </div>
@@ -263,7 +278,7 @@ export const DirectorOverview: React.FC = () => {
         <div className="bg-white dark:bg-[#181D24] rounded-xl p-5 border border-slate-200 dark:border-[#2B3139] shadow-xs hover:border-[#38BDF8]/40 transition-all duration-200 group">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-[#707A8A]">
-              Inquiry & Community
+              {language === 'rw' ? 'Ubutumwa n’Ibibazo' : 'Inquiry & Community'}
             </span>
             <div className="w-8 h-8 rounded-lg bg-[#38BDF8]/10 text-[#38BDF8] flex items-center justify-center">
               <Inbox className="w-4 h-4" />
@@ -274,27 +289,23 @@ export const DirectorOverview: React.FC = () => {
               <span className="text-3xl font-extrabold text-slate-900 dark:text-[#F0F3F6] font-mono tabular-nums tracking-tight">
                 {messages?.total || 0}
               </span>
-              <span className="text-[11px] text-slate-500 dark:text-[#707A8A]">Inquiries</span>
+              <span className="text-[11px] text-slate-500 dark:text-[#707A8A]">
+                {language === 'rw' ? 'Ubutumwa' : 'Inquiries'}
+              </span>
             </div>
 
             <div className="mt-2.5 flex items-center justify-between text-[11px] font-mono pt-2 border-t border-slate-100 dark:border-[#252B33]">
-              <span className="text-[#38BDF8] font-semibold">{messages?.unread || 0} Unread Messages</span>
+              <span className="text-[#38BDF8] font-semibold">
+                {messages?.unread || 0} {language === 'rw' ? 'Butarasomwa' : 'Unread Messages'}
+              </span>
               <Link to="/dashboard/director/messages" className="text-slate-400 hover:text-slate-900 dark:hover:text-[#F0F3F6] transition-colors">
-                Open Inbox →
+                {language === 'rw' ? 'Fungura Inbox →' : 'Open Inbox →'}
               </Link>
             </div>
           </div>
         </div>
 
       </div>
-
-      {/* ======================================================== */}
-      {/* FOOD STAPLES STOCK REMAINING PERCENTAGE OVERVIEW (DIRECTOR) */}
-      {/* ======================================================== */}
-      <StockRemainingOverview
-        initialItems={data?.stockRemainingOverview}
-        onRefreshParent={fetchOverview}
-      />
 
       {/* ======================================================== */}
       {/* ROW 1 CHARTS: ADMISSIONS GROWTH & FOOD PROCUREMENT TREND */}
@@ -532,7 +543,7 @@ export const DirectorOverview: React.FC = () => {
                 {t('recentAdmissionDossiers')}
               </h3>
               <span className="text-[11px] text-slate-500 dark:text-[#707A8A]">
-                Pending director evaluation & verification
+                {language === 'rw' ? 'Bitegereje isuzuma ry’Umuyobozi' : 'Pending director evaluation & verification'}
               </span>
             </div>
             <Link
@@ -548,11 +559,11 @@ export const DirectorOverview: React.FC = () => {
             <table className="w-full text-left text-xs min-w-[500px]">
               <thead className="bg-slate-50 dark:bg-[#11151B] text-slate-500 dark:text-[#707A8A] uppercase font-mono tracking-wider text-[10px] border-b border-slate-200 dark:border-[#252B33]">
                 <tr>
-                  <th className="py-2.5 px-4 font-bold">Candidate</th>
-                  <th className="py-2.5 px-3 font-bold">Trade & Level</th>
-                  <th className="py-2.5 px-3 font-bold text-right">S3 Marks</th>
-                  <th className="py-2.5 px-3 font-bold text-center">Status</th>
-                  <th className="py-2.5 px-4 font-bold text-right">Inspect</th>
+                  <th className="py-2.5 px-4 font-bold">{language === 'rw' ? 'Umunyeshuri' : 'Candidate'}</th>
+                  <th className="py-2.5 px-3 font-bold">{language === 'rw' ? 'Ishami & Urwego' : 'Trade & Level'}</th>
+                  <th className="py-2.5 px-3 font-bold text-right">{language === 'rw' ? 'Amanota S3' : 'S3 Marks'}</th>
+                  <th className="py-2.5 px-3 font-bold text-center">{language === 'rw' ? 'Imiterere' : 'Status'}</th>
+                  <th className="py-2.5 px-4 font-bold text-right">{language === 'rw' ? 'Suzuma' : 'Inspect'}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-[#252B33]">
@@ -585,14 +596,18 @@ export const DirectorOverview: React.FC = () => {
                           ? 'bg-[#38BDF8]/15 text-[#38BDF8] border border-[#38BDF8]/30'
                           : 'bg-[#F6465D]/15 text-[#F6465D] border border-[#F6465D]/30'
                       }`}>
-                        {app.status}
+                        {app.status === 'Approved' && language === 'rw' ? 'Yemejwe'
+                          : app.status === 'Pending' && language === 'rw' ? 'Bitegerejwe'
+                          : app.status === 'Under Review' && language === 'rw' ? 'Gusuzumwa'
+                          : app.status === 'Rejected' && language === 'rw' ? 'Yanzwe'
+                          : app.status}
                       </span>
                     </td>
                     <td className="py-3 px-4 text-right">
                       <button
                         onClick={() => setSelectedApp(app)}
                         className="p-1.5 text-slate-400 hover:text-slate-900 dark:hover:text-[#FCD535] hover:bg-slate-100 dark:hover:bg-[#262D38] rounded-md transition-colors"
-                        title="Inspect Application Dossier"
+                        title={language === 'rw' ? 'Suzuma Dosiyeti' : 'Inspect Application Dossier'}
                       >
                         <Eye className="w-3.5 h-3.5" />
                       </button>
@@ -612,14 +627,14 @@ export const DirectorOverview: React.FC = () => {
                 {t('dailyStockIssuanceLog')}
               </h3>
               <span className="text-[11px] text-slate-500 dark:text-[#707A8A]">
-                Daily food dispatches to boarding refectory
+                {language === 'rw' ? 'Ibisohoka buri munsi bigana mu gikoni' : 'Daily food dispatches to boarding refectory'}
               </span>
             </div>
             <Link
               to="/dashboard/director/inventory"
               className="text-xs font-bold text-[#3B82F6] dark:text-[#FCD535] hover:underline inline-flex items-center gap-1 transition-colors"
             >
-              <span>Inventory Portal</span>
+              <span>{language === 'rw' ? 'Ububiko bwose' : 'Inventory Portal'}</span>
               <ChevronRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -628,10 +643,10 @@ export const DirectorOverview: React.FC = () => {
             <table className="w-full text-left text-xs min-w-[500px]">
               <thead className="bg-slate-50 dark:bg-[#11151B] text-slate-500 dark:text-[#707A8A] uppercase font-mono tracking-wider text-[10px] border-b border-slate-200 dark:border-[#252B33]">
                 <tr>
-                  <th className="py-2.5 px-4 font-bold">Food Product</th>
-                  <th className="py-2.5 px-3 font-bold text-right">Quantity</th>
-                  <th className="py-2.5 px-3 font-bold">Time (CAT)</th>
-                  <th className="py-2.5 px-4 font-bold">Dispatched By</th>
+                  <th className="py-2.5 px-4 font-bold">{language === 'rw' ? 'Ikiribwa' : 'Food Product'}</th>
+                  <th className="py-2.5 px-3 font-bold text-right">{language === 'rw' ? 'Ingano' : 'Quantity'}</th>
+                  <th className="py-2.5 px-3 font-bold">{language === 'rw' ? 'Igihe (CAT)' : 'Time (CAT)'}</th>
+                  <th className="py-2.5 px-4 font-bold">{language === 'rw' ? 'Cyatanzwe na' : 'Dispatched By'}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-[#252B33]">

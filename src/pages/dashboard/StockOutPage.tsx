@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 
 export const StockOutPage: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { user } = useAuth();
 
   const [products, setProducts] = useState<Product[]>([]);
@@ -138,10 +138,10 @@ export const StockOutPage: React.FC = () => {
       <div className="pb-2 border-b border-slate-200 dark:border-[#252B33]">
         <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-[#F0F3F6] tracking-tight flex items-center gap-2">
           <ArrowUpRight className="w-6 h-6 text-[#F0B90B]" />
-          <span>Food Reserves & Daily Stock Out</span>
+          <span>{t('dailyStockOutHeading')}</span>
         </h1>
         <p className="text-xs text-slate-500 dark:text-[#A0AAB8] mt-1">
-          Animator module for issuing daily kitchen rations under Director-controlled working hours (Africa/Kigali).
+          {t('dailyStockOutSubheading')}
         </p>
       </div>
 

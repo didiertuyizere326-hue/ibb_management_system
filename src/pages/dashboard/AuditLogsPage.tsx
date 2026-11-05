@@ -6,7 +6,7 @@ import { ExportControls } from '../../components/common/ExportControls';
 import { FileClock, Search, ShieldCheck, Filter } from 'lucide-react';
 
 export const AuditLogsPage: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -58,14 +58,16 @@ export const AuditLogsPage: React.FC = () => {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-[#F0F3F6] tracking-tight">
-              Security Audit & Activity Logs
+              {language === 'rw' ? 'Ibyakozwe mu Sisitemu n’Umutekano' : 'Security Audit & Activity Logs'}
             </h1>
             <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#FCD535]/15 text-[#B37800] dark:text-[#FCD535] border border-[#FCD535]/30">
-              IMMUTABLE JOURNAL
+              {language === 'rw' ? 'INYANDIKO ZIDAHINDURWA' : 'IMMUTABLE JOURNAL'}
             </span>
           </div>
           <p className="text-xs text-slate-500 dark:text-[#A0AAB8] mt-1">
-            Tamper-resistant audit trails tracking user logins, admissions verdicts, stock issues, and permission updates.
+            {language === 'rw'
+              ? 'Urutonde rwuzuye rw’ibikorwa byose byakozwe: kwinjira, kwemeza dosiye, gusohora ibiribwa n’amavugurura.'
+              : 'Tamper-resistant audit trails tracking user logins, admissions verdicts, stock issues, and permission updates.'}
           </p>
         </div>
 
@@ -85,26 +87,28 @@ export const AuditLogsPage: React.FC = () => {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search action, staff member, or metadata details..."
+            placeholder={language === 'rw' ? 'Shakisha igikorwa, umukozi, cyangwa amakuru...' : 'Search action, staff member, or metadata details...'}
             className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg bg-slate-50 dark:bg-[#11151B] border border-slate-200 dark:border-[#2B3139] text-slate-900 dark:text-[#F0F3F6] placeholder-slate-400 dark:placeholder-[#707A8A] focus:outline-none focus:border-[#FCD535]"
           />
         </form>
 
         <div className="flex items-center gap-1.5 text-xs">
-          <span className="text-slate-500 dark:text-[#707A8A] text-[11px] font-mono font-medium">Filter Action:</span>
+          <span className="text-slate-500 dark:text-[#707A8A] text-[11px] font-mono font-medium">
+            {language === 'rw' ? 'Akayunguruzo:' : 'Filter Action:'}
+          </span>
           <select
             value={actionFilter}
             onChange={(e) => setActionFilter(e.target.value)}
             className="px-2.5 py-1.5 text-xs rounded-lg bg-slate-50 dark:bg-[#11151B] border border-slate-200 dark:border-[#2B3139] text-slate-800 dark:text-[#F0F3F6] focus:outline-none focus:border-[#FCD535]"
           >
-            <option value="all">All Actions</option>
-            <option value="LOGIN_SUCCESS">Logins</option>
-            <option value="ADMISSION_APPROVED">Admission Approvals</option>
-            <option value="ADMISSION_REJECTED">Admission Rejections</option>
-            <option value="STOCK_IN">Stock In Deliveries</option>
-            <option value="STOCK_OUT">Stock Out Issues</option>
-            <option value="STOCK_OUT_EMERGENCY_OVERRIDE">Emergency Overrides</option>
-            <option value="CREATE_STAFF_ACCOUNT">Staff Accounts</option>
+            <option value="all">{language === 'rw' ? 'Ibikorwa Byose' : 'All Actions'}</option>
+            <option value="LOGIN_SUCCESS">{language === 'rw' ? 'Kwinjira muri Sisitemu' : 'Logins'}</option>
+            <option value="ADMISSION_APPROVED">{language === 'rw' ? 'Kwemeza Kwandika' : 'Admission Approvals'}</option>
+            <option value="ADMISSION_REJECTED">{language === 'rw' ? 'Guhakana Kwandika' : 'Admission Rejections'}</option>
+            <option value="STOCK_IN">{language === 'rw' ? 'Ibyinjijwe mu Bubiko' : 'Stock In Deliveries'}</option>
+            <option value="STOCK_OUT">{language === 'rw' ? 'Ibisohotse mu Bubiko' : 'Stock Out Issues'}</option>
+            <option value="STOCK_OUT_EMERGENCY_OVERRIDE">{language === 'rw' ? 'Ibyasohotse Byihutirwa' : 'Emergency Overrides'}</option>
+            <option value="CREATE_STAFF_ACCOUNT">{language === 'rw' ? 'Konti z’Abakozi' : 'Staff Accounts'}</option>
           </select>
         </div>
       </div>
@@ -113,24 +117,26 @@ export const AuditLogsPage: React.FC = () => {
       <div className="bg-white dark:bg-[#181D24] rounded-xl border border-slate-200 dark:border-[#2B3139] shadow-xs overflow-hidden">
         {loading ? (
           <div className="p-12 text-center text-xs text-slate-500 dark:text-[#A0AAB8] font-mono">
-            Querying audit trail records...
+            {language === 'rw' ? 'Gushakisha inyandiko z’ibyakozwe...' : 'Querying audit trail records...'}
           </div>
         ) : logs.length === 0 ? (
           <div className="p-12 text-center text-slate-500 dark:text-[#707A8A] space-y-2">
             <FileClock className="w-8 h-8 mx-auto text-slate-400 dark:text-[#707A8A]" />
-            <p className="text-xs">No audit logs matching query.</p>
+            <p className="text-xs">
+              {language === 'rw' ? 'Nta nyandiko y’igikorwa ihuye n’ibyashakishijwe.' : 'No audit logs matching query.'}
+            </p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs min-w-[650px]">
               <thead className="bg-slate-50 dark:bg-[#11151B] text-slate-500 dark:text-[#707A8A] uppercase font-mono tracking-wider text-[10px] border-b border-slate-200 dark:border-[#252B33]">
                 <tr>
-                  <th className="py-3 px-4 font-bold">Timestamp (CAT)</th>
-                  <th className="py-3 px-4 font-bold">Action</th>
-                  <th className="py-3 px-4 font-bold">Staff Member</th>
-                  <th className="py-3 px-4 font-bold">Target</th>
-                  <th className="py-3 px-4 font-bold">Details / Notes</th>
-                  <th className="py-3 px-4 font-bold text-right">IP Address</th>
+                  <th className="py-3 px-4 font-bold">{language === 'rw' ? 'Igihe (CAT)' : 'Timestamp (CAT)'}</th>
+                  <th className="py-3 px-4 font-bold">{language === 'rw' ? 'Igikorwa' : 'Action'}</th>
+                  <th className="py-3 px-4 font-bold">{language === 'rw' ? 'Umukozi' : 'Staff Member'}</th>
+                  <th className="py-3 px-4 font-bold">{language === 'rw' ? 'Icyakozweho' : 'Target'}</th>
+                  <th className="py-3 px-4 font-bold">{language === 'rw' ? 'Amakuru arambuye' : 'Details / Notes'}</th>
+                  <th className="py-3 px-4 font-bold text-right">{language === 'rw' ? 'Aderesi IP' : 'IP Address'}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-[#252B33]">

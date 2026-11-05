@@ -6,7 +6,7 @@ import { ExportControls } from '../../components/common/ExportControls';
 import { BookOpen, Search, Filter, Phone, MapPin, GraduationCap, CheckCircle2 } from 'lucide-react';
 
 export const ApprovedStudentsPage: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [students, setStudents] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
   const [levelFilter, setLevelFilter] = useState('all');
@@ -41,15 +41,15 @@ export const ApprovedStudentsPage: React.FC = () => {
   };
 
   const exportColumns = [
-    { header: 'Admission Ref', key: 'tracking_number' },
-    { header: 'Student Full Name', key: 'student_name' },
-    { header: 'Gender', key: 'gender' },
-    { header: 'Level', key: 'academic_level' },
-    { header: 'Department', key: 'department' },
-    { header: 'S3 Marks (%)', key: 's3_marks' },
-    { header: 'Boarding Status', key: 'qualifies_boarding', format: (val: number) => val === 1 ? 'Boarding' : 'Day Scholar' },
-    { header: 'Parent Phone', key: 'phone' },
-    { header: 'Residence', key: 'residence' },
+    { header: language === 'rw' ? 'Kode y’Ubwiyandikishe' : 'Admission Ref', key: 'tracking_number' },
+    { header: language === 'rw' ? 'Amazina y’Umunyeshuri' : 'Student Full Name', key: 'student_name' },
+    { header: language === 'rw' ? 'Igitsina' : 'Gender', key: 'gender' },
+    { header: language === 'rw' ? 'Urwego' : 'Level', key: 'academic_level' },
+    { header: language === 'rw' ? 'Ishami' : 'Department', key: 'department' },
+    { header: language === 'rw' ? 'Amanota S3 (%)' : 'S3 Marks (%)', key: 's3_marks' },
+    { header: language === 'rw' ? 'Amacumbi' : 'Boarding Status', key: 'qualifies_boarding', format: (val: number) => val === 1 ? (language === 'rw' ? 'Acumbika' : 'Boarding') : (language === 'rw' ? 'Umutaha' : 'Day Scholar') },
+    { header: language === 'rw' ? 'Telefone y’Umubyeyi' : 'Parent Phone', key: 'phone' },
+    { header: language === 'rw' ? 'Aho Atuye' : 'Residence', key: 'residence' },
   ];
 
   return (
@@ -60,19 +60,19 @@ export const ApprovedStudentsPage: React.FC = () => {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-[#F0F3F6] tracking-tight">
-              Official Approved Students Register
+              {t('approvedRegisterTitle')}
             </h1>
             <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#0ECB81]/15 text-[#0ECB81] border border-[#0ECB81]/30">
-              {students.length} ENROLLED
+              {students.length} {language === 'rw' ? 'BEMEREWE' : 'ENROLLED'}
             </span>
           </div>
           <p className="text-xs text-slate-500 dark:text-[#A0AAB8] mt-1">
-            Official academic enrollment roll for Academic Year 2026-2027 by class, department, and boarding quota.
+            {t('approvedRegisterSubtitle')}
           </p>
         </div>
 
         <ExportControls
-          title="Official Register of Approved Students"
+          title={language === 'rw' ? 'Igitabo cy’Abanyeshuri Bemerewe Kwiga IBB' : 'Official Register of Approved Students'}
           data={students}
           columns={exportColumns}
           fileNamePrefix="IBB_Approved_Students"
@@ -87,19 +87,19 @@ export const ApprovedStudentsPage: React.FC = () => {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search approved student name or registration ref..."
+            placeholder={t('searchApprovedStudent')}
             className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg bg-slate-50 dark:bg-[#11151B] border border-slate-200 dark:border-[#2B3139] text-slate-900 dark:text-[#F0F3F6] placeholder-slate-400 dark:placeholder-[#707A8A] focus:outline-none focus:border-[#FCD535]"
           />
         </form>
 
         <div className="flex items-center gap-1.5 text-xs">
-          <span className="text-slate-500 dark:text-[#707A8A] text-[11px] font-mono font-medium">Level:</span>
+          <span className="text-slate-500 dark:text-[#707A8A] text-[11px] font-mono font-medium">{t('filterLevel')}:</span>
           <select
             value={levelFilter}
             onChange={(e) => setLevelFilter(e.target.value)}
             className="px-2.5 py-1.5 text-xs rounded-lg bg-slate-50 dark:bg-[#11151B] border border-slate-200 dark:border-[#2B3139] text-slate-800 dark:text-[#F0F3F6] focus:outline-none focus:border-[#FCD535]"
           >
-            <option value="all">All Levels</option>
+            <option value="all">{t('allLevels')}</option>
             <option value="L3">Level 3 (L3)</option>
             <option value="L4">Level 4 (L4)</option>
             <option value="L5">Level 5 (L5)</option>
@@ -107,15 +107,15 @@ export const ApprovedStudentsPage: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-1.5 text-xs">
-          <span className="text-slate-500 dark:text-[#707A8A] text-[11px] font-mono font-medium">Trade:</span>
+          <span className="text-slate-500 dark:text-[#707A8A] text-[11px] font-mono font-medium">{t('filterDept')}:</span>
           <select
             value={deptFilter}
             onChange={(e) => setDeptFilter(e.target.value)}
             className="px-2.5 py-1.5 text-xs rounded-lg bg-slate-50 dark:bg-[#11151B] border border-slate-200 dark:border-[#2B3139] text-slate-800 dark:text-[#F0F3F6] focus:outline-none focus:border-[#FCD535]"
           >
-            <option value="all">All Departments</option>
-            <option value="Software Development">Software Development</option>
-            <option value="Automobile Technology">Automobile Technology</option>
+            <option value="all">{t('allDepartments')}</option>
+            <option value="Software Development">{language === 'rw' ? 'Ikoranabuhanga (Software)' : 'Software Development'}</option>
+            <option value="Automobile Technology">{language === 'rw' ? 'Ubukanishi bw’Ibinyabiziga' : 'Automobile Technology'}</option>
           </select>
         </div>
       </div>
@@ -124,25 +124,25 @@ export const ApprovedStudentsPage: React.FC = () => {
       <div className="bg-white dark:bg-[#181D24] rounded-xl border border-slate-200 dark:border-[#2B3139] shadow-xs overflow-hidden">
         {loading ? (
           <div className="p-12 text-center text-xs text-slate-500 dark:text-[#A0AAB8] font-mono">
-            Loading student roster...
+            {language === 'rw' ? 'Gutegereza urutonde rw’abanyeshuri...' : 'Loading student roster...'}
           </div>
         ) : students.length === 0 ? (
           <div className="p-12 text-center text-slate-500 dark:text-[#707A8A] space-y-2">
             <BookOpen className="w-8 h-8 mx-auto text-slate-400 dark:text-[#707A8A]" />
-            <p className="text-xs">No approved students found matching the selected filter criteria.</p>
+            <p className="text-xs">{language === 'rw' ? 'Nta munyeshuri wemerewe uhuye n’ibyo mushakisha.' : 'No approved students found matching the selected filter criteria.'}</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs min-w-[700px]">
               <thead className="bg-slate-50 dark:bg-[#11151B] text-slate-500 dark:text-[#707A8A] uppercase font-mono tracking-wider text-[10px] border-b border-slate-200 dark:border-[#252B33]">
                 <tr>
-                  <th className="py-3 px-4 font-bold">Reg Code</th>
-                  <th className="py-3 px-4 font-bold">Student Name</th>
-                  <th className="py-3 px-4 font-bold">Gender</th>
-                  <th className="py-3 px-4 font-bold">Level & Trade</th>
-                  <th className="py-3 px-4 font-bold text-right">S3 Marks</th>
-                  <th className="py-3 px-4 font-bold text-center">Boarding</th>
-                  <th className="py-3 px-4 font-bold">Contact & District</th>
+                  <th className="py-3 px-4 font-bold">{t('tblTracking')}</th>
+                  <th className="py-3 px-4 font-bold">{t('tblCandidateName')}</th>
+                  <th className="py-3 px-4 font-bold">{language === 'rw' ? 'Igitsina' : 'Gender'}</th>
+                  <th className="py-3 px-4 font-bold">{t('tblLevelTrade')}</th>
+                  <th className="py-3 px-4 font-bold text-right">{t('tblS3Marks')}</th>
+                  <th className="py-3 px-4 font-bold text-center">{t('tblBoarding')}</th>
+                  <th className="py-3 px-4 font-bold">{language === 'rw' ? 'Aho Batuye & Telefone' : 'Contact & District'}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-[#252B33]">
@@ -154,14 +154,14 @@ export const ApprovedStudentsPage: React.FC = () => {
                     <td className="py-3 px-4 font-bold text-slate-900 dark:text-[#F0F3F6]">
                       {st.student_name}
                       <span className="block text-[10px] text-slate-400 dark:text-[#707A8A] font-mono font-normal">
-                        Prev: {st.previous_school}
+                        {language === 'rw' ? 'Aho yize:' : 'Prev:'} {st.previous_school}
                       </span>
                     </td>
                     <td className="py-3 px-4 text-slate-600 dark:text-[#A0AAB8]">
-                      {st.gender}
+                      {st.gender === 'Male' && language === 'rw' ? 'Gabo' : st.gender === 'Female' && language === 'rw' ? 'Gore' : st.gender}
                     </td>
                     <td className="py-3 px-4 text-slate-700 dark:text-[#A0AAB8]">
-                      <span className="font-bold text-slate-900 dark:text-[#F0F3F6] font-mono">{st.academic_level}</span> · {st.department}
+                      <span className="font-bold text-slate-900 dark:text-[#F0F3F6] font-mono">{st.academic_level}</span> · {st.department === 'Software Development' ? (language === 'rw' ? 'Software' : 'Software') : (language === 'rw' ? 'Auto' : 'Auto')}
                     </td>
                     <td className="py-3 px-4 text-right font-mono font-bold tabular-nums text-[#0ECB81]">
                       {st.s3_marks}%
@@ -169,10 +169,12 @@ export const ApprovedStudentsPage: React.FC = () => {
                     <td className="py-3 px-4 text-center">
                       {st.qualifies_boarding === 1 ? (
                         <span className="inline-block px-2.5 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-[#0ECB81]/15 text-[#0ECB81] border border-[#0ECB81]/30">
-                          Boarding
+                          {language === 'rw' ? 'Acumbika' : 'Boarding'}
                         </span>
                       ) : (
-                        <span className="text-[10px] text-slate-400 dark:text-[#707A8A] font-mono">Day Scholar</span>
+                        <span className="text-[10px] text-slate-400 dark:text-[#707A8A] font-mono">
+                          {language === 'rw' ? 'Umutaha' : 'Day Scholar'}
+                        </span>
                       )}
                     </td>
                     <td className="py-3 px-4 text-slate-600 dark:text-[#A0AAB8]">
