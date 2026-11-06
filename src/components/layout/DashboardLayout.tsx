@@ -12,14 +12,31 @@ interface DashboardLayoutProps {
 export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ allowedRoles }) => {
   const { user, isAuthenticated, isLoading } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('ibb_sidebar_collapsed') === 'true';
+    } catch {
+      return false;
+    }
+  });
   const location = useLocation();
+
+  const toggleCollapse = () => {
+    setIsCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem('ibb_sidebar_collapsed', String(next));
+      } catch {}
+      return next;
+    });
+  };
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#0B0E11] flex items-center justify-center">
+      <div className="min-h-screen bg-[#F5F7FB] dark:bg-[#0B0E11] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-2 border-[#FCD535] border-t-transparent rounded-full animate-spin" />
-          <span className="text-xs text-slate-500 dark:text-[#A0AAB8] font-mono tracking-wider uppercase text-[10px]">
+          <div className="w-8 h-8 border-2 border-[#1769FF] dark:border-[#FCD535] border-t-transparent rounded-full animate-spin" />
+          <span className="text-xs text-[#64748B] dark:text-[#A0AAB8] font-mono tracking-wider uppercase text-[10px]">
             Verifying secure credentials...
           </span>
         </div>
@@ -51,19 +68,30 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ allowedRoles }
     <div className="min-h-screen bg-[#F5F7FB] dark:bg-[#0B0E11] text-[#172033] dark:text-[#F0F3F6] flex transition-colors selection:bg-[#1769FF]/20 dark:selection:bg-[#FCD535]/30">
       
       {/* Sidebar */}
-      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <Sidebar
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+        isCollapsed={isCollapsed}
+        onToggleCollapse={toggleCollapse}
+      />
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 lg:pl-72">
+      <div
+        className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ease-in-out ${
+          isCollapsed ? 'lg:pl-20' : 'lg:pl-72'
+        } print:pl-0 print:m-0`}
+      >
         
         {/* Header */}
         <DashboardHeader
           onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+          isCollapsed={isCollapsed}
+          onToggleCollapse={toggleCollapse}
           breadcrumbs={breadcrumbs.length > 0 ? breadcrumbs : ['Dashboard']}
         />
 
         {/* Content Viewport */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto print:p-0 print:max-w-none print:w-full">
           <Outlet />
         </main>
 

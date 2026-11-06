@@ -245,6 +245,8 @@ export const translations = {
     logoutConfirmTitle: 'Confirm Sign Out',
     logoutConfirmMessage: 'Are you sure you want to log out of your account?',
     yesLogout: 'Yes, Log Out',
+    collapseSidebar: 'Collapse Sidebar',
+    expandSidebar: 'Expand Sidebar',
 
     // Personal Profile & Password Management
     profileManagement: 'Personal Profile Management',
@@ -753,6 +755,8 @@ export const translations = {
     logoutConfirmTitle: 'Kwemeza Gusohoka',
     logoutConfirmMessage: 'Urashaka koko gusohoka muri konti yawe?',
     yesLogout: 'Yego, Sohoka',
+    collapseSidebar: 'Kugabanya Menu',
+    expandSidebar: 'Kwagura Menu',
 
     // Personal Profile & Password Management
     profileManagement: 'Gucunga Umwirondoro Wanjye',

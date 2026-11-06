@@ -24,11 +24,12 @@ import {
   Eye,
   X,
   ShieldCheck,
-  ZoomIn
+  ZoomIn,
+  Download
 } from 'lucide-react';
 
 export const AdmissionsPage: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const [paymentNotice, setPaymentNotice] = useState<PaymentNotice | null>(null);
   const [noticeLoading, setNoticeLoading] = useState<boolean>(true);
@@ -53,6 +54,33 @@ export const AdmissionsPage: React.FC = () => {
     };
     fetchPaymentNotice();
   }, []);
+
+  const handleDownloadNotice = async () => {
+    if (!paymentNotice?.image_url) return;
+    try {
+      const res = await fetch(paymentNotice.image_url);
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      const safeTitle = (paymentNotice.title || 'IBB_School_Payment_Notice')
+        .replace(/[^a-zA-Z0-9_-]/g, '_')
+        .slice(0, 45);
+      link.download = `${safeTitle}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch {
+      const link = document.createElement('a');
+      link.href = paymentNotice.image_url;
+      link.download = 'IBB_School_Payment_Notice.png';
+      link.target = '_blank';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
 
   const [formData, setFormData] = useState({
     studentName: '',
@@ -311,12 +339,27 @@ export const AdmissionsPage: React.FC = () => {
                         <span>{t('zoomVoucher')}</span>
                       </div>
                     </div>
-                    <div className="mt-2 flex items-center justify-between text-[11px] text-slate-400 font-mono px-1">
-                      <span>★ Official IBB Bank Voucher</span>
-                      <span className="flex items-center gap-1 text-[#3B82F6] dark:text-[#FCD535]">
-                        <Eye className="w-3 h-3" />
-                        <span>Click voucher image to enlarge</span>
-                      </span>
+                    <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs">
+                      <span className="text-[11px] text-slate-400 font-mono">★ Official IBB Bank Voucher</span>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setLightboxOpen(true)}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-[#202630] hover:bg-slate-200 dark:hover:bg-[#2B3139] text-xs font-semibold text-slate-700 dark:text-[#F0F3F6] border border-slate-200 dark:border-[#2B3139] transition-colors cursor-pointer"
+                        >
+                          <ZoomIn className="w-3.5 h-3.5 text-[#FCD535]" />
+                          <span>{t('zoomVoucher') || 'Enlarge'}</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleDownloadNotice}
+                          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#FCD535] hover:bg-[#E5A910] text-slate-950 text-xs font-bold shadow-xs transition-colors cursor-pointer"
+                          title="Download official payment notice voucher"
+                        >
+                          <Download className="w-3.5 h-3.5" />
+                          <span>{language === 'rw' ? 'Kandukura Ifoto' : 'Download Notice Image'}</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
 
@@ -722,14 +765,25 @@ export const AdmissionsPage: React.FC = () => {
                   {paymentNotice.title}
                 </h4>
               </div>
-              <button
-                type="button"
-                onClick={() => setLightboxOpen(false)}
-                className="p-1.5 text-slate-500 hover:text-slate-900 dark:hover:text-white rounded-lg hover:bg-slate-200 dark:hover:bg-[#202630] transition-colors cursor-pointer"
-                title="Close"
-              >
-                <X className="w-5 h-5" />
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleDownloadNotice}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#FCD535] hover:bg-[#E5A910] text-slate-950 text-xs font-bold transition-colors cursor-pointer"
+                  title="Download payment notice image"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>{language === 'rw' ? 'Kandukura' : 'Download'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLightboxOpen(false)}
+                  className="p-1.5 text-slate-500 hover:text-slate-900 dark:hover:text-white rounded-lg hover:bg-slate-200 dark:hover:bg-[#202630] transition-colors cursor-pointer"
+                  title="Close"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
             </div>
             <div className="p-4 overflow-auto max-h-[78vh] flex items-center justify-center bg-black/5 dark:bg-black/40">
               <img

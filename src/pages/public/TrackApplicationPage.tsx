@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
+import { useAuth } from '../../context/AuthContext';
 import { api } from '../../services/api';
 import {
   Search,
@@ -13,11 +14,15 @@ import {
   FileText,
   Calendar,
   Building,
-  ArrowRight
+  ArrowRight,
+  ShieldCheck,
+  Eye
 } from 'lucide-react';
 
 export const TrackApplicationPage: React.FC = () => {
   const { t, language } = useLanguage();
+  const { user, isAuthenticated } = useAuth();
+  const isStaffUser = isAuthenticated && !!user && ['DIRECTOR', 'ACCOUNTANT', 'ANIMATOR'].includes(user.role);
   const [searchParams] = useSearchParams();
 
   const [trackingNumber, setTrackingNumber] = useState<string>(
@@ -80,6 +85,32 @@ export const TrackApplicationPage: React.FC = () => {
             {t('trackSubtitle')}
           </p>
         </div>
+
+        {/* Staff Inspection View Banner */}
+        {isStaffUser && user && (
+          <div className="p-4 rounded-2xl bg-blue-500/10 dark:bg-[#3B82F6]/10 border border-blue-500/30 dark:border-[#3B82F6]/30 text-xs text-blue-900 dark:text-[#38BDF8] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 no-print">
+            <div className="flex items-center gap-2.5">
+              <Eye className="w-4 h-4 text-[#3B82F6] dark:text-[#38BDF8] shrink-0" />
+              <div>
+                <strong className="block font-bold">
+                  {language === 'rw' ? 'Uburyo bwo Gusuzuma ku Mukozi' : 'Staff Verification Mode'}
+                </strong>
+                <span className="text-slate-600 dark:text-[#A0AAB8]">
+                  {language === 'rw'
+                    ? `Wiyandikishije nka ${user.full_name} (${user.role}). Ushobora gushakisha no kureba ibyemezo by’abanyeshuri hano.`
+                    : `Active staff session: ${user.full_name} (${user.role}). You may inspect tracking vouchers and status details.`}
+                </span>
+              </div>
+            </div>
+            <Link
+              to={user.role === 'DIRECTOR' ? '/dashboard/director/admissions' : `/dashboard/${user.role.toLowerCase()}`}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#3B82F6] hover:bg-[#2563EB] text-white font-semibold text-[11px] whitespace-nowrap transition-colors"
+            >
+              <span>{user.role === 'DIRECTOR' ? 'Admissions Management' : 'Return to Dashboard'}</span>
+              <ArrowRight className="w-3 h-3" />
+            </Link>
+          </div>
+        )}
 
         {/* Search Bar (Binance Level 3 Surface) */}
         <div className="bg-white dark:bg-[#181D24] rounded-2xl p-4 sm:p-6 border border-slate-200 dark:border-[#2B3139] shadow-sm no-print">

@@ -1,14 +1,18 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
+import { useAuth } from '../../context/AuthContext';
 import { api } from '../../services/api';
-import { MapPin, Phone, Mail, Clock, Send, CheckCircle2, AlertCircle } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, Send, CheckCircle2, AlertCircle, ShieldAlert, Lock, ArrowRight } from 'lucide-react';
 
 export const ContactPage: React.FC = () => {
   const { t, language } = useLanguage();
+  const { user, isAuthenticated } = useAuth();
+  const isStaffUser = isAuthenticated && !!user && ['DIRECTOR', 'ACCOUNTANT', 'ANIMATOR'].includes(user.role);
 
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
+    name: user ? user.full_name : '',
+    email: user ? user.email : '',
     phone: '',
     subject: '',
     message: '',
@@ -19,12 +23,22 @@ export const ContactPage: React.FC = () => {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    if (isStaffUser) return;
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isStaffUser) {
+      setErrorMsg(
+        language === 'rw'
+          ? 'Abakozi b’ishuri ntibemerewe kohereza ubutumwa muri serivisi ya rubanda. Koresha uburyo bw’ubutumwa bw’imbere muri sisitemu.'
+          : 'Staff members are restricted from submitting public inquiries while authenticated. Please use the internal dashboard.'
+      );
+      return;
+    }
+
     setIsSubmitting(true);
     setErrorMsg(null);
 
@@ -160,6 +174,30 @@ export const ContactPage: React.FC = () => {
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
                 
+                {/* Staff Read-Only Notice Banner */}
+                {isStaffUser && user && (
+                  <div className="p-4 rounded-2xl bg-amber-500/10 dark:bg-[#FCD535]/10 border border-amber-500/30 dark:border-[#FCD535]/30 text-xs text-amber-800 dark:text-[#FCD535] space-y-2">
+                    <div className="flex items-center gap-2 font-bold text-sm">
+                      <ShieldAlert className="w-4 h-4 shrink-0 text-amber-600 dark:text-[#FCD535]" />
+                      <span>{language === 'rw' ? 'Kugenzura k’Umukozi (Gusoma Gusa)' : 'Staff Read-Only Mode'}</span>
+                    </div>
+                    <p className="leading-relaxed text-slate-700 dark:text-[#A0AAB8]">
+                      {language === 'rw'
+                        ? `Urifatanya muri sisitemu nk’umukozi wa IBB (${user.full_name} — ${user.position}). Serivisi yo kwakira ubutumwa bwa rubanda irafunze kuri konte z’abakozi b’ishuri. Koresha ubutumwa bw’imbere muri dashboard yawe cyangwa sohoka kuri konti kugira ngo wohereze ubutumwa bwa rubanda.`
+                        : `You are currently authenticated as an institutional staff member (${user.full_name} — ${user.position}). Public contact submissions are disabled in staff mode. Please use the internal institutional messaging system or log out to submit a public inquiry.`}
+                    </p>
+                    <div className="pt-1">
+                      <Link
+                        to={`/dashboard/${user.role.toLowerCase()}/messages`}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/20 dark:bg-[#FCD535]/20 hover:bg-amber-500/30 dark:hover:bg-[#FCD535]/30 text-amber-900 dark:text-[#FCD535] font-semibold text-[11px] transition-colors"
+                      >
+                        <span>{language === 'rw' ? 'Kujya ku Butumwa bw’Imbere' : 'Go to Institutional Messages'}</span>
+                        <ArrowRight className="w-3 h-3" />
+                      </Link>
+                    </div>
+                  </div>
+                )}
+
                 {errorMsg && (
                   <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-[#F6465D]/10 border border-rose-200 dark:border-[#F6465D]/30 text-xs text-rose-700 dark:text-[#F6465D] flex items-center gap-2">
                     <AlertCircle className="w-4 h-4 shrink-0" />
@@ -179,7 +217,9 @@ export const ContactPage: React.FC = () => {
                       onChange={handleChange}
                       placeholder="e.g. Alphonse Gatete"
                       required
-                      className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-slate-50 dark:bg-[#11151B] border border-slate-200 dark:border-[#2B3139] text-slate-900 dark:text-[#F0F3F6] focus:outline-none focus:border-[#FCD535] focus:ring-1 focus:ring-[#FCD535]/30 transition-colors"
+                      disabled={isStaffUser}
+                      readOnly={isStaffUser}
+                      className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-slate-50 dark:bg-[#11151B] border border-slate-200 dark:border-[#2B3139] text-slate-900 dark:text-[#F0F3F6] focus:outline-none focus:border-[#FCD535] focus:ring-1 focus:ring-[#FCD535]/30 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
                     />
                   </div>
 
@@ -194,7 +234,9 @@ export const ContactPage: React.FC = () => {
                       onChange={handleChange}
                       placeholder="name@domain.com"
                       required
-                      className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-slate-50 dark:bg-[#11151B] border border-slate-200 dark:border-[#2B3139] text-slate-900 dark:text-[#F0F3F6] focus:outline-none focus:border-[#FCD535] focus:ring-1 focus:ring-[#FCD535]/30 transition-colors"
+                      disabled={isStaffUser}
+                      readOnly={isStaffUser}
+                      className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-slate-50 dark:bg-[#11151B] border border-slate-200 dark:border-[#2B3139] text-slate-900 dark:text-[#F0F3F6] focus:outline-none focus:border-[#FCD535] focus:ring-1 focus:ring-[#FCD535]/30 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
                     />
                   </div>
                 </div>
@@ -210,7 +252,9 @@ export const ContactPage: React.FC = () => {
                       value={formData.phone}
                       onChange={handleChange}
                       placeholder="+250 788 000 000"
-                      className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-slate-50 dark:bg-[#11151B] border border-slate-200 dark:border-[#2B3139] text-slate-900 dark:text-[#F0F3F6] focus:outline-none focus:border-[#FCD535] focus:ring-1 focus:ring-[#FCD535]/30 transition-colors"
+                      disabled={isStaffUser}
+                      readOnly={isStaffUser}
+                      className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-slate-50 dark:bg-[#11151B] border border-slate-200 dark:border-[#2B3139] text-slate-900 dark:text-[#F0F3F6] focus:outline-none focus:border-[#FCD535] focus:ring-1 focus:ring-[#FCD535]/30 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
                     />
                   </div>
 
@@ -225,7 +269,9 @@ export const ContactPage: React.FC = () => {
                       onChange={handleChange}
                       placeholder="e.g. Inquiries on L3 Boarding Fees"
                       required
-                      className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-slate-50 dark:bg-[#11151B] border border-slate-200 dark:border-[#2B3139] text-slate-900 dark:text-[#F0F3F6] focus:outline-none focus:border-[#FCD535] focus:ring-1 focus:ring-[#FCD535]/30 transition-colors"
+                      disabled={isStaffUser}
+                      readOnly={isStaffUser}
+                      className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-slate-50 dark:bg-[#11151B] border border-slate-200 dark:border-[#2B3139] text-slate-900 dark:text-[#F0F3F6] focus:outline-none focus:border-[#FCD535] focus:ring-1 focus:ring-[#FCD535]/30 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
                     />
                   </div>
                 </div>
@@ -241,18 +287,33 @@ export const ContactPage: React.FC = () => {
                     onChange={handleChange}
                     placeholder="Provide details about your academic or institutional inquiry..."
                     required
-                    className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-slate-50 dark:bg-[#11151B] border border-slate-200 dark:border-[#2B3139] text-slate-900 dark:text-[#F0F3F6] focus:outline-none focus:border-[#FCD535] focus:ring-1 focus:ring-[#FCD535]/30 transition-colors"
+                    disabled={isStaffUser}
+                    readOnly={isStaffUser}
+                    className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-slate-50 dark:bg-[#11151B] border border-slate-200 dark:border-[#2B3139] text-slate-900 dark:text-[#F0F3F6] focus:outline-none focus:border-[#FCD535] focus:ring-1 focus:ring-[#FCD535]/30 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
                   />
                 </div>
 
-                <div className="flex justify-end pt-2">
+                <div className="flex items-center justify-between pt-2">
+                  {isStaffUser ? (
+                    <div className="flex items-center gap-2 text-xs text-amber-600 dark:text-[#FCD535]">
+                      <Lock className="w-3.5 h-3.5" />
+                      <span>{language === 'rw' ? 'Kohereza birafunzwe mu buryo bw’umukozi' : 'Submission disabled in staff mode'}</span>
+                    </div>
+                  ) : <div />}
+
                   <button
                     type="submit"
-                    disabled={isSubmitting}
-                    className="inline-flex items-center gap-2 px-6 py-2.5 text-xs font-bold text-[#0B0E11] bg-[#FCD535] hover:bg-[#F0B90B] disabled:opacity-50 rounded-xl shadow-md transition-colors cursor-pointer"
+                    disabled={isSubmitting || isStaffUser}
+                    className="inline-flex items-center gap-2 px-6 py-2.5 text-xs font-bold text-[#0B0E11] bg-[#FCD535] hover:bg-[#F0B90B] disabled:opacity-40 disabled:cursor-not-allowed rounded-xl shadow-md transition-colors cursor-pointer"
                   >
-                    <Send className="w-3.5 h-3.5" />
-                    <span>{isSubmitting ? 'Transmitting...' : t('sendMessage')}</span>
+                    {isStaffUser ? <Lock className="w-3.5 h-3.5" /> : <Send className="w-3.5 h-3.5" />}
+                    <span>
+                      {isStaffUser
+                        ? (language === 'rw' ? 'Uburyo bwo Gusoma Gusa' : 'Read-Only Mode')
+                        : isSubmitting
+                        ? 'Transmitting...'
+                        : t('sendMessage')}
+                    </span>
                   </button>
                 </div>
 

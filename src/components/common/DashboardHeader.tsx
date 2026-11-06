@@ -21,17 +21,23 @@ import {
   CheckCircle2,
   UserCircle,
   LogOut,
-  ChevronDown
+  ChevronDown,
+  PanelLeftClose,
+  PanelLeftOpen
 } from 'lucide-react';
 
 interface DashboardHeaderProps {
   onToggleSidebar: () => void;
   breadcrumbs: string[];
+  isCollapsed?: boolean;
+  onToggleCollapse?: () => void;
 }
 
 export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   onToggleSidebar,
   breadcrumbs,
+  isCollapsed,
+  onToggleCollapse,
 }) => {
   const { user, logout } = useAuth();
   const { language, setLanguage, t } = useLanguage();
@@ -102,6 +108,23 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const markSingleAsRead = async (id: number) => {
+    const target = notifications.find((n) => n.id === id);
+    if (!target || target.is_read === 1) return;
+
+    // Optimistically update badge count and notification appearance immediately
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, is_read: 1 } : n))
+    );
+    setUnreadCount((prev) => Math.max(0, prev - 1));
+
+    try {
+      await api.put(`/notifications/${id}/read`);
+    } catch (err) {
+      console.error('Failed to mark notification as read:', err);
+    }
+  };
+
   const markAllAsRead = async () => {
     try {
       await api.put('/notifications/read-all');
@@ -135,35 +158,52 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
 
   return (
     <>
-      <header className="sticky top-0 z-30 h-16 bg-white dark:bg-[#11151B] border-b border-[#E2E8F0] dark:border-[#2B3139] px-4 sm:px-6 flex items-center justify-between transition-colors shadow-xs">
+      <header className="no-print sticky top-0 z-30 h-16 bg-white dark:bg-[#11151B] border-b border-[#E2E8F0] dark:border-[#2B3139] px-4 sm:px-6 flex items-center justify-between transition-colors shadow-xs">
         
-        {/* Left side: Mobile Toggle & Binance-style Breadcrumbs */}
-        <div className="flex items-center gap-3 min-w-0">
+        {/* Left side: Mobile Toggle, Desktop Collapse Toggle & Breadcrumbs */}
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+          {/* Mobile Drawer Button */}
           <button
             onClick={onToggleSidebar}
-            className="p-2 -ml-2 text-slate-600 dark:text-[#A0AAB8] hover:bg-slate-100 dark:hover:bg-[#181D24] rounded-lg lg:hidden cursor-pointer"
+            className="p-2 -ml-2 text-[#64748B] hover:text-[#172033] hover:bg-[#F3F7FF] dark:text-[#A0AAB8] dark:hover:text-[#F0F3F6] dark:hover:bg-[#181D24] rounded-xl lg:hidden cursor-pointer transition-colors"
             aria-label="Toggle navigation drawer"
           >
             <Menu className="w-5 h-5" />
           </button>
 
+          {/* Desktop Collapse / Expand Sidebar Toggle */}
+          {onToggleCollapse && (
+            <button
+              onClick={onToggleCollapse}
+              className="hidden lg:flex items-center justify-center p-2 text-[#64748B] hover:text-[#1769FF] hover:bg-[#EAF2FF] dark:text-[#A0AAB8] dark:hover:text-[#FCD535] dark:hover:bg-[#181D24] rounded-xl transition-colors cursor-pointer"
+              title={isCollapsed ? (language === 'rw' ? 'Kwagura menu' : 'Expand sidebar') : (language === 'rw' ? 'Kugabanya menu' : 'Collapse sidebar')}
+              aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            >
+              {isCollapsed ? (
+                <PanelLeftOpen className="w-4 h-4 text-[#1769FF] dark:text-[#FCD535]" />
+              ) : (
+                <PanelLeftClose className="w-4 h-4" />
+              )}
+            </button>
+          )}
+
           {/* Breadcrumb Hierarchy */}
           <nav className="flex items-center gap-1.5 text-xs font-medium text-[#64748B] dark:text-[#707A8A] overflow-hidden whitespace-nowrap">
             <button
               onClick={() => setIsLeaveModalOpen(true)}
-              className="hover:text-[#1769FF] dark:hover:text-[#F0F3F6] shrink-0 font-semibold text-[#172033] dark:text-[#A0AAB8] transition-colors cursor-pointer flex items-center gap-1"
+              className="hover:text-[#1769FF] dark:hover:text-[#F0F3F6] shrink-0 font-bold text-[#172033] dark:text-[#A0AAB8] transition-colors cursor-pointer flex items-center gap-1"
               title="Return to School Website"
             >
               <span>IBB</span>
             </button>
             {breadcrumbs.map((crumb, idx) => (
               <React.Fragment key={idx}>
-                <ChevronRight className="w-3.5 h-3.5 shrink-0 text-slate-400 dark:text-[#707A8A]" />
+                <ChevronRight className="w-3.5 h-3.5 shrink-0 text-[#94A3B8] dark:text-[#707A8A]" />
                 <span
                   className={`truncate ${
                     idx === breadcrumbs.length - 1
-                      ? 'text-[#172033] dark:text-[#FCD535] font-semibold tracking-tight'
-                      : 'hover:text-slate-800 dark:hover:text-[#F0F3F6]'
+                      ? 'text-[#172033] dark:text-[#FCD535] font-bold tracking-tight'
+                      : 'hover:text-[#172033] dark:hover:text-[#F0F3F6]'
                   }`}
                 >
                   {crumb}
@@ -179,7 +219,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           {/* Universal Action: Back to Official School Website */}
           <button
             onClick={() => setIsLeaveModalOpen(true)}
-            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg text-[#1769FF] dark:text-[#FCD535] bg-blue-50 dark:bg-[#FCD535]/10 hover:bg-blue-100 dark:hover:bg-[#FCD535]/15 border border-blue-200 dark:border-[#FCD535]/30 transition-all cursor-pointer shadow-xs"
+            className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-xl text-[#1769FF] dark:text-[#FCD535] bg-[#EAF2FF] dark:bg-[#FCD535]/10 hover:bg-[#D8E7FF] dark:hover:bg-[#FCD535]/15 border border-[#CBDCFD] dark:border-[#FCD535]/30 transition-all cursor-pointer shadow-xs"
             title={t('backToWebsite')}
           >
             <Globe className="w-3.5 h-3.5 shrink-0" />
@@ -189,7 +229,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           {/* Mobile Back to Website Icon */}
           <button
             onClick={() => setIsLeaveModalOpen(true)}
-            className="sm:hidden p-2 text-[#1769FF] dark:text-[#FCD535] bg-blue-50 dark:bg-[#FCD535]/10 hover:bg-blue-100 dark:hover:bg-[#FCD535]/15 rounded-lg border border-blue-200 dark:border-[#FCD535]/30 transition-colors cursor-pointer"
+            className="sm:hidden p-2 text-[#1769FF] dark:text-[#FCD535] bg-[#EAF2FF] dark:bg-[#FCD535]/10 hover:bg-[#D8E7FF] dark:hover:bg-[#FCD535]/15 rounded-xl border border-[#CBDCFD] dark:border-[#FCD535]/30 transition-colors cursor-pointer"
             title={t('backToWebsite')}
             aria-label="Return to official website"
           >
@@ -197,8 +237,8 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           </button>
 
           {/* Africa/Kigali Financial Ticker Badge */}
-          <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-slate-50 dark:bg-[#181D24] rounded-lg text-xs font-mono text-[#172033] dark:text-[#A0AAB8] border border-[#E2E8F0] dark:border-[#2B3139]">
-            <span className="w-2 h-2 rounded-full bg-[#059669] dark:bg-[#0ECB81] animate-pulse" />
+          <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-[#F5F7FB] dark:bg-[#181D24] rounded-xl text-xs font-mono text-[#172033] dark:text-[#A0AAB8] border border-[#E2E8F0] dark:border-[#2B3139]">
+            <span className="w-2 h-2 rounded-full bg-[#16A34A] dark:bg-[#0ECB81] animate-pulse" />
             <span className="text-[11px] text-[#64748B] dark:text-[#707A8A]">KIGALI (CAT):</span>
             <span className="font-bold text-[#172033] dark:text-[#F0F3F6] tabular-nums tracking-wider">
               {kigaliTime || '00:00:00'}
@@ -274,16 +314,23 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
                     notifications.map((n) => (
                       <div
                         key={n.id}
-                        className={`p-3.5 text-xs transition-colors ${
+                        onClick={() => markSingleAsRead(n.id)}
+                        className={`p-3.5 text-xs transition-colors cursor-pointer ${
                           n.is_read === 0
                             ? 'bg-amber-50/60 dark:bg-[#FCD535]/5 border-l-2 border-[#1769FF] dark:border-[#FCD535]'
-                            : 'hover:bg-slate-50 dark:hover:bg-[#181D24]'
+                            : 'hover:bg-slate-50 dark:hover:bg-[#181D24] opacity-80 hover:opacity-100'
                         }`}
+                        title={n.is_read === 0 ? 'Click to mark as read' : undefined}
                       >
                         <div className="flex items-start justify-between gap-2">
-                          <span className="font-bold text-[#172033] dark:text-[#F0F3F6]">
-                            {n.title}
-                          </span>
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            {n.is_read === 0 && (
+                              <span className="w-1.5 h-1.5 rounded-full bg-[#1769FF] dark:bg-[#FCD535] shrink-0" />
+                            )}
+                            <span className="font-bold text-[#172033] dark:text-[#F0F3F6] truncate">
+                              {n.title}
+                            </span>
+                          </div>
                           <span className="text-[10px] text-slate-400 dark:text-[#707A8A] shrink-0 font-mono">
                             {new Date(n.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </span>
@@ -294,7 +341,11 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
                         {n.link && (
                           <Link
                             to={n.link}
-                            onClick={() => setShowNotifMenu(false)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              markSingleAsRead(n.id);
+                              setShowNotifMenu(false);
+                            }}
                             className="inline-flex items-center gap-1 text-[11px] text-[#1769FF] dark:text-[#FCD535] font-semibold mt-2 hover:underline"
                           >
                             <span>{t('openModule')}</span>

@@ -12,6 +12,8 @@ import {
   Mail,
   AlertCircle,
   ShieldCheck,
+  ShieldAlert,
+  Clock,
   ArrowRight,
   Info,
   X,
@@ -47,6 +49,57 @@ export const LoginPage: React.FC = () => {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [googleNotice, setGoogleNotice] = useState<string | null>(null);
+
+  // Security: 3 failed attempts -> 2 minute temporary lockout state
+  const [isLocked, setIsLocked] = useState<boolean>(false);
+  const [lockoutRemaining, setLockoutRemaining] = useState<number>(0);
+  const [failedAttempts, setFailedAttempts] = useState<number>(0);
+
+  // Check backend lockout state on page load or email change to prevent refresh bypass
+  useEffect(() => {
+    if (!email.trim() || !email.includes('@')) return;
+    let isMounted = true;
+    api.get('/auth/lockout-status', { params: { email: email.trim().toLowerCase() } })
+      .then((res) => {
+        if (!isMounted) return;
+        if (res.data?.locked && res.data.remainingSeconds > 0) {
+          setIsLocked(true);
+          setLockoutRemaining(res.data.remainingSeconds);
+          setFailedAttempts(res.data.failedAttempts || 3);
+          setErrorMsg(
+            language === 'rw'
+              ? `Konti yafunzwe by’agateganyo kubera amakosa 3 yo kwinjira. Tegereza amasegonda ${res.data.remainingSeconds}.`
+              : `Account temporarily locked due to 3 consecutive failed login attempts. Please wait ${res.data.remainingSeconds}s.`
+          );
+        } else {
+          setIsLocked(false);
+          setLockoutRemaining(0);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      isMounted = false;
+    };
+  }, [email, language]);
+
+  // Live countdown timer for the 2-minute lockout
+  useEffect(() => {
+    if (lockoutRemaining <= 0) {
+      if (isLocked) {
+        setIsLocked(false);
+        setErrorMsg(
+          language === 'rw'
+            ? 'Igihe cyo gufungwa cyarangiye. Urashobora kongera kugerageza kwinjira.'
+            : 'Lockout period has expired. You may now attempt to log in.'
+        );
+      }
+      return;
+    }
+    const timer = setInterval(() => {
+      setLockoutRemaining((prev) => Math.max(0, prev - 1));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [lockoutRemaining, isLocked, language]);
 
   // Google OAuth Configuration state
   const [googleClientId, setGoogleClientId] = useState<string>(() => {
@@ -248,6 +301,9 @@ export const LoginPage: React.FC = () => {
     try {
       const res = await api.post('/auth/login', { email, password });
       const { token, user } = res.data;
+      setIsLocked(false);
+      setLockoutRemaining(0);
+      setFailedAttempts(0);
       login(token, user);
 
       // Route directly to correct role-based dashboard
@@ -259,7 +315,24 @@ export const LoginPage: React.FC = () => {
         navigate('/dashboard/animator');
       }
     } catch (err: any) {
-      setErrorMsg(err.response?.data?.error || 'Authentication failed. Please verify credentials.');
+      const data = err.response?.data;
+      if (data?.locked || err.response?.status === 429) {
+        setIsLocked(true);
+        const rem = data?.remainingSeconds || 120;
+        setLockoutRemaining(rem);
+        setFailedAttempts(3);
+        setErrorMsg(
+          data?.error ||
+            (language === 'rw'
+              ? 'Umubare ntarengwa wo kwinjira nabi (inshuro 3) wagezweho. Konti ifunzwe by’agateganyo iminota 2.'
+              : 'Maximum login attempts exceeded (3/3). Account is temporarily locked for 2 minutes.')
+        );
+      } else {
+        if (data?.failedAttempts) {
+          setFailedAttempts(data.failedAttempts);
+        }
+        setErrorMsg(data?.error || 'Authentication failed. Please verify credentials.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -301,7 +374,32 @@ export const LoginPage: React.FC = () => {
         {/* Login Card */}
         <div className="bg-white dark:bg-[#181D24] rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-[#2B3139] shadow-2xl space-y-6">
           
-          {errorMsg && (
+          {/* Security Lockout Banner */}
+          {isLocked && lockoutRemaining > 0 && (
+            <div className="p-4 rounded-2xl bg-rose-500/10 border-2 border-[#F6465D]/40 text-xs text-[#F6465D] space-y-2.5 animate-fadeIn">
+              <div className="flex items-center gap-2 font-bold text-sm">
+                <ShieldAlert className="w-5 h-5 shrink-0 text-[#F6465D]" />
+                <span>
+                  {language === 'rw'
+                    ? 'Konti Yafunzwe By’Agateganyo (Iminota 2)'
+                    : 'Account Temporarily Locked (2-Minute Lockout)'}
+                </span>
+              </div>
+              <p className="text-slate-700 dark:text-[#A0AAB8] text-[11px] leading-relaxed">
+                {language === 'rw'
+                  ? 'Sisitemu yafunze ubushobozi bwo kwinjira kubera amakosa 3 yikurikiranya. Ntabwo wemerewe kwinjira kugeza igihe kirangiye.'
+                  : 'Security policy: 3 consecutive failed login attempts detected. Access is temporarily blocked until the security countdown expires.'}
+              </p>
+              <div className="flex items-center gap-2 font-mono font-bold text-xs text-[#FCD535] bg-black/40 px-3 py-2 rounded-xl border border-[#FCD535]/20 justify-center">
+                <Clock className="w-4 h-4 text-[#FCD535] animate-pulse" />
+                <span>
+                  {Math.floor(lockoutRemaining / 60)}m {String(lockoutRemaining % 60).padStart(2, '0')}s {language === 'rw' ? 'zisigaye' : 'remaining'} ({lockoutRemaining}s)
+                </span>
+              </div>
+            </div>
+          )}
+
+          {!isLocked && errorMsg && (
             <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-[#F6465D]/10 border border-rose-200 dark:border-[#F6465D]/30 text-xs text-rose-700 dark:text-[#F6465D] flex items-start gap-2.5">
               <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
               <div className="space-y-1">
@@ -383,11 +481,28 @@ export const LoginPage: React.FC = () => {
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={isLoading}
-              className="w-full py-3 text-xs font-bold text-[#0B0E11] bg-[#FCD535] hover:bg-[#F0B90B] disabled:opacity-50 rounded-xl shadow-lg shadow-[#FCD535]/20 transition-all cursor-pointer flex items-center justify-center gap-2"
+              disabled={isLoading || isLocked}
+              className={`w-full py-3 text-xs font-bold rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 ${
+                isLocked
+                  ? 'bg-rose-500/20 text-[#F6465D] border border-[#F6465D]/30 cursor-not-allowed shadow-none'
+                  : 'text-[#0B0E11] bg-[#FCD535] hover:bg-[#F0B90B] disabled:opacity-50 shadow-[#FCD535]/20 cursor-pointer'
+              }`}
             >
-              <span>{isLoading ? 'Verifying Credentials...' : t('loginBtn')}</span>
-              <ArrowRight className="w-4 h-4" />
+              {isLocked ? (
+                <>
+                  <Clock className="w-4 h-4 animate-spin text-[#F6465D]" />
+                  <span>
+                    {language === 'rw'
+                      ? `Konti Yafunzwe (${Math.floor(lockoutRemaining / 60)}m ${String(lockoutRemaining % 60).padStart(2, '0')}s)`
+                      : `Account Locked (${Math.floor(lockoutRemaining / 60)}m ${String(lockoutRemaining % 60).padStart(2, '0')}s)`}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span>{isLoading ? 'Verifying Credentials...' : t('loginBtn')}</span>
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
             </button>
           </form>
 

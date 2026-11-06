@@ -5,16 +5,32 @@
   --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', 'Roboto Mono', ui-monospace, monospace;
   
-  /* Legacy aliases for backward compatibility */
-  --color-ibb-navy: #071A33;
-  --color-ibb-dark-navy: #0B1930;
-  --color-ibb-blue: #1769FF;
-  --color-ibb-emerald: #009B72;
-  --color-ibb-light-blue: #EAF2FC;
-  --color-ibb-light-gray: #F4F7FB;
-  --color-ibb-border: #DCE5F0;
+  /* Reference Palette Tokens for White Theme */
+  --color-w-primary: #1769FF;     /* Primary Blue */
+  --color-w-deep: #0B3B91;        /* Deep Blue */
+  --color-w-light: #EAF2FF;       /* Light Blue */
+  --color-w-soft: #F3F7FF;        /* Soft Blue */
+  --color-w-bg: #F5F7FB;          /* Background */
+  --color-w-surface: #FFFFFF;     /* White Surface */
+  --color-w-text: #172033;        /* Primary Text */
+  --color-w-subtext: #64748B;     /* Secondary Text */
+  --color-w-muted: #94A3B8;       /* Muted Text */
+  --color-w-border: #E2E8F0;      /* Border */
+  --color-w-success: #16A34A;     /* Success Green */
+  --color-w-warning: #F59E0B;     /* Warning Amber */
+  --color-w-danger: #DC2626;      /* Danger Red */
+  --color-w-info: #2563EB;        /* Info Blue */
 
-  /* Binance Midnight Dark Theme Token System */
+  /* Legacy aliases for backward compatibility */
+  --color-ibb-navy: #0B3B91;
+  --color-ibb-dark-navy: #071A33;
+  --color-ibb-blue: #1769FF;
+  --color-ibb-emerald: #16A34A;
+  --color-ibb-light-blue: #EAF2FF;
+  --color-ibb-light-gray: #F5F7FB;
+  --color-ibb-border: #E2E8F0;
+
+  /* Binance Midnight Dark Theme Token System (STRICTLY 100% PRESERVED) */
   --color-b-canvas: #0B0E11;       /* Level 1: Canvas */
   --color-b-sub: #11151B;          /* Level 2: Sidebar, Header */
   --color-b-card: #181D24;         /* Level 3: Cards, Tables */
@@ -26,7 +42,7 @@
   --color-b-subtext: #A0AAB8;      /* Secondary text */
   --color-b-dim: #707A8A;          /* Muted metadata */
 
-  /* Binance Financial Accents */
+  /* Binance Financial Accents (DARK THEME) */
   --color-b-gold: #FCD535;         /* Primary Accent */
   --color-b-blue: #3B82F6;         /* Secondary Accent */
   --color-b-green: #0ECB81;        /* Success / Admitted */
@@ -37,28 +53,32 @@
 }
 
 /* ======================================================== */
-/* REFINED WHITE / LIGHT THEME: COMFORTABLE & BALANCED      */
-/* Glare-free canvas, high text contrast, distinct cards    */
+/* MODERN WHITE THEME: CLEAN, REFINED, HARMONIOUS (REFERENCE)*/
+/* Exact palette: #1769FF, #F5F7FB, #FFFFFF, #172033, #64748B */
 /* ======================================================== */
 :root {
   color-scheme: light;
-  --bg-app: #EEF2F6;            /* Soft executive light canvas, eliminating bright glare */
-  --bg-dashboard: #EEF2F6;      /* High distinction from white cards */
-  --bg-sidebar: #FFFFFF;        /* Clean distinct sidebar */
-  --bg-card: #FFFFFF;           /* Elevated card surface */
-  --bg-card-secondary: #F8FAFD;
+  --bg-app: #F5F7FB;            /* Exact Background: #F5F7FB */
+  --bg-dashboard: #F5F7FB;
+  --bg-sidebar: #FFFFFF;        /* Clean White Surface */
+  --bg-card: #FFFFFF;           /* Elevated White Surface */
+  --bg-card-secondary: #F3F7FF; /* Soft Blue Surface */
   --bg-elevated: #FFFFFF;
-  --bg-hover: #E2E8F0;
-  --border-app: #CBD5E1;        /* Crisp, clear structure */
+  --bg-hover: #F3F7FF;          /* Soft Blue Hover */
+  --bg-active: #EAF2FF;         /* Light Blue Active */
+  --border-app: #E2E8F0;        /* Exact Border: #E2E8F0 */
   --border-divider: #E2E8F0;
-  --text-main: #0F172A;         /* Slate-900 high contrast */
-  --text-muted: #334155;        /* Slate-700 legible secondary */
-  --text-dim: #64748B;          /* Slate-500 readable metadata */
-  --accent-primary: #1769FF;
-  --accent-success: #059669;
-  --accent-warning: #B45309;    /* Legible amber in light mode */
-  --accent-danger: #DC2626;
-  --accent-info: #0284C7;
+  --text-main: #172033;         /* Primary Text: #172033 */
+  --text-muted: #64748B;        /* Secondary Text: #64748B */
+  --text-dim: #94A3B8;          /* Muted Text: #94A3B8 */
+  --accent-primary: #1769FF;    /* Primary Blue: #1769FF */
+  --accent-deep: #0B3B91;       /* Deep Blue: #0B3B91 */
+  --accent-light: #EAF2FF;      /* Light Blue: #EAF2FF */
+  --accent-soft: #F3F7FF;       /* Soft Blue: #F3F7FF */
+  --accent-success: #16A34A;    /* Success Green: #16A34A */
+  --accent-warning: #F59E0B;    /* Warning Amber: #F59E0B */
+  --accent-danger: #DC2626;     /* Danger Red: #DC2626 */
+  --accent-info: #2563EB;       /* Info Blue: #2563EB */
 }
 
 /* ======================================================== */
@@ -181,16 +201,98 @@ html:not(.dark) .light-card-shadow {
   box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.06), 0 1px 2px -1px rgba(15, 23, 42, 0.04);
 }
 
-/* Print Styles */
+/* Print Styles for Clean A4 Output */
 @media print {
-  .no-print {
+  @page {
+    size: A4 portrait;
+    margin: 12mm 15mm;
+  }
+
+  *, *::before, *::after {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    font-size: 11pt !important;
+    line-height: 1.4 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .no-print,
+  nav,
+  aside,
+  header,
+  footer,
+  button,
+  .print-hidden,
+  [data-no-print="true"] {
     display: none !important;
   }
+
   .print-only {
     display: block !important;
   }
-  body {
-    background: white !important;
-    color: black !important;
+
+  /* Reset dashboard layout margins and padding for clean full-width print */
+  .lg\:pl-72,
+  div[class*="lg:pl-72"],
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  /* Force light backgrounds and dark text for all printed components */
+  div, section, article, table, th, td, p, span, h1, h2, h3, h4, h5, h6 {
+    background-color: transparent !important;
+    color: #0f172a !important;
+  }
+
+  /* Crisp table borders and headers */
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    margin-top: 10px !important;
+    page-break-inside: auto;
+  }
+
+  tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+
+  th {
+    background-color: #f1f5f9 !important;
+    color: #0f172a !important;
+    border: 1px solid #cbd5e1 !important;
+    font-weight: 700 !important;
+    padding: 6px 8px !important;
+    text-transform: uppercase !important;
+    font-size: 9pt !important;
+  }
+
+  td {
+    border: 1px solid #e2e8f0 !important;
+    padding: 6px 8px !important;
+    font-size: 9.5pt !important;
+    color: #1e293b !important;
+  }
+
+  /* Avoid page breaks inside important cards and vouchers */
+  .card, [class*="rounded-"], [class*="border"] {
+    border-color: #cbd5e1 !important;
+    page-break-inside: avoid;
+  }
+
+  /* Ensure links are printed cleanly */
+  a {
+    text-decoration: none !important;
+    color: inherit !important;
   }
 }
+

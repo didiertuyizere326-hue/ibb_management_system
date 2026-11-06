@@ -258,20 +258,20 @@ export const StockRemainingOverview: React.FC<StockRemainingOverviewProps> = ({
           </div>
         ) : viewMode === 'table' ? (
           /* DETAILED LEDGER TABLE VIEW (All 7 required fields) */
-          <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-[#252B33]">
+          <div className="overflow-x-auto rounded-2xl border border-[#E2E8F0] dark:border-[#252B33]">
             <table className="w-full text-left text-xs min-w-[700px]">
-              <thead className="bg-slate-50 dark:bg-[#11151B] text-slate-500 dark:text-[#707A8A] uppercase font-mono tracking-wider text-[10px] border-b border-slate-200 dark:border-[#252B33]">
+              <thead className="bg-[#F5F7FB] dark:bg-[#11151B] text-[#64748B] dark:text-[#707A8A] uppercase font-sans font-bold tracking-wider text-[10px] border-b border-[#E2E8F0] dark:border-[#252B33]">
                 <tr>
-                  <th className="py-3 px-4 font-bold">{language === 'rw' ? 'Ikiribwa' : 'Food Item Name'}</th>
-                  <th className="py-3 px-4 font-bold">{language === 'rw' ? 'Icyiciro' : 'Category'}</th>
-                  <th className="py-3 px-4 font-bold text-right">{language === 'rw' ? 'Ibihari Ubu' : 'Available Stock'}</th>
-                  <th className="py-3 px-4 font-bold text-right">{language === 'rw' ? 'Ingano y’Ibanze' : 'Baseline Capacity'}</th>
-                  <th className="py-3 px-4 font-bold text-center">{language === 'rw' ? 'Ijanisha Risigaye' : 'Remaining %'}</th>
-                  <th className="py-3 px-4 font-bold text-center min-w-[160px]">{language === 'rw' ? 'Urugero rw’Ibisigaye' : 'Progress Bar'}</th>
-                  <th className="py-3 px-4 font-bold text-center">{language === 'rw' ? 'Imiterere' : 'Stock Status'}</th>
+                  <th className="py-3 px-4">{language === 'rw' ? 'Ikiribwa' : 'Food Item Name'}</th>
+                  <th className="py-3 px-4">{language === 'rw' ? 'Icyiciro' : 'Category'}</th>
+                  <th className="py-3 px-4 text-right">{language === 'rw' ? 'Ibihari Ubu' : 'Available Stock'}</th>
+                  <th className="py-3 px-4 text-right">{language === 'rw' ? 'Ingano y’Ibanze' : 'Baseline Capacity'}</th>
+                  <th className="py-3 px-4 text-center">{language === 'rw' ? 'Ijanisha Risigaye' : 'Remaining %'}</th>
+                  <th className="py-3 px-4 text-center min-w-[160px]">{language === 'rw' ? 'Urugero rw’Ibisigaye' : 'Progress Bar'}</th>
+                  <th className="py-3 px-4 text-center">{language === 'rw' ? 'Imiterere' : 'Stock Status'}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-[#252B33] bg-white dark:bg-[#181D24]">
+              <tbody className="divide-y divide-[#E2E8F0] dark:divide-[#252B33] bg-white dark:bg-[#181D24]">
                 {filteredItems.map((item) => {
                   const safeAvailable = Math.max(0, item.current_stock);
                   const safeRef = item.reference_quantity && item.reference_quantity > 0
@@ -288,15 +288,15 @@ export const StockRemainingOverview: React.FC<StockRemainingOverviewProps> = ({
                   return (
                     <tr
                       key={item.id}
-                      className={`hover:bg-slate-50/80 dark:hover:bg-[#202630]/60 transition-colors ${
+                      className={`hover:bg-[#F3F7FF] dark:hover:bg-[#202630]/60 transition-colors ${
                         isOut ? 'bg-rose-50/30 dark:bg-rose-950/10' : isLow ? 'bg-amber-50/20 dark:bg-amber-950/10' : ''
                       }`}
                     >
                       <td className="py-3 px-4">
-                        <span className="font-bold text-slate-900 dark:text-[#F0F3F6] block">
+                        <span className="font-bold text-[#172033] dark:text-[#F0F3F6] block">
                           {item.name}
                         </span>
-                        <span className="text-[10px] font-mono text-slate-400 dark:text-[#707A8A]">
+                        <span className="text-[10px] font-sans text-[#64748B] dark:text-[#707A8A]">
                           ID #{item.id} · Unit: {item.unit}
                         </span>
                       </td>
@@ -371,23 +371,23 @@ export const StockRemainingOverview: React.FC<StockRemainingOverviewProps> = ({
               return (
                 <div
                   key={item.id}
-                  className={`p-4 rounded-xl transition-all space-y-3 ${
+                  className={`p-4 rounded-2xl transition-all space-y-3 ${
                     isOut
                       ? 'bg-rose-50/40 dark:bg-rose-950/10 border-2 border-rose-300 dark:border-rose-900/60'
                       : isLow
                       ? 'bg-amber-50/30 dark:bg-amber-950/10 border-2 border-amber-300 dark:border-amber-900/60'
-                      : 'bg-slate-50 dark:bg-[#11151B] border border-slate-200 dark:border-[#252B33] hover:border-slate-300 dark:hover:border-[#2B3139]'
+                      : 'bg-white dark:bg-[#11151B] border border-[#E2E8F0] dark:border-[#252B33] hover:border-[#1769FF]/40 dark:hover:border-[#2B3139] shadow-xs'
                   }`}
                 >
                   {/* Top Row: Food Name, Category & Status Badge */}
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-1.5">
-                        <h4 className="text-sm font-bold text-slate-900 dark:text-[#F0F3F6] truncate">
+                        <h4 className="text-sm font-bold text-[#172033] dark:text-[#F0F3F6] truncate">
                           {item.name}
                         </h4>
                       </div>
-                      <span className="text-[10px] font-mono text-slate-500 dark:text-[#707A8A]">
+                      <span className="text-[10px] font-sans text-[#64748B] dark:text-[#707A8A]">
                         {item.category} · Unit: <strong>{item.unit}</strong>
                       </span>
                     </div>
@@ -401,26 +401,26 @@ export const StockRemainingOverview: React.FC<StockRemainingOverviewProps> = ({
                   <div className="flex items-end justify-between gap-4 pt-1">
                     <div className="space-y-1">
                       <div className="flex items-baseline gap-1.5">
-                        <span className={`text-xl font-extrabold font-mono tabular-nums tracking-tight ${
-                          isOut ? 'text-[#F6465D]' : isLow ? 'text-amber-600 dark:text-[#F0B90B]' : 'text-slate-900 dark:text-white'
+                        <span className={`text-2xl font-extrabold font-sans tabular-nums tracking-tight ${
+                          isOut ? 'text-[#DC2626] dark:text-[#F6465D]' : isLow ? 'text-[#D97706] dark:text-[#F0B90B]' : 'text-[#172033] dark:text-white'
                         }`}>
                           {safeAvailable.toLocaleString()}
                         </span>
-                        <span className="text-xs text-slate-600 dark:text-[#A0AAB8] font-semibold">
+                        <span className="text-xs text-[#64748B] dark:text-[#A0AAB8] font-semibold">
                           {item.unit}
                         </span>
-                        <span className="text-xs text-slate-400 dark:text-[#707A8A]">
+                        <span className="text-xs text-[#94A3B8] dark:text-[#707A8A]">
                           {language === 'rw' ? 'bihari' : 'available'}
                         </span>
                       </div>
 
-                      <div className="text-[11px] font-mono text-slate-500 dark:text-[#707A8A] flex items-center gap-1.5">
+                      <div className="text-[11px] font-sans text-[#64748B] dark:text-[#707A8A] flex items-center gap-1.5">
                         <span>{language === 'rw' ? 'Ingano y’Ibanze:' : 'Baseline Capacity:'}</span>
-                        <strong className="text-slate-800 dark:text-[#A0AAB8]">
+                        <strong className="text-[#172033] dark:text-[#A0AAB8] font-bold tabular-nums">
                           {safeRef.toLocaleString()} {item.unit}
                         </strong>
                         {item.min_stock_alert > 0 && (
-                          <span className="text-slate-400 dark:text-[#707A8A] text-[10px]">
+                          <span className="text-[#94A3B8] dark:text-[#707A8A] text-[10px]">
                             ({language === 'rw' ? 'Iburira' : 'Alert'} &le; {item.min_stock_alert})
                           </span>
                         )}
@@ -429,16 +429,16 @@ export const StockRemainingOverview: React.FC<StockRemainingOverviewProps> = ({
 
                     {/* Numeric Percentage Pill */}
                     <div className="text-right shrink-0">
-                      <div className={`px-2.5 py-1 rounded-lg font-mono font-black text-xl tabular-nums tracking-tight ${
+                      <div className={`px-3 py-1 rounded-xl font-sans font-extrabold text-xl tabular-nums tracking-tight ${
                         isOut
                           ? 'bg-rose-500/20 text-[#991B1B] dark:text-[#F6465D]'
                           : isLow
                           ? 'bg-amber-500/20 text-[#92400E] dark:text-[#F0B90B]'
-                          : 'bg-emerald-500/20 text-[#065F46] dark:text-[#0ECB81]'
+                          : 'bg-[#EAF2FF] text-[#1769FF] dark:bg-[#0ECB81]/20 dark:text-[#0ECB81]'
                       }`}>
                         {calculatedPercentage}%
                       </div>
-                      <span className="block text-[9px] uppercase font-mono font-bold tracking-wider text-slate-400 dark:text-[#707A8A] mt-0.5">
+                      <span className="block text-[9px] uppercase font-sans font-bold tracking-wider text-[#94A3B8] dark:text-[#707A8A] mt-0.5">
                         {language === 'rw' ? 'Ijanisha Risigaye' : 'Remaining Capacity'}
                       </span>
                     </div>

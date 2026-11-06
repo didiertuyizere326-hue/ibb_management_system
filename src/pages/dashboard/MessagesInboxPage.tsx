@@ -108,55 +108,57 @@ export const MessagesInboxPage: React.FC = () => {
         </div>
       )}
 
-      {/* Messages List (Level 3 Surface) */}
-      <div className="bg-white dark:bg-[#181D24] rounded-xl border border-slate-200 dark:border-[#2B3139] shadow-xs overflow-hidden">
+      {/* Messages List */}
+      <div className="bg-white dark:bg-[#181D24] rounded-2xl border border-[#E2E8F0] dark:border-[#2B3139] shadow-xs overflow-hidden max-w-full">
         {loading ? (
-          <div className="p-12 text-center text-xs text-slate-500 dark:text-[#A0AAB8] font-mono">
-            Loading inbox messages...
+          <div className="p-12 text-center text-xs text-[#64748B] dark:text-[#A0AAB8] font-sans">
+            {language === 'rw' ? 'Gufungura ubutumwa bwoherejwe...' : 'Loading inbox messages...'}
           </div>
         ) : messages.length === 0 ? (
-          <div className="p-12 text-center text-slate-500 dark:text-[#707A8A] space-y-2">
-            <Inbox className="w-8 h-8 mx-auto text-slate-400 dark:text-[#707A8A]" />
-            <p className="text-xs">No contact inquiries found matching criteria.</p>
+          <div className="p-12 text-center text-[#64748B] dark:text-[#707A8A] space-y-2">
+            <Inbox className="w-8 h-8 mx-auto text-[#94A3B8] dark:text-[#707A8A]" />
+            <p className="text-xs">
+              {language === 'rw' ? 'Nta butumwa buhuye n’ibyashakishijwe bubonetse.' : 'No contact inquiries found matching criteria.'}
+            </p>
           </div>
         ) : (
-          <div className="divide-y divide-slate-100 dark:divide-[#252B33]">
+          <div className="divide-y divide-[#E2E8F0] dark:divide-[#252B33]">
             {messages.map((msg) => (
               <div
                 key={msg.id}
                 onClick={() => openMessageModal(msg)}
-                className={`p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/70 dark:hover:bg-[#202630]/60 transition-colors cursor-pointer ${
-                  msg.status === 'New' ? 'bg-[#FCD535]/5 border-l-2 border-[#FCD535]' : ''
+                className={`p-3.5 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 hover:bg-[#F3F7FF] dark:hover:bg-[#202630]/60 transition-colors cursor-pointer min-w-0 max-w-full ${
+                  msg.status === 'New' ? 'bg-[#F3F7FF]/70 border-l-3 border-[#1769FF] dark:bg-[#FCD535]/5 dark:border-[#FCD535]' : ''
                 }`}
               >
-                <div className="space-y-1 max-w-xl">
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-[10px] text-[#3B82F6] dark:text-[#FCD535] font-bold">
+                <div className="space-y-1 min-w-0 flex-1 max-w-full">
+                  <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                    <span className="font-sans text-[11px] text-[#1769FF] dark:text-[#FCD535] font-bold shrink-0">
                       {msg.reference_number}
                     </span>
-                    <span className="text-xs font-bold text-slate-900 dark:text-[#F0F3F6]">
+                    <span className="text-xs font-bold text-[#172033] dark:text-[#F0F3F6] truncate max-w-[200px] sm:max-w-xs">
                       {msg.sender_name}
                     </span>
-                    <span className={`px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase tracking-wider ${
+                    <span className={`px-2 py-0.5 rounded-full text-[9px] font-sans font-bold uppercase tracking-wider shrink-0 ${
                       msg.status === 'New'
-                        ? 'bg-[#FCD535]/15 text-[#B37800] dark:text-[#FCD535] border border-[#FCD535]/30'
+                        ? 'bg-[#EAF2FF] text-[#1769FF] border border-[#BFDBFE] dark:bg-[#FCD535]/15 dark:text-[#FCD535] dark:border-[#FCD535]/30'
                         : msg.status === 'Replied'
-                        ? 'bg-[#0ECB81]/15 text-[#0ECB81] border border-[#0ECB81]/30'
-                        : 'bg-slate-100 text-slate-600 dark:bg-[#11151B] dark:text-[#707A8A]'
+                        ? 'bg-[#DCFCE7] text-[#16A34A] border border-[#BBF7D0] dark:bg-[#0ECB81]/15 dark:text-[#0ECB81] dark:border-[#0ECB81]/30'
+                        : 'bg-[#F5F7FB] text-[#64748B] border border-[#E2E8F0] dark:bg-[#11151B] dark:text-[#707A8A]'
                     }`}>
                       {msg.status}
                     </span>
                   </div>
 
-                  <h4 className="text-xs font-bold text-slate-800 dark:text-[#F0F3F6]">
+                  <h4 className="text-xs font-bold text-[#172033] dark:text-[#F0F3F6] truncate break-words max-w-full">
                     {msg.subject}
                   </h4>
-                  <p className="text-xs text-slate-500 dark:text-[#A0AAB8] line-clamp-1">
+                  <p className="text-xs text-[#64748B] dark:text-[#A0AAB8] line-clamp-2 break-words break-all max-w-full">
                     {msg.message}
                   </p>
                 </div>
 
-                <div className="text-right sm:text-right text-[11px] text-slate-400 dark:text-[#707A8A] font-mono shrink-0">
+                <div className="text-left sm:text-right text-[11px] text-[#64748B] dark:text-[#707A8A] font-sans shrink-0 self-start sm:self-auto tabular-nums">
                   <span>{new Date(msg.created_at).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                 </div>
               </div>
@@ -167,48 +169,51 @@ export const MessagesInboxPage: React.FC = () => {
 
       {/* DETAIL & REPLY MODAL (Level 4 Elevated: #202630) */}
       {activeMessage && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-fadeIn">
-          <div className="bg-white dark:bg-[#202630] rounded-xl p-6 max-w-lg w-full border border-slate-200 dark:border-[#2B3139] shadow-2xl space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2.5 sm:p-4 bg-black/75 backdrop-blur-xs animate-fadeIn overflow-y-auto">
+          <div className="bg-white dark:bg-[#202630] rounded-2xl p-4 sm:p-6 max-w-lg w-full max-h-[92vh] overflow-y-auto border border-slate-200 dark:border-[#2B3139] shadow-2xl space-y-4 my-auto">
             
-            <div className="flex items-center justify-between border-b border-slate-200 dark:border-[#252B33] pb-3">
-              <div>
-                <span className="text-[10px] font-mono text-[#FCD535] font-bold">
+            <div className="flex items-start justify-between border-b border-slate-200 dark:border-[#252B33] pb-3 gap-2">
+              <div className="min-w-0 flex-1">
+                <span className="text-[10px] font-mono text-[#FCD535] font-bold block">
                   {activeMessage.reference_number}
                 </span>
-                <h3 className="text-base font-bold text-slate-900 dark:text-[#F0F3F6]">
+                <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-[#F0F3F6] break-words">
                   {activeMessage.subject}
                 </h3>
               </div>
-              <button onClick={() => setActiveMessage(null)} className="text-slate-400 hover:text-slate-600 dark:hover:text-[#F0F3F6]">
+              <button
+                onClick={() => setActiveMessage(null)}
+                className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-[#F0F3F6] rounded-lg shrink-0 cursor-pointer"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <div className="space-y-3 text-xs">
-              <div className="grid grid-cols-2 gap-2 p-3 rounded-lg bg-slate-50 dark:bg-[#11151B] border border-slate-200 dark:border-[#2B3139]">
-                <div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 p-3 rounded-xl bg-slate-50 dark:bg-[#11151B] border border-slate-200 dark:border-[#2B3139] break-words">
+                <div className="min-w-0">
                   <span className="text-slate-400 dark:text-[#707A8A] block text-[10px]">From:</span>
-                  <strong className="text-slate-800 dark:text-[#F0F3F6]">{activeMessage.sender_name}</strong>
+                  <strong className="text-slate-800 dark:text-[#F0F3F6] truncate block">{activeMessage.sender_name}</strong>
                 </div>
-                <div>
+                <div className="min-w-0">
                   <span className="text-slate-400 dark:text-[#707A8A] block text-[10px]">Email:</span>
-                  <strong className="text-slate-800 dark:text-[#F0F3F6] font-mono">{activeMessage.sender_email}</strong>
+                  <strong className="text-slate-800 dark:text-[#F0F3F6] font-mono break-all block">{activeMessage.sender_email}</strong>
                 </div>
                 {activeMessage.sender_phone && (
-                  <div>
+                  <div className="min-w-0">
                     <span className="text-slate-400 dark:text-[#707A8A] block text-[10px]">Phone:</span>
-                    <strong className="text-slate-800 dark:text-[#F0F3F6] font-mono">{activeMessage.sender_phone}</strong>
+                    <strong className="text-slate-800 dark:text-[#F0F3F6] font-mono block">{activeMessage.sender_phone}</strong>
                   </div>
                 )}
-                <div>
+                <div className="min-w-0">
                   <span className="text-slate-400 dark:text-[#707A8A] block text-[10px]">Submitted:</span>
-                  <span className="font-mono text-slate-600 dark:text-[#A0AAB8]">
-                    {new Date(activeMessage.created_at).toLocaleString()}
+                  <span className="font-mono text-slate-600 dark:text-[#A0AAB8] block">
+                    {new Date(activeMessage.created_at).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}
                   </span>
                 </div>
               </div>
 
-              <div className="p-4 rounded-lg border border-slate-200 dark:border-[#2B3139] bg-white dark:bg-[#181D24] leading-relaxed text-slate-700 dark:text-[#F0F3F6]">
+              <div className="p-4 rounded-xl border border-slate-200 dark:border-[#2B3139] bg-slate-50/50 dark:bg-[#181D24] leading-relaxed text-slate-800 dark:text-[#F0F3F6] break-words whitespace-pre-wrap max-h-56 overflow-y-auto">
                 {activeMessage.message}
               </div>
 
@@ -242,17 +247,17 @@ export const MessagesInboxPage: React.FC = () => {
                   />
                 </div>
 
-                <div className="flex justify-end gap-2 pt-2 border-t border-slate-200 dark:border-[#252B33]">
+                <div className="flex flex-wrap items-center justify-end gap-2 pt-2 border-t border-slate-200 dark:border-[#252B33]">
                   <button
                     type="button"
                     onClick={() => setActiveMessage(null)}
-                    className="px-4 py-2 text-xs font-medium text-slate-600 dark:text-[#A0AAB8] hover:bg-slate-100 dark:hover:bg-[#262D38] rounded-lg transition-colors"
+                    className="px-4 py-2 text-xs font-medium text-slate-600 dark:text-[#A0AAB8] hover:bg-slate-100 dark:hover:bg-[#262D38] rounded-lg transition-colors cursor-pointer"
                   >
                     {language === 'rw' ? 'Funga' : 'Close'}
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 text-xs font-bold text-slate-950 bg-[#FCD535] hover:bg-[#E5A910] rounded-lg shadow-sm transition-colors"
+                    className="px-5 py-2 text-xs font-bold text-slate-950 bg-[#FCD535] hover:bg-[#E5A910] rounded-lg shadow-sm transition-colors cursor-pointer"
                   >
                     {language === 'rw' ? 'Bika Impinduka' : 'Save Status Update'}
                   </button>

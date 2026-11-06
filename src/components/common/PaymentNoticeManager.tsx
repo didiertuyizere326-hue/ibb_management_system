@@ -16,7 +16,8 @@ import {
   CreditCard,
   FileText,
   ShieldCheck,
-  Power
+  Power,
+  Download
 } from 'lucide-react';
 
 interface PaymentNoticeManagerProps {
@@ -394,9 +395,38 @@ export const PaymentNoticeManager: React.FC<PaymentNoticeManagerProps> = ({ defa
                 </div>
               </div>
 
-              <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 px-1">
+              <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 px-1 pt-1">
                 <span>Aspect: Preserved</span>
-                <span>Click image to zoom</span>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (!activeNotice?.image_url) return;
+                    try {
+                      const res = await fetch(activeNotice.image_url);
+                      const blob = await res.blob();
+                      const url = window.URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = `IBB_Payment_Notice_${activeNotice.academic_year || '2026'}.png`;
+                      document.body.appendChild(a);
+                      a.click();
+                      document.body.removeChild(a);
+                      window.URL.revokeObjectURL(url);
+                    } catch {
+                      const a = document.createElement('a');
+                      a.href = activeNotice.image_url;
+                      a.download = `IBB_Payment_Notice_${activeNotice.academic_year || '2026'}.png`;
+                      a.target = '_blank';
+                      document.body.appendChild(a);
+                      a.click();
+                      document.body.removeChild(a);
+                    }
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-100 dark:bg-[#202630] hover:bg-[#FCD535] hover:text-slate-950 text-slate-700 dark:text-[#F0F3F6] font-sans font-bold transition-colors cursor-pointer"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Download Image</span>
+                </button>
               </div>
             </div>
 

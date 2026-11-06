@@ -90,6 +90,7 @@ export function App() {
                 <Route path="suppliers" element={<SuppliersPage />} />
                 <Route path="schedules" element={<StockSchedulesPage />} />
                 <Route path="reports" element={<ReportsPage />} />
+                <Route path="messages" element={<MessagesInboxPage />} />
                 <Route path="profile" element={<ProfilePage />} />
               </Route>
 
@@ -100,6 +101,7 @@ export function App() {
                 <Route index element={<FoodInventoryPage />} />
                 <Route path="stock-out" element={<StockOutPage />} />
                 <Route path="history" element={<TransactionsLedgerPage />} />
+                <Route path="messages" element={<MessagesInboxPage />} />
                 <Route path="profile" element={<ProfilePage />} />
               </Route>
 

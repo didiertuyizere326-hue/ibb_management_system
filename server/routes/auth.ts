@@ -11,6 +11,33 @@ import {
 
 const router = Router();
 
+// Check Lockout Status
+router.get('/lockout-status', (req, res) => {
+  try {
+    const email = (req.query.email as string)?.trim().toLowerCase();
+    if (!email) return res.json({ locked: false, remainingSeconds: 0, failedAttempts: 0 });
+
+    const sec = db.prepare('SELECT failed_attempts, locked_until FROM login_security WHERE identifier = ?').get(email) as {
+      failed_attempts: number;
+      locked_until: string | null;
+    } | undefined;
+
+    if (sec && sec.locked_until) {
+      const diffMs = new Date(sec.locked_until).getTime() - Date.now();
+      if (diffMs > 0) {
+        return res.json({
+          locked: true,
+          remainingSeconds: Math.ceil(diffMs / 1000),
+          failedAttempts: sec.failed_attempts,
+        });
+      }
+    }
+    return res.json({ locked: false, remainingSeconds: 0, failedAttempts: sec?.failed_attempts || 0 });
+  } catch (err) {
+    return res.status(500).json({ error: 'Failed to query lockout status.' });
+  }
+});
+
 // Staff Login (Email + Password, No OTP)
 router.post('/login', (req, res) => {
   try {
@@ -20,7 +47,86 @@ router.post('/login', (req, res) => {
       return res.status(400).json({ error: 'Email and password are required.' });
     }
 
-    const staff = db.prepare('SELECT * FROM staff WHERE email = ?').get(email.trim().toLowerCase()) as {
+    const normalizedEmail = email.trim().toLowerCase();
+
+    // Check existing lockout state in database
+    const sec = db.prepare('SELECT failed_attempts, locked_until FROM login_security WHERE identifier = ?').get(normalizedEmail) as {
+      failed_attempts: number;
+      locked_until: string | null;
+    } | undefined;
+
+    if (sec && sec.locked_until) {
+      const diffMs = new Date(sec.locked_until).getTime() - Date.now();
+      if (diffMs > 0) {
+        const remainingSeconds = Math.ceil(diffMs / 1000);
+        return res.status(429).json({
+          error: `Account is temporarily locked due to 3 consecutive failed login attempts. Please wait ${remainingSeconds} second(s).`,
+          locked: true,
+          remainingSeconds,
+          failedAttempts: sec.failed_attempts,
+        });
+      } else {
+        // Lockout expired, reset for this attempt
+        db.prepare('DELETE FROM login_security WHERE identifier = ?').run(normalizedEmail);
+      }
+    }
+
+    // Helper to register failed attempt and enforce 2-minute lockout on 3rd failure
+    const recordFailedAttempt = () => {
+      const current = db.prepare('SELECT failed_attempts, locked_until FROM login_security WHERE identifier = ?').get(normalizedEmail) as {
+        failed_attempts: number;
+        locked_until: string | null;
+      } | undefined;
+
+      let attempts = 1;
+      if (current) {
+        if (current.locked_until && new Date(current.locked_until).getTime() <= Date.now()) {
+          attempts = 1;
+        } else {
+          attempts = (current.failed_attempts || 0) + 1;
+        }
+      }
+
+      if (attempts >= 3) {
+        const lockoutMinutes = 2;
+        const lockedUntil = new Date(Date.now() + lockoutMinutes * 60 * 1000).toISOString();
+        db.prepare(`
+          INSERT INTO login_security (identifier, failed_attempts, locked_until, last_attempt)
+          VALUES (?, 3, ?, CURRENT_TIMESTAMP)
+          ON CONFLICT(identifier) DO UPDATE SET
+            failed_attempts = 3,
+            locked_until = excluded.locked_until,
+            last_attempt = CURRENT_TIMESTAMP
+        `).run(normalizedEmail, lockedUntil);
+
+        return {
+          locked: true,
+          attempts: 3,
+          remainingAttempts: 0,
+          remainingSeconds: 120,
+          error: 'Maximum login attempts exceeded (3/3). Account is temporarily locked for 2 minutes.',
+        };
+      } else {
+        db.prepare(`
+          INSERT INTO login_security (identifier, failed_attempts, locked_until, last_attempt)
+          VALUES (?, ?, NULL, CURRENT_TIMESTAMP)
+          ON CONFLICT(identifier) DO UPDATE SET
+            failed_attempts = excluded.failed_attempts,
+            locked_until = NULL,
+            last_attempt = CURRENT_TIMESTAMP
+        `).run(normalizedEmail, attempts);
+
+        const remaining = 3 - attempts;
+        return {
+          locked: false,
+          attempts,
+          remainingAttempts: remaining,
+          error: `Invalid email or password. ${remaining} attempt${remaining > 1 ? 's' : ''} remaining before temporary 2-minute lockout.`,
+        };
+      }
+    };
+
+    const staff = db.prepare('SELECT * FROM staff WHERE email = ?').get(normalizedEmail) as {
       id: number;
       email: string;
       password_hash: string;
@@ -33,14 +139,15 @@ router.post('/login', (req, res) => {
     } | undefined;
 
     if (!staff) {
+      const failure = recordFailedAttempt();
       logAudit({
         userRole: 'ANONYMOUS',
-        action: 'FAILED_LOGIN',
+        action: failure.locked ? 'ACCOUNT_LOCKOUT' : 'FAILED_LOGIN',
         recordType: 'STAFF',
-        details: `Failed login attempt for unknown email: ${email}`,
+        details: `Failed login attempt for unknown email: ${email} (${failure.attempts}/3)${failure.locked ? ' - Locked for 2 minutes' : ''}`,
         req,
       });
-      return res.status(401).json({ error: 'Invalid email or password.' });
+      return res.status(failure.locked ? 429 : 401).json(failure);
     }
 
     if (staff.is_active !== 1) {
@@ -61,18 +168,24 @@ router.post('/login', (req, res) => {
 
     const isMatch = bcrypt.compareSync(password, staff.password_hash);
     if (!isMatch) {
+      const failure = recordFailedAttempt();
       logAudit({
         userId: staff.id,
         userName: staff.full_name,
         userRole: staff.role,
-        action: 'FAILED_PASSWORD',
+        action: failure.locked ? 'ACCOUNT_LOCKOUT' : 'FAILED_PASSWORD',
         recordType: 'STAFF',
         recordId: staff.id,
-        details: `Incorrect password entered for ${staff.email}`,
+        details: failure.locked
+          ? `Account locked for 2 minutes after 3 consecutive failed attempts (${staff.email})`
+          : `Incorrect password entered for ${staff.email} (${failure.attempts}/3)`,
         req,
       });
-      return res.status(401).json({ error: 'Invalid email or password.' });
+      return res.status(failure.locked ? 429 : 401).json(failure);
     }
+
+    // Reset failed attempts counter immediately on successful login
+    db.prepare('DELETE FROM login_security WHERE identifier = ?').run(normalizedEmail);
 
     const authUser = {
       id: staff.id,
@@ -261,6 +374,14 @@ router.put('/profile', authenticateToken, (req: AuthRequest, res) => {
     const { fullName, phone, avatarUrl } = req.body;
     if (!fullName || !fullName.trim()) {
       return res.status(400).json({ error: 'Full name is required.' });
+    }
+
+    // Strict security enforcement: Institutional identity fields are immutable
+    if (req.body.email !== undefined && req.body.email.trim().toLowerCase() !== req.user!.email.toLowerCase()) {
+      return res.status(403).json({ error: 'Official Institutional Email is protected and immutable.' });
+    }
+    if (req.body.role !== undefined && req.body.role !== req.user!.role) {
+      return res.status(403).json({ error: 'Assigned staff role is protected and cannot be changed.' });
     }
 
     db.prepare(`

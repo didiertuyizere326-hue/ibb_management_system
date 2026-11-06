@@ -181,81 +181,81 @@ export const FoodInventoryPage: React.FC = () => {
         </div>
       )}
 
-      {/* KPI CARDS (Binance Midnight Level 3) */}
+      {/* KPI CARDS */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         
         {/* Card 1: Valuation */}
-        <div className="bg-white dark:bg-[#181D24] rounded-xl p-5 border border-slate-200 dark:border-[#2B3139] shadow-xs hover:border-[#FCD535]/40 transition-all">
+        <div className="bg-white dark:bg-[#181D24] rounded-2xl p-5 border border-[#E2E8F0] dark:border-[#2B3139] shadow-xs hover:border-[#1769FF]/40 dark:hover:border-[#FCD535]/40 transition-all">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-[#707A8A]">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#64748B] dark:text-[#707A8A]">
               Total Reserve Valuation
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FCD535]/15 text-[#B37800] dark:text-[#FCD535] flex items-center justify-center">
-              <Wallet className="w-4 h-4" />
+            <div className="w-9 h-9 rounded-xl bg-[#EAF2FF] dark:bg-[#202630] text-[#1769FF] dark:text-[#FCD535] flex items-center justify-center">
+              <Wallet className="w-4 h-4 stroke-[2]" />
             </div>
           </div>
           <div className="mt-3">
             <div className="flex items-baseline gap-1.5">
-              <span className="text-xs font-mono font-bold text-slate-500 dark:text-[#707A8A]">RWF</span>
-              <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-[#F0F3F6] font-mono tabular-nums tracking-tight">
+              <span className="text-xs font-sans font-bold text-[#64748B] dark:text-[#707A8A]">RWF</span>
+              <span className="text-2xl sm:text-3xl font-extrabold text-[#172033] dark:text-[#F0F3F6] font-sans tabular-nums tracking-tight">
                 {Math.round(valuationData?.total_valuation || 0).toLocaleString()}
               </span>
             </div>
-            <div className="mt-2.5 flex items-center justify-between text-[11px] font-mono pt-2 border-t border-slate-100 dark:border-[#252B33]">
-              <span className="text-slate-500 dark:text-[#A0AAB8]">Active Staples:</span>
-              <span className="text-slate-900 dark:text-[#F0F3F6] font-bold">{valuationData?.total_items || 0} Products</span>
+            <div className="mt-2.5 flex items-center justify-between text-[11px] font-sans pt-2 border-t border-[#E2E8F0] dark:border-[#252B33]">
+              <span className="text-[#64748B] dark:text-[#A0AAB8]">Active Staples:</span>
+              <span className="text-[#172033] dark:text-[#F0F3F6] font-bold tabular-nums">{valuationData?.total_items || 0} Products</span>
             </div>
           </div>
         </div>
 
         {/* Card 2: Healthy Stock */}
-        <div className="bg-white dark:bg-[#181D24] rounded-xl p-5 border border-slate-200 dark:border-[#2B3139] shadow-xs hover:border-[#0ECB81]/40 transition-all">
+        <div className="bg-white dark:bg-[#181D24] rounded-2xl p-5 border border-[#E2E8F0] dark:border-[#2B3139] shadow-xs hover:border-[#16A34A]/40 dark:hover:border-[#0ECB81]/40 transition-all">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-[#707A8A]">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#64748B] dark:text-[#707A8A]">
               Healthy Stock Reserves
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#0ECB81]/15 text-[#0ECB81] flex items-center justify-center">
-              <CheckCircle2 className="w-4 h-4" />
+            <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-[#202630] text-[#16A34A] dark:text-[#0ECB81] flex items-center justify-center">
+              <CheckCircle2 className="w-4 h-4 stroke-[2]" />
             </div>
           </div>
           <div className="mt-3">
             <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-extrabold text-[#0ECB81] font-mono tabular-nums tracking-tight">
+              <span className="text-3xl font-extrabold text-[#16A34A] dark:text-[#0ECB81] font-sans tabular-nums tracking-tight">
                 {valuationData?.healthy_stock_count || 0}
               </span>
-              <span className="text-[11px] text-slate-500 dark:text-[#707A8A]">Products</span>
+              <span className="text-[11px] text-[#64748B] dark:text-[#707A8A]">Products</span>
             </div>
-            <div className="mt-2.5 flex items-center justify-between text-[11px] font-mono pt-2 border-t border-slate-100 dark:border-[#252B33]">
-              <span className="text-slate-500 dark:text-[#A0AAB8]">Safety Margin:</span>
-              <span className="text-[#0ECB81] font-bold">&gt; Minimum Reorder</span>
+            <div className="mt-2.5 flex items-center justify-between text-[11px] font-sans pt-2 border-t border-[#E2E8F0] dark:border-[#252B33]">
+              <span className="text-[#64748B] dark:text-[#A0AAB8]">Safety Margin:</span>
+              <span className="text-[#16A34A] dark:text-[#0ECB81] font-bold">&gt; Minimum Reorder</span>
             </div>
           </div>
         </div>
 
         {/* Card 3: Low Stock Alerts */}
-        <div className="bg-white dark:bg-[#181D24] rounded-xl p-5 border border-slate-200 dark:border-[#2B3139] shadow-xs hover:border-[#F6465D]/40 transition-all">
+        <div className="bg-white dark:bg-[#181D24] rounded-2xl p-5 border border-[#E2E8F0] dark:border-[#2B3139] shadow-xs hover:border-[#DC2626]/40 dark:hover:border-[#F6465D]/40 transition-all">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-[#707A8A]">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#64748B] dark:text-[#707A8A]">
               Reorder Alerts
             </span>
-            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-              valuationData?.low_stock_count > 0 ? 'bg-[#F6465D]/15 text-[#F6465D]' : 'bg-slate-100 dark:bg-[#202630] text-slate-400'
+            <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${
+              valuationData?.low_stock_count > 0 ? 'bg-rose-50 dark:bg-[#F6465D]/15 text-[#DC2626] dark:text-[#F6465D]' : 'bg-slate-100 dark:bg-[#202630] text-slate-400'
             }`}>
-              <AlertTriangle className="w-4 h-4" />
+              <AlertTriangle className="w-4 h-4 stroke-[2]" />
             </div>
           </div>
           <div className="mt-3">
             <div className="flex items-baseline gap-2">
-              <span className={`text-3xl font-extrabold font-mono tabular-nums tracking-tight ${
-                valuationData?.low_stock_count > 0 ? 'text-[#F6465D]' : 'text-slate-900 dark:text-[#F0F3F6]'
+              <span className={`text-3xl font-extrabold font-sans tabular-nums tracking-tight ${
+                valuationData?.low_stock_count > 0 ? 'text-[#DC2626] dark:text-[#F6465D]' : 'text-[#172033] dark:text-[#F0F3F6]'
               }`}>
                 {valuationData?.low_stock_count || 0}
               </span>
-              <span className="text-[11px] text-slate-500 dark:text-[#707A8A]">Items</span>
+              <span className="text-[11px] text-[#64748B] dark:text-[#707A8A]">Items</span>
             </div>
-            <div className="mt-2.5 flex items-center justify-between text-[11px] font-mono pt-2 border-t border-slate-100 dark:border-[#252B33]">
-              <span className="text-slate-500 dark:text-[#A0AAB8]">Action required:</span>
-              <span className={valuationData?.low_stock_count > 0 ? 'text-[#F6465D] font-bold' : 'text-[#0ECB81] font-medium'}>
+            <div className="mt-2.5 flex items-center justify-between text-[11px] font-sans pt-2 border-t border-[#E2E8F0] dark:border-[#252B33]">
+              <span className="text-[#64748B] dark:text-[#A0AAB8]">Action required:</span>
+              <span className={valuationData?.low_stock_count > 0 ? 'text-[#DC2626] dark:text-[#F6465D] font-bold' : 'text-[#16A34A] dark:text-[#0ECB81] font-medium'}>
                 {valuationData?.low_stock_count > 0 ? 'Procure Immediately' : 'None Required'}
               </span>
             </div>

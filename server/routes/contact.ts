@@ -1,10 +1,13 @@
 import { Router } from 'express';
+import jwt from 'jsonwebtoken';
 import { db } from '../db';
 import {
   authenticateToken,
   logAudit,
   createNotification,
-  AuthRequest
+  AuthRequest,
+  JWT_SECRET,
+  AuthUser
 } from '../auth';
 
 const router = Router();
@@ -28,7 +31,7 @@ function generateMessageRef(): string {
   return `MSG-${year}-${String(seq).padStart(4, '0')}`;
 }
 
-// Public: Submit Contact Message
+// Public: Submit Contact Message (Protected against staff self-submission)
 router.post('/', (req, res) => {
   try {
     const { name, email, phone, subject, message } = req.body;
@@ -41,6 +44,32 @@ router.post('/', (req, res) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return res.status(400).json({ error: 'Please provide a valid email address.' });
+    }
+
+    // Backend 403 Enforcement: Authenticated staff cannot submit public inquiries
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    if (token) {
+      try {
+        const decoded = jwt.verify(token, JWT_SECRET) as AuthUser;
+        if (decoded && ['DIRECTOR', 'ACCOUNTANT', 'ANIMATOR'].includes(decoded.role)) {
+          return res.status(403).json({
+            error: 'Staff members (Director, Accountant, Animator) are restricted from submitting public contact messages while authenticated. Please use the internal dashboard messaging system.',
+            code: 'STAFF_FORBIDDEN',
+          });
+        }
+      } catch {
+        // proceed if token is expired/invalid
+      }
+    }
+
+    // Check if submitted email matches any active staff member
+    const staffMatch = db.prepare('SELECT id, role FROM staff WHERE LOWER(email) = LOWER(?)').get(email.trim().toLowerCase()) as { id: number; role: string } | undefined;
+    if (staffMatch) {
+      return res.status(403).json({
+        error: 'Institutional staff accounts are restricted from public contact submissions. Please use your internal dashboard or log out.',
+        code: 'STAFF_FORBIDDEN',
+      });
     }
 
     const refNumber = generateMessageRef();

@@ -33,6 +33,14 @@ export function initDatabase() {
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
 
+    -- Login Security & Lockout Table (3 failed attempts -> 2 minute lockout)
+    CREATE TABLE IF NOT EXISTS login_security (
+      identifier TEXT PRIMARY KEY,
+      failed_attempts INTEGER NOT NULL DEFAULT 0,
+      locked_until DATETIME,
+      last_attempt DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
     -- Academic Settings & Admission Rules Table
     CREATE TABLE IF NOT EXISTS academic_settings (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
