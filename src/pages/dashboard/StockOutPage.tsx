@@ -77,10 +77,15 @@ export const StockOutPage: React.FC = () => {
   const selectedProduct = products.find((p) => String(p.id) === String(formData.productId));
   const qty = parseFloat(formData.quantity) || 0;
   const isDirector = user?.role === 'DIRECTOR';
+  const isAccountant = user?.role === 'ACCOUNTANT';
+  const isManagement = isDirector || isAccountant;
+  const isAnimator = user?.role === 'ANIMATOR';
 
   // Authorization Evaluation
   const isAuthorizedPeriod = scheduleStatus?.isPermitted === true;
-  const canSubmit = isAuthorizedPeriod || (isDirector && formData.isEmergencyOverride);
+  const canSubmit = isManagement
+    ? (selectedProduct ? qty > 0 && selectedProduct.current_stock >= qty : false)
+    : (isAuthorizedPeriod || formData.isEmergencyOverride) && (selectedProduct ? qty > 0 && selectedProduct.current_stock >= qty : false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -100,13 +105,13 @@ export const StockOutPage: React.FC = () => {
       return;
     }
 
-    if (!isAuthorizedPeriod && !formData.isEmergencyOverride) {
-      setErrorMsg(scheduleStatus?.reason || 'Stock Out is currently locked outside Director-authorized hours.');
+    if (isAnimator && !isAuthorizedPeriod && !formData.isEmergencyOverride) {
+      setErrorMsg(scheduleStatus?.reason || 'Stock Out is currently locked outside authorized kitchen hours. Please select Emergency Release with mandatory justification to proceed.');
       return;
     }
 
-    if (formData.isEmergencyOverride && (!formData.overrideReason || formData.overrideReason.length < 5)) {
-      setErrorMsg('A detailed justification is mandatory for emergency off-schedule stock release.');
+    if (formData.isEmergencyOverride && (!formData.overrideReason || formData.overrideReason.trim().length < 5)) {
+      setErrorMsg('A detailed justification (minimum 5 characters) is mandatory for off-schedule stock release.');
       return;
     }
 
@@ -114,7 +119,7 @@ export const StockOutPage: React.FC = () => {
 
     try {
       const res = await api.post('/inventory/stock-out', formData);
-      setNotice(res.data.message);
+      setNotice(res.data.message || 'Daily stock out ration issued successfully.');
       setFormData({
         ...formData,
         quantity: '',
@@ -160,47 +165,77 @@ export const StockOutPage: React.FC = () => {
       )}
 
       {/* SCHEDULE RESTRICTION INDICATOR CARD */}
-      <div className={`rounded-xl p-5 border shadow-xs transition-colors flex flex-col md:flex-row items-start md:items-center justify-between gap-6 ${
-        isAuthorizedPeriod
-          ? 'bg-[#0ECB81]/10 border-[#0ECB81]/30 text-slate-900 dark:text-[#F0F3F6]'
-          : 'bg-[#F0B90B]/10 border-[#F0B90B]/30 text-slate-900 dark:text-[#F0F3F6]'
-      }`}>
-        <div className="flex items-start gap-4">
-          <div className={`w-11 h-11 rounded-lg flex items-center justify-center shrink-0 ${
-            isAuthorizedPeriod
-              ? 'bg-[#0ECB81]/20 text-[#0ECB81]'
-              : 'bg-[#F0B90B]/20 text-[#F0B90B]'
-          }`}>
-            {isAuthorizedPeriod ? <Unlock className="w-5 h-5" /> : <Lock className="w-5 h-5" />}
+      {isManagement ? (
+        <div className="rounded-xl p-5 border shadow-xs transition-colors flex flex-col md:flex-row items-start md:items-center justify-between gap-6 bg-[#1769FF]/10 dark:bg-[#1769FF]/15 border-[#1769FF]/30 text-slate-900 dark:text-[#F0F3F6]">
+          <div className="flex items-start gap-4">
+            <div className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0 bg-[#1769FF]/20 text-[#1769FF] dark:text-[#38BDF8]">
+              <Unlock className="w-5 h-5" />
+            </div>
+
+            <div className="space-y-1">
+              <span className="inline-block px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider bg-[#1769FF]/20 text-[#1769FF] dark:text-[#38BDF8]">
+                INSTITUTIONAL MANAGEMENT CLEARANCE
+              </span>
+
+              <p className="text-xs font-semibold">
+                {t('institutionalAuthorizedNotice')}
+              </p>
+              <span className="text-[11px] text-slate-500 dark:text-[#A0AAB8] font-mono block">
+                Active Role: <strong className="text-slate-900 dark:text-[#F0F3F6]">{user?.role}</strong> · Full stock release privileges enabled
+              </span>
+            </div>
           </div>
 
-          <div className="space-y-1">
-            <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider ${
+          <div className="p-3 rounded-lg bg-white dark:bg-[#181D24] border border-slate-200 dark:border-[#2B3139] shrink-0 text-right">
+            <span className="text-[10px] text-slate-400 dark:text-[#707A8A] block uppercase font-mono">Server Time</span>
+            <span className="text-lg font-bold text-slate-900 dark:text-[#F0F3F6] font-mono tabular-nums">
+              {scheduleStatus?.kigaliTime || '00:00'} CAT
+            </span>
+          </div>
+        </div>
+      ) : (
+        <div className={`rounded-xl p-5 border shadow-xs transition-colors flex flex-col md:flex-row items-start md:items-center justify-between gap-6 ${
+          isAuthorizedPeriod
+            ? 'bg-[#0ECB81]/10 border-[#0ECB81]/30 text-slate-900 dark:text-[#F0F3F6]'
+            : 'bg-[#F0B90B]/10 border-[#F0B90B]/30 text-slate-900 dark:text-[#F0F3F6]'
+        }`}>
+          <div className="flex items-start gap-4">
+            <div className={`w-11 h-11 rounded-lg flex items-center justify-center shrink-0 ${
               isAuthorizedPeriod
                 ? 'bg-[#0ECB81]/20 text-[#0ECB81]'
                 : 'bg-[#F0B90B]/20 text-[#F0B90B]'
             }`}>
-              {isAuthorizedPeriod ? 'KITCHEN DISPATCH WINDOW OPEN' : 'DISPATCH CURRENTLY LOCKED'}
-            </span>
+              {isAuthorizedPeriod ? <Unlock className="w-5 h-5" /> : <Lock className="w-5 h-5" />}
+            </div>
 
-            <p className="text-xs font-semibold">
-              {scheduleStatus?.reason || 'Verifying Africa/Kigali server schedule...'}
-            </p>
-            {!isAuthorizedPeriod && scheduleStatus?.nextOpeningTime && (
-              <span className="text-[11px] text-slate-500 dark:text-[#A0AAB8] font-mono block">
-                Next scheduled opening: <strong className="text-slate-900 dark:text-[#F0F3F6]">{scheduleStatus.nextOpeningTime}</strong>
+            <div className="space-y-1">
+              <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider ${
+                isAuthorizedPeriod
+                  ? 'bg-[#0ECB81]/20 text-[#0ECB81]'
+                  : 'bg-[#F0B90B]/20 text-[#F0B90B]'
+              }`}>
+                {isAuthorizedPeriod ? 'KITCHEN DISPATCH WINDOW OPEN' : 'DISPATCH CURRENTLY LOCKED'}
               </span>
-            )}
+
+              <p className="text-xs font-semibold">
+                {scheduleStatus?.reason || 'Verifying Africa/Kigali server schedule...'}
+              </p>
+              {!isAuthorizedPeriod && scheduleStatus?.nextOpeningTime && (
+                <span className="text-[11px] text-slate-500 dark:text-[#A0AAB8] font-mono block">
+                  Next scheduled opening: <strong className="text-slate-900 dark:text-[#F0F3F6]">{scheduleStatus.nextOpeningTime}</strong>
+                </span>
+              )}
+            </div>
+          </div>
+
+          <div className="p-3 rounded-lg bg-white dark:bg-[#181D24] border border-slate-200 dark:border-[#2B3139] shrink-0 text-right">
+            <span className="text-[10px] text-slate-400 dark:text-[#707A8A] block uppercase font-mono">Server Time</span>
+            <span className="text-lg font-bold text-slate-900 dark:text-[#F0F3F6] font-mono tabular-nums">
+              {scheduleStatus?.kigaliTime || '00:00'} CAT
+            </span>
           </div>
         </div>
-
-        <div className="p-3 rounded-lg bg-white dark:bg-[#181D24] border border-slate-200 dark:border-[#2B3139] shrink-0 text-right">
-          <span className="text-[10px] text-slate-400 dark:text-[#707A8A] block uppercase font-mono">Server Time</span>
-          <span className="text-lg font-bold text-slate-900 dark:text-[#F0F3F6] font-mono tabular-nums">
-            {scheduleStatus?.kigaliTime || '00:00'} CAT
-          </span>
-        </div>
-      </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
@@ -250,7 +285,7 @@ export const StockOutPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Current Balance Bar (Binance Level 4 Accent Strip) */}
+            {/* Current Balance Bar */}
             {selectedProduct && (
               <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#202630] border border-slate-200 dark:border-[#2B3139] flex items-center justify-between text-xs">
                 <div>
@@ -281,15 +316,15 @@ export const StockOutPage: React.FC = () => {
               />
             </div>
 
-            {/* EMERGENCY OVERRIDE SECTION (DIRECTOR ONLY) */}
-            {!isAuthorizedPeriod && isDirector && (
+            {/* EMERGENCY OVERRIDE SECTION FOR ANIMATOR OUTSIDE WINDOW */}
+            {!isAuthorizedPeriod && isAnimator && (
               <div className="p-4 rounded-xl border border-[#F6465D]/30 bg-[#F6465D]/10 space-y-3">
                 <div className="flex items-center gap-2 text-[#F6465D] font-bold text-xs">
                   <ShieldAlert className="w-4 h-4" />
-                  <span>Director Emergency Schedule Override</span>
+                  <span>Animator Emergency Schedule Override</span>
                 </div>
                 <p className="text-[11px] text-slate-600 dark:text-[#A0AAB8] leading-relaxed">
-                  As Director, you have authority to release stock outside authorized working hours in cases of emergency kitchen requirements. Every override is permanently logged in system audit trails.
+                  The kitchen dispatch window is currently closed. If student dining or emergency meal preparation requires immediate release, authorize this override and provide mandatory justification. Every override is permanently logged in system audit trails.
                 </p>
 
                 <label className="flex items-center gap-2 cursor-pointer">
@@ -324,7 +359,7 @@ export const StockOutPage: React.FC = () => {
 
             {/* SUBMIT BUTTON */}
             <div className="pt-2 flex items-center justify-between">
-              {!isAuthorizedPeriod && !isDirector && (
+              {!isAuthorizedPeriod && isAnimator && !formData.isEmergencyOverride && (
                 <span className="text-[11px] text-[#F0B90B] flex items-center gap-1 font-mono font-medium">
                   <Lock className="w-3.5 h-3.5" />
                   <span>Locked outside authorized hours</span>

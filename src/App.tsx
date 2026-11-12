@@ -34,6 +34,7 @@ import { StockOutPage } from './pages/dashboard/StockOutPage';
 import { TransactionsLedgerPage } from './pages/dashboard/TransactionsLedgerPage';
 import { ProfilePage } from './pages/dashboard/ProfilePage';
 import { SchoolBankAccountsPage } from './pages/dashboard/SchoolBankAccountsPage';
+import { AcademicTermsPage } from './pages/dashboard/AcademicTermsPage';
 
 export function App() {
   return (
@@ -68,6 +69,8 @@ export function App() {
                 <Route path="academic-settings" element={<AcademicSettingsPage />} />
                 <Route path="bank-accounts" element={<SchoolBankAccountsPage />} />
                 <Route path="inventory" element={<FoodInventoryPage />} />
+                <Route path="stock-out" element={<StockOutPage />} />
+                <Route path="terms" element={<AcademicTermsPage />} />
                 <Route path="schedules" element={<StockSchedulesPage />} />
                 <Route path="suppliers" element={<SuppliersPage />} />
                 <Route path="staff" element={<StaffAccountsPage />} />
@@ -85,6 +88,8 @@ export function App() {
                 <Route index element={<Navigate to="/dashboard/accountant/inventory" replace />} />
                 <Route path="inventory" element={<FoodInventoryPage />} />
                 <Route path="stock-in" element={<StockInPage />} />
+                <Route path="stock-out" element={<StockOutPage />} />
+                <Route path="terms" element={<AcademicTermsPage />} />
                 <Route path="transactions" element={<TransactionsLedgerPage />} />
                 <Route path="bank-accounts" element={<SchoolBankAccountsPage />} />
                 <Route path="suppliers" element={<SuppliersPage />} />
@@ -100,6 +105,7 @@ export function App() {
               <Route path="/dashboard/animator" element={<DashboardLayout allowedRoles={['ANIMATOR', 'DIRECTOR']} />}>
                 <Route index element={<FoodInventoryPage />} />
                 <Route path="stock-out" element={<StockOutPage />} />
+                <Route path="terms" element={<AcademicTermsPage />} />
                 <Route path="history" element={<TransactionsLedgerPage />} />
                 <Route path="messages" element={<MessagesInboxPage />} />
                 <Route path="profile" element={<ProfilePage />} />

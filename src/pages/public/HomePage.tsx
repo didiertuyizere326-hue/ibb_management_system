@@ -20,8 +20,28 @@ import {
   ChevronRight
 } from 'lucide-react';
 
+const HERO_BACKGROUNDS = [
+  {
+    url: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=1600&auto=format&fit=crop&q=80',
+    alt: 'Institut Baptiste de Buberuka Campus',
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1600&auto=format&fit=crop&q=80',
+    alt: 'IBB Academic Excellence & Student Life',
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=1600&auto=format&fit=crop&q=80',
+    alt: 'IBB Software Development & Collaborative Learning',
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=1600&auto=format&fit=crop&q=80',
+    alt: 'IBB Technical & Automotive Engineering Workshop',
+  },
+];
+
 export const HomePage: React.FC = () => {
   const { t } = useLanguage();
+  const [bgIndex, setBgIndex] = useState(0);
   const [stats, setStats] = useState<any>({
     totalStudentsEnrolled: 424,
     academicPrograms: 2,
@@ -32,6 +52,19 @@ export const HomePage: React.FC = () => {
     nationalExamSuccessRate: '98.6%',
     practicalJobPlacementRate: '94.2%',
   });
+
+  useEffect(() => {
+    const isReducedMotion =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (isReducedMotion) return;
+
+    const bgTimer = setInterval(() => {
+      setBgIndex((prev) => (prev + 1) % HERO_BACKGROUNDS.length);
+    }, 5000);
+
+    return () => clearInterval(bgTimer);
+  }, []);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -54,14 +87,19 @@ export const HomePage: React.FC = () => {
       {/* 1. HOMEPAGE HERO WITH BINANCE MIDNIGHT ATMOSPHERE */}
       {/* ======================================================== */}
       <section className="relative min-h-[640px] lg:min-h-[720px] flex flex-col justify-between overflow-hidden bg-gradient-to-b from-slate-900 via-[#0B0E11] to-[#0B0E11]">
-        {/* Campus Background Image with Measured Overlay */}
-        <div className="absolute inset-0 z-0">
-          <img
-            src="https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=1600&auto=format&fit=crop&q=80"
-            alt="Institut Baptiste de Buberuka Campus"
-            className="w-full h-full object-cover object-center opacity-25 mix-blend-luminosity scale-105 transition-transform duration-1000"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0B0E11] via-[#0B0E11]/85 to-[#0B0E11]/60" />
+        {/* Automatic Hero Background Image Slider with Balanced Cinematic Overlay */}
+        <div className="absolute inset-0 z-0 pointer-events-none">
+          {HERO_BACKGROUNDS.map((bg, idx) => (
+            <img
+              key={bg.url}
+              src={bg.url}
+              alt={bg.alt}
+              className={`absolute inset-0 w-full h-full object-cover object-center transition-all duration-[1000ms] ease-in-out will-change-[opacity,transform] ${
+                idx === bgIndex ? 'opacity-80 scale-100' : 'opacity-0 scale-105'
+              }`}
+            />
+          ))}
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0B0E11]/55 via-[#0B0E11]/35 to-[#0B0E11]/80" />
         </div>
 
         {/* Subtle Binance Gold Ambient Glow */}

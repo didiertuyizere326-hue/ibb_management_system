@@ -237,6 +237,43 @@ export function initDatabase() {
       FOREIGN KEY (created_by) REFERENCES staff(id)
     );
 
+    -- Rwanda Academic Terms & Stock Periods Table
+    CREATE TABLE IF NOT EXISTS academic_terms (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      academic_year TEXT NOT NULL DEFAULT '2026-2027',
+      term_number INTEGER NOT NULL CHECK(term_number IN (1, 2, 3)),
+      name TEXT NOT NULL,
+      start_date TEXT NOT NULL,
+      end_date TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'Upcoming' CHECK(status IN ('Upcoming', 'Active', 'Closed')),
+      closed_at DATETIME,
+      closed_by INTEGER,
+      closed_by_name TEXT,
+      closing_notes TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE(academic_year, term_number),
+      FOREIGN KEY (closed_by) REFERENCES staff(id)
+    );
+
+    -- Term Stock Balances (Opening, Received, Issued, Closing)
+    CREATE TABLE IF NOT EXISTS term_stock_records (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      term_id INTEGER NOT NULL,
+      product_id INTEGER NOT NULL,
+      opening_stock REAL NOT NULL DEFAULT 0.0,
+      received_quantity REAL NOT NULL DEFAULT 0.0,
+      issued_quantity REAL NOT NULL DEFAULT 0.0,
+      closing_stock REAL NOT NULL DEFAULT 0.0,
+      unit TEXT NOT NULL,
+      is_locked INTEGER NOT NULL DEFAULT 0,
+      notes TEXT,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (term_id) REFERENCES academic_terms(id) ON DELETE CASCADE,
+      FOREIGN KEY (product_id) REFERENCES products(id),
+      UNIQUE(term_id, product_id)
+    );
+
     -- Indexes for high performance
     CREATE INDEX IF NOT EXISTS idx_staff_email ON staff(email);
     CREATE INDEX IF NOT EXISTS idx_applications_tracking ON applications(tracking_number);
@@ -245,6 +282,8 @@ export function initDatabase() {
     CREATE INDEX IF NOT EXISTS idx_stock_out_prod ON stock_out(product_id);
     CREATE INDEX IF NOT EXISTS idx_audit_created ON audit_logs(created_at);
     CREATE INDEX IF NOT EXISTS idx_bank_accounts_active ON school_bank_accounts(is_active);
+    CREATE INDEX IF NOT EXISTS idx_academic_terms_year ON academic_terms(academic_year);
+    CREATE INDEX IF NOT EXISTS idx_term_stock_records_term ON term_stock_records(term_id);
   `);
 
   try {
@@ -263,6 +302,14 @@ export function initDatabase() {
   // Products reference quantity migration (for stock remaining percentage baseline)
   try {
     db.prepare('ALTER TABLE products ADD COLUMN reference_quantity REAL').run();
+  } catch {}
+
+  // Link stock transactions to academic terms
+  try {
+    db.prepare('ALTER TABLE stock_in ADD COLUMN term_id INTEGER REFERENCES academic_terms(id)').run();
+  } catch {}
+  try {
+    db.prepare('ALTER TABLE stock_out ADD COLUMN term_id INTEGER REFERENCES academic_terms(id)').run();
   } catch {}
 
   // Backfill if empty
@@ -644,5 +691,44 @@ function seedDefaultData() {
       2,
       'Uwimana Claire (Chief Accountant)'
     );
+  }
+
+  // Check academic terms and initialize Rwanda School Terms for 2026-2027
+  const termsCount = db.prepare('SELECT COUNT(*) as count FROM academic_terms').get() as { count: number };
+  if (termsCount.count === 0) {
+    const insertTerm = db.prepare(`
+      INSERT INTO academic_terms (academic_year, term_number, name, start_date, end_date, status)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `);
+
+    // Term 1 (Active)
+    const t1 = insertTerm.run('2026-2027', 1, 'Term 1', '2026-09-07', '2026-12-18', 'Active');
+    // Term 2 (Upcoming)
+    insertTerm.run('2026-2027', 2, 'Term 2', '2027-01-11', '2027-04-02', 'Upcoming');
+    // Term 3 (Upcoming)
+    insertTerm.run('2026-2027', 3, 'Term 3', '2027-04-19', '2027-07-16', 'Upcoming');
+
+    const term1Id = Number(t1.lastInsertRowid);
+
+    // Link existing transactions to Term 1
+    db.prepare('UPDATE stock_in SET term_id = ? WHERE term_id IS NULL').run(term1Id);
+    db.prepare('UPDATE stock_out SET term_id = ? WHERE term_id IS NULL').run(term1Id);
+
+    // Seed Term 1 stock records for all products
+    const prods = db.prepare('SELECT id, unit, current_stock FROM products').all() as Array<{ id: number; unit: string; current_stock: number }>;
+    const insertRecord = db.prepare(`
+      INSERT OR REPLACE INTO term_stock_records (term_id, product_id, opening_stock, received_quantity, issued_quantity, closing_stock, unit)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `);
+
+    for (const p of prods) {
+      const inQty = (db.prepare("SELECT COALESCE(SUM(quantity), 0) as total FROM stock_in WHERE product_id = ? AND (term_id = ? OR (transaction_date >= '2026-09-07' AND transaction_date <= '2026-12-18'))").get(p.id, term1Id) as any).total;
+      const outQty = (db.prepare("SELECT COALESCE(SUM(quantity), 0) as total FROM stock_out WHERE product_id = ? AND (term_id = ? OR (transaction_date >= '2026-09-07' AND transaction_date <= '2026-12-18'))").get(p.id, term1Id) as any).total;
+      
+      const opening = Math.max(0, p.current_stock - inQty + outQty);
+      const closing = opening + inQty - outQty;
+
+      insertRecord.run(term1Id, p.id, opening, inQty, outQty, closing, p.unit);
+    }
   }
 }

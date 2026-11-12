@@ -26,7 +26,8 @@ import {
   Globe,
   CreditCard,
   PanelLeftClose,
-  PanelLeftOpen
+  PanelLeftOpen,
+  CalendarRange
 } from 'lucide-react';
 import { ConfirmationModal } from './ConfirmationModal';
 
@@ -291,6 +292,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       t('foodInventory')
                     )}
                     {renderNavLink(
+                      '/dashboard/director/stock-out',
+                      <ArrowUpRight className="w-4 h-4 text-[#F59E0B] dark:text-[#F0B90B]" />,
+                      t('dailyStockOutBtn')
+                    )}
+                    {renderNavLink(
+                      '/dashboard/director/terms',
+                      <CalendarRange className="w-4 h-4 text-[#1769FF] dark:text-[#FCD535]" />,
+                      t('academicTermsStock')
+                    )}
+                    {renderNavLink(
                       '/dashboard/director/schedules',
                       <Clock className="w-4 h-4" />,
                       t('stockWorkingHours')
@@ -448,6 +459,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 t('stockInTitle')
               )}
               {renderNavLink(
+                '/dashboard/accountant/stock-out',
+                <ArrowUpRight className="w-4 h-4 text-[#F59E0B] dark:text-[#F0B90B]" />,
+                t('dailyStockOutBtn')
+              )}
+              {renderNavLink(
+                '/dashboard/accountant/terms',
+                <CalendarRange className="w-4 h-4 text-[#1769FF] dark:text-[#FCD535]" />,
+                t('academicTermsStock')
+              )}
+              {renderNavLink(
                 '/dashboard/accountant/transactions',
                 <FileClock className="w-4 h-4" />,
                 t('stockLedgerTitle')
@@ -507,6 +528,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 '/dashboard/animator/stock-out',
                 <ArrowUpRight className="w-4 h-4 text-[#F59E0B] dark:text-[#F0B90B]" />,
                 t('dailyStockOutBtn')
+              )}
+              {renderNavLink(
+                '/dashboard/animator/terms',
+                <CalendarRange className="w-4 h-4 text-[#1769FF] dark:text-[#FCD535]" />,
+                t('academicTermsStock')
               )}
               {renderNavLink(
                 '/dashboard/animator/history',

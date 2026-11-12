@@ -225,3 +225,52 @@ export interface ScheduleStatus {
   nextOpeningTime?: string;
   configuredSchedules?: StockSchedule[];
 }
+
+export type TermStatus = 'UPCOMING' | 'ACTIVE' | 'CLOSED';
+
+export interface AcademicTerm {
+  id: number;
+  academic_year: string;
+  term_number: number;
+  name: string;
+  start_date: string;
+  end_date: string;
+  status: TermStatus;
+  closed_at?: string | null;
+  closed_by?: number | null;
+  closed_by_name?: string | null;
+  closing_notes?: string | null;
+  total_received_qty?: number;
+  total_issued_qty?: number;
+  total_procurement_spend?: number;
+  created_at: string;
+  updated_at?: string | null;
+}
+
+export interface TermStockItem {
+  id: number;
+  term_id: number;
+  product_id: number;
+  product_name: string;
+  category: string;
+  unit: string;
+  opening_stock: number;
+  received_quantity: number;
+  issued_quantity: number;
+  closing_stock: number;
+  unit_cost: number;
+  total_value: number;
+  min_stock_alert: number;
+  is_locked: number;
+  notes?: string | null;
+  stock_status: 'NORMAL' | 'LOW_STOCK' | 'OUT_OF_STOCK';
+}
+
+export interface TermDetailResponse {
+  term: AcademicTerm;
+  items: TermStockItem[];
+  transactions: {
+    stock_in: any[];
+    stock_out: any[];
+  };
+}
