@@ -248,10 +248,11 @@ router.get('/export-data', authenticateToken, (req: AuthRequest, res) => {
 
     if (dataset === 'stock_out') {
       const data = db.prepare(`
-        SELECT so.id, p.name as product_name, so.quantity, so.unit, so.transaction_date, so.transaction_time, so.is_emergency_override, so.override_reason, so.notes, st.full_name as issued_by
+        SELECT so.id, p.name as product_name, so.quantity, so.unit, so.transaction_date, so.transaction_time, so.notes, st.full_name as issued_by, at_t.academic_year, at_t.name as term_name
         FROM stock_out so
         JOIN products p ON so.product_id = p.id
         JOIN staff st ON so.issued_by = st.id
+        LEFT JOIN academic_terms at_t ON so.term_id = at_t.id
         ORDER BY so.id DESC
       `).all();
       return res.json({ title: 'Daily Kitchen Stock Issues (Stock Out) Report', records: data });

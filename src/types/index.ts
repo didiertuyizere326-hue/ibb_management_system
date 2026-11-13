@@ -24,19 +24,6 @@ export interface AcademicSettings {
   updated_at: string;
 }
 
-export interface StockSchedule {
-  id: number;
-  name: string;
-  start_time: string;
-  end_time: string;
-  is_active: number;
-  days_of_week: string;
-  created_at: string;
-  updated_by?: number | null;
-  updated_by_name?: string | null;
-  updated_at?: string | null;
-}
-
 export interface Supplier {
   id: number;
   name: string;
@@ -144,8 +131,7 @@ export interface StockOutTransaction {
   transaction_date: string;
   transaction_time: string;
   notes?: string;
-  is_emergency_override: number;
-  override_reason?: string;
+  term_id?: number | null;
   issued_by: number;
   issued_by_name?: string;
   created_at: string;
@@ -214,19 +200,16 @@ export interface NotificationItem {
   target_role: string;
   is_read: number;
   link?: string;
+  event_type?: string;
+  entity_name?: string | null;
+  academic_year?: string | null;
+  term_name?: string | null;
+  actor_name?: string | null;
+  meta_json?: string | null;
   created_at: string;
 }
 
-export interface ScheduleStatus {
-  isPermitted: boolean;
-  kigaliTime: string;
-  activeScheduleName?: string;
-  reason: string;
-  nextOpeningTime?: string;
-  configuredSchedules?: StockSchedule[];
-}
-
-export type TermStatus = 'UPCOMING' | 'ACTIVE' | 'CLOSED';
+export type TermStatus = 'Upcoming' | 'Active' | 'Closed';
 
 export interface AcademicTerm {
   id: number;
@@ -236,15 +219,42 @@ export interface AcademicTerm {
   start_date: string;
   end_date: string;
   status: TermStatus;
+  opening_initialized?: number;
+  carried_from_term_id?: number | null;
+  carried_from_year?: string | null;
+  carried_from_term_name?: string | null;
+  carried_forward_at?: string | null;
   closed_at?: string | null;
   closed_by?: number | null;
   closed_by_name?: string | null;
   closing_notes?: string | null;
-  total_received_qty?: number;
-  total_issued_qty?: number;
+  reopened_at?: string | null;
+  reopened_by?: number | null;
+  reopened_by_name?: string | null;
+  reopen_reason?: string | null;
+  manual_reopen?: number;
+  tracked_items_count?: number;
+  total_received_quantity?: number;
+  total_issued_quantity?: number;
   total_procurement_spend?: number;
   created_at: string;
   updated_at?: string | null;
+}
+
+export interface YearMeta {
+  academicYear: string;
+  previousAcademicYear: string | null;
+  openingInitialized: boolean;
+  previousYearClosingReady: boolean;
+  previousYearTerm3Id: number | null;
+  canInitializeOpening: boolean;
+}
+
+export interface ActiveTermResponse {
+  activeTerm: AcademicTerm | null;
+  kigaliDate: string;
+  kigaliTime: string;
+  currentAcademicYear: string;
 }
 
 export interface TermStockItem {
@@ -258,7 +268,11 @@ export interface TermStockItem {
   received_quantity: number;
   issued_quantity: number;
   closing_stock: number;
-  unit_cost: number;
+  unit_cost: number | null;
+  has_unit_cost?: boolean;
+  stock_in_value?: number | null;
+  stock_out_value?: number | null;
+  closing_value?: number | null;
   total_value: number;
   min_stock_alert: number;
   is_locked: number;
@@ -266,9 +280,32 @@ export interface TermStockItem {
   stock_status: 'NORMAL' | 'LOW_STOCK' | 'OUT_OF_STOCK';
 }
 
+export interface TermFinancialSummary {
+  totalStockInValue: number | null;
+  totalStockOutValue: number | null;
+  totalClosingValue: number | null;
+  hasUnpricedStockIn: boolean;
+  hasUnpricedStockOut: boolean;
+  hasUnpricedClosing: boolean;
+  missingCostProducts: string[];
+  valuationStatus: 'COMPLETE' | 'PARTIAL' | 'UNAVAILABLE';
+}
+
 export interface TermDetailResponse {
   term: AcademicTerm;
   items: TermStockItem[];
+  summary?: {
+    totalProducts: number;
+    totalOpeningQuantity: number;
+    totalReceivedQuantity: number;
+    totalIssuedQuantity: number;
+    totalClosingQuantity: number;
+    totalValuation: number | null;
+    normalCount?: number;
+    lowStockCount?: number;
+    outOfStockCount?: number;
+  };
+  financialSummary?: TermFinancialSummary;
   transactions: {
     stock_in: any[];
     stock_out: any[];

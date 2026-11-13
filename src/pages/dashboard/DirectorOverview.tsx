@@ -9,7 +9,7 @@ import {
   Users,
   Package,
   Wallet,
-  Clock,
+  CalendarRange,
   ArrowRight,
   TrendingUp,
   AlertTriangle,
@@ -254,18 +254,18 @@ export const DirectorOverview: React.FC = () => {
         </Link>
 
         <Link
-          to="/dashboard/director/schedules"
+          to="/dashboard/director/terms"
           className="bg-white dark:bg-[#181D24] p-3.5 rounded-2xl border border-[#E2E8F0] dark:border-[#2B3139] shadow-xs hover:border-[#1769FF]/50 dark:hover:border-[#FCD535]/50 hover:shadow-md transition-all flex flex-col items-center text-center gap-2 group cursor-pointer"
         >
           <div className="w-10 h-10 rounded-xl bg-[#EAF2FF] dark:bg-[#202630] text-[#1769FF] dark:text-[#FCD535] flex items-center justify-center group-hover:scale-105 transition-transform">
-            <Clock className="w-5 h-5 stroke-[2]" />
+            <CalendarRange className="w-5 h-5 stroke-[2]" />
           </div>
           <div className="min-w-0">
             <span className="block text-xs font-bold text-[#172033] dark:text-[#F0F3F6] truncate">
-              {language === 'rw' ? 'Gahunda y’Amasaha' : 'Stock Schedules'}
+              {language === 'rw' ? 'Imyaka & Ibihembwe' : 'Academic Terms'}
             </span>
             <span className="block text-[10px] text-[#64748B] dark:text-[#707A8A]">
-              {language === 'rw' ? 'Igihe cyo Gusohora' : 'Serving Windows'}
+              {language === 'rw' ? 'Ibarura rya Stock' : 'Quarterly Stock Ledger'}
             </span>
           </div>
         </Link>

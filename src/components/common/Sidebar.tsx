@@ -8,7 +8,6 @@ import {
   GraduationCap,
   Sliders,
   Package,
-  Clock,
   Truck,
   ShieldCheck,
   KeyRound,
@@ -292,6 +291,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       t('foodInventory')
                     )}
                     {renderNavLink(
+                      '/dashboard/director/stock-in',
+                      <ArrowDownLeft className="w-4 h-4 text-[#16A34A] dark:text-[#0ECB81]" />,
+                      t('stockInTitle')
+                    )}
+                    {renderNavLink(
                       '/dashboard/director/stock-out',
                       <ArrowUpRight className="w-4 h-4 text-[#F59E0B] dark:text-[#F0B90B]" />,
                       t('dailyStockOutBtn')
@@ -302,9 +306,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       t('academicTermsStock')
                     )}
                     {renderNavLink(
-                      '/dashboard/director/schedules',
-                      <Clock className="w-4 h-4" />,
-                      t('stockWorkingHours')
+                      '/dashboard/director/transactions',
+                      <FileClock className="w-4 h-4" />,
+                      t('stockLedgerTitle')
                     )}
                     {renderNavLink(
                       '/dashboard/director/suppliers',
@@ -484,11 +488,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 t('supplierManagement')
               )}
               {renderNavLink(
-                '/dashboard/accountant/schedules',
-                <Clock className="w-4 h-4" />,
-                t('stockWorkingHours')
-              )}
-              {renderNavLink(
                 '/dashboard/accountant/reports',
                 <FileBarChart2 className="w-4 h-4" />,
                 t('reportsAnalytics')
@@ -513,7 +512,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <div className="space-y-1">
               {!isCollapsed && (
                 <span className="px-2.5 text-[10px] font-bold uppercase tracking-wider text-[#64748B] dark:text-[#707A8A] block mb-2">
-                  {language === 'rw' ? 'Uburezi n’Itangwa ry’Ibiribwa' : 'Discipline & Stock Out'}
+                  {language === 'rw' ? 'Ububiko n’Imicungire y’Ibiribwa' : 'Inventory & Stock Operations'}
                 </span>
               )}
               {isCollapsed && <div className="h-px bg-[#E2E8F0] dark:bg-[#252B33] my-1 mx-1 lg:block hidden" />}
@@ -521,8 +520,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
               {renderNavLink(
                 '/dashboard/animator',
                 <Package className="w-4 h-4" />,
-                t('animatorStockTitle'),
+                t('foodInventory'),
                 true
+              )}
+              {renderNavLink(
+                '/dashboard/animator/stock-in',
+                <ArrowDownLeft className="w-4 h-4 text-[#16A34A] dark:text-[#0ECB81]" />,
+                t('stockInTitle')
               )}
               {renderNavLink(
                 '/dashboard/animator/stock-out',
@@ -538,6 +542,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 '/dashboard/animator/history',
                 <FileClock className="w-4 h-4" />,
                 t('stockLedgerTitle')
+              )}
+              {renderNavLink(
+                '/dashboard/animator/suppliers',
+                <Truck className="w-4 h-4" />,
+                t('supplierManagement')
+              )}
+              {renderNavLink(
+                '/dashboard/animator/reports',
+                <FileBarChart2 className="w-4 h-4" />,
+                t('reportsAnalytics')
               )}
               {renderNavLink(
                 '/dashboard/animator/messages',

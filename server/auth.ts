@@ -121,74 +121,124 @@ export function logAudit(options: {
   }
 }
 
-// System Notification helper
+// System Notification helper with structured metadata & deduplication
 export function createNotification(options: {
   title: string;
   message: string;
   type?: 'info' | 'success' | 'warning' | 'alert';
   targetRole?: 'DIRECTOR' | 'ACCOUNTANT' | 'ANIMATOR' | 'ALL';
   link?: string;
+  eventType?: string;
+  entityName?: string;
+  academicYear?: string;
+  termName?: string;
+  actorName?: string;
+  meta?: Record<string, unknown>;
+  dedupeKey?: string;
+  dedupeWindowMinutes?: number;
+  updateUnreadOnDedupe?: boolean;
 }) {
   try {
+    const metaJson = options.meta ? JSON.stringify(options.meta) : null;
+    const eventType = options.eventType || 'GENERAL';
+
+    if (options.dedupeKey) {
+      if (options.updateUnreadOnDedupe) {
+        const unreadExisting = db
+          .prepare(
+            `SELECT id FROM notifications WHERE dedupe_key = ? AND is_read = 0 ORDER BY id DESC LIMIT 1`
+          )
+          .get(options.dedupeKey) as { id: number } | undefined;
+
+        if (unreadExisting) {
+          db.prepare(`
+            UPDATE notifications
+            SET title = ?,
+                message = ?,
+                type = ?,
+                link = COALESCE(?, link),
+                event_type = ?,
+                entity_name = COALESCE(?, entity_name),
+                academic_year = COALESCE(?, academic_year),
+                term_name = COALESCE(?, term_name),
+                actor_name = COALESCE(?, actor_name),
+                meta_json = COALESCE(?, meta_json),
+                created_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+          `).run(
+            options.title,
+            options.message,
+            options.type || 'info',
+            options.link || null,
+            eventType,
+            options.entityName || null,
+            options.academicYear || null,
+            options.termName || null,
+            options.actorName || null,
+            metaJson,
+            unreadExisting.id
+          );
+          return;
+        }
+      }
+
+      const windowMins = options.dedupeWindowMinutes ?? 60;
+      if (windowMins > 0) {
+        const recentExisting = db
+          .prepare(
+            `SELECT id FROM notifications
+             WHERE dedupe_key = ?
+               AND datetime(created_at) >= datetime('now', '-' || ? || ' minutes')
+             LIMIT 1`
+          )
+          .get(options.dedupeKey, windowMins) as { id: number } | undefined;
+        if (recentExisting) {
+          return;
+        }
+      }
+    }
+
     const stmt = db.prepare(`
-      INSERT INTO notifications (title, message, type, target_role, link)
-      VALUES (?, ?, ?, ?, ?)
+      INSERT INTO notifications (
+        title, message, type, target_role, link,
+        event_type, entity_name, academic_year, term_name, actor_name, meta_json, dedupe_key
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
     stmt.run(
       options.title,
       options.message,
       options.type || 'info',
       options.targetRole || 'ALL',
-      options.link || null
+      options.link || null,
+      eventType,
+      options.entityName || null,
+      options.academicYear || null,
+      options.termName || null,
+      options.actorName || null,
+      metaJson,
+      options.dedupeKey || null
     );
   } catch (err) {
     console.error('Notification creation error:', err);
   }
 }
 
-// Africa/Kigali Stock Schedule Status Evaluator
-export function getKigaliStockScheduleStatus(): {
-  isPermitted: boolean;
-  kigaliTime: string;
-  activeScheduleName?: string;
-  reason: string;
-  nextOpeningTime?: string;
-} {
-  // Get current time in Africa/Kigali
-  const now = new Date();
-  const kigaliTimeStr = new Intl.DateTimeFormat('en-GB', {
+// Africa/Kigali Date & Time Helpers
+export function getKigaliDate(date: Date = new Date()): string {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Africa/Kigali',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(date); // YYYY-MM-DD
+}
+
+export function getKigaliTime(date: Date = new Date()): string {
+  return new Intl.DateTimeFormat('en-GB', {
     timeZone: 'Africa/Kigali',
     hour: '2-digit',
     minute: '2-digit',
     hour12: false,
-  }).format(now); // e.g. "07:15"
-
-  const schedules = db.prepare('SELECT * FROM stock_schedules WHERE is_active = 1 ORDER BY start_time ASC').all() as Array<{
-    id: number;
-    name: string;
-    start_time: string;
-    end_time: string;
-  }>;
-
-  for (const s of schedules) {
-    if (kigaliTimeStr >= s.start_time && kigaliTimeStr <= s.end_time) {
-      return {
-        isPermitted: true,
-        kigaliTime: kigaliTimeStr,
-        activeScheduleName: s.name,
-        reason: `Authorized during "${s.name}" (${s.start_time} - ${s.end_time} CAT)`,
-      };
-    }
-  }
-
-  // Find next upcoming schedule today
-  const upcoming = schedules.find(s => s.start_time > kigaliTimeStr);
-  const nextTime = upcoming ? `${upcoming.start_time} (${upcoming.name})` : (schedules[0] ? `${schedules[0].start_time} tomorrow (${schedules[0].name})` : 'No active schedule configured');
-
-  return {
-    isPermitted: false,
-    kigaliTime: kigaliTimeStr,
-    reason: `Outside authorized Director-configured Stock Out windows (Current Kigali Time: ${kigaliTimeStr} CAT). Next opening: ${nextTime}.`,
-    nextOpeningTime: nextTime,
-  };
+  }).format(date); // HH:MM
 }

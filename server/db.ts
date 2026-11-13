@@ -52,20 +52,6 @@ export function initDatabase() {
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
 
-    -- Stock Schedule Configuration Table (Africa/Kigali)
-    CREATE TABLE IF NOT EXISTS stock_schedules (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL,
-      start_time TEXT NOT NULL, -- e.g. '06:00'
-      end_time TEXT NOT NULL,   -- e.g. '08:00'
-      is_active INTEGER NOT NULL DEFAULT 1,
-      days_of_week TEXT DEFAULT 'Mon,Tue,Wed,Thu,Fri,Sat,Sun',
-      updated_by INTEGER,
-      updated_by_name TEXT,
-      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    );
-
     -- Suppliers Table
     CREATE TABLE IF NOT EXISTS suppliers (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -250,6 +236,9 @@ export function initDatabase() {
       closed_by INTEGER,
       closed_by_name TEXT,
       closing_notes TEXT,
+      opening_initialized INTEGER NOT NULL DEFAULT 0,
+      carried_from_term_id INTEGER,
+      carried_forward_at DATETIME,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       UNIQUE(academic_year, term_number),
@@ -287,13 +276,10 @@ export function initDatabase() {
   `);
 
   try {
-    db.prepare('ALTER TABLE stock_schedules ADD COLUMN updated_by INTEGER').run();
+    db.prepare('DROP TABLE IF EXISTS stock_schedules').run();
   } catch {}
   try {
-    db.prepare('ALTER TABLE stock_schedules ADD COLUMN updated_by_name TEXT').run();
-  } catch {}
-  try {
-    db.prepare('ALTER TABLE stock_schedules ADD COLUMN updated_at DATETIME').run();
+    db.prepare("DELETE FROM notifications WHERE title = 'Stock Working Window Active' OR link LIKE '%/schedules%'").run();
   } catch {}
   try {
     db.prepare("ALTER TABLE payment_notices ADD COLUMN academic_year TEXT DEFAULT '2026-2027'").run();
@@ -312,9 +298,65 @@ export function initDatabase() {
     db.prepare('ALTER TABLE stock_out ADD COLUMN term_id INTEGER REFERENCES academic_terms(id)').run();
   } catch {}
 
-  // Backfill if empty
+  // Academic terms carry-forward & initialization migrations
   try {
-    db.prepare("UPDATE stock_schedules SET updated_by = 2, updated_by_name = 'Uwimana Claire (Chief Accountant)' WHERE updated_by_name IS NULL").run();
+    db.prepare('ALTER TABLE academic_terms ADD COLUMN opening_initialized INTEGER NOT NULL DEFAULT 0').run();
+  } catch {}
+  try {
+    db.prepare('ALTER TABLE academic_terms ADD COLUMN carried_from_term_id INTEGER').run();
+  } catch {}
+  try {
+    db.prepare('ALTER TABLE academic_terms ADD COLUMN carried_forward_at DATETIME').run();
+  } catch {}
+  try {
+    db.prepare('ALTER TABLE academic_terms ADD COLUMN reopened_at DATETIME').run();
+  } catch {}
+  try {
+    db.prepare('ALTER TABLE academic_terms ADD COLUMN reopened_by INTEGER').run();
+  } catch {}
+  try {
+    db.prepare('ALTER TABLE academic_terms ADD COLUMN reopened_by_name TEXT').run();
+  } catch {}
+  try {
+    db.prepare('ALTER TABLE academic_terms ADD COLUMN reopen_reason TEXT').run();
+  } catch {}
+  try {
+    db.prepare('ALTER TABLE academic_terms ADD COLUMN manual_reopen INTEGER NOT NULL DEFAULT 0').run();
+  } catch {}
+
+  // Structured bilingual notifications & deduplication migrations
+  try {
+    db.prepare("ALTER TABLE notifications ADD COLUMN event_type TEXT DEFAULT 'GENERAL'").run();
+  } catch {}
+  try {
+    db.prepare('ALTER TABLE notifications ADD COLUMN entity_name TEXT').run();
+  } catch {}
+  try {
+    db.prepare('ALTER TABLE notifications ADD COLUMN academic_year TEXT').run();
+  } catch {}
+  try {
+    db.prepare('ALTER TABLE notifications ADD COLUMN term_name TEXT').run();
+  } catch {}
+  try {
+    db.prepare('ALTER TABLE notifications ADD COLUMN actor_name TEXT').run();
+  } catch {}
+  try {
+    db.prepare('ALTER TABLE notifications ADD COLUMN meta_json TEXT').run();
+  } catch {}
+  try {
+    db.prepare('ALTER TABLE notifications ADD COLUMN dedupe_key TEXT').run();
+  } catch {}
+
+  try {
+    db.prepare('CREATE INDEX IF NOT EXISTS idx_stock_in_term ON stock_in(term_id)').run();
+    db.prepare('CREATE INDEX IF NOT EXISTS idx_stock_out_term ON stock_out(term_id)').run();
+    db.prepare('CREATE INDEX IF NOT EXISTS idx_notifications_dedupe ON notifications(dedupe_key, created_at)').run();
+    db.prepare(`
+      UPDATE academic_terms
+      SET opening_initialized = 1
+      WHERE opening_initialized = 0
+        AND EXISTS (SELECT 1 FROM term_stock_records r WHERE r.term_id = academic_terms.id)
+    `).run();
   } catch {}
 
   // Backfill verified reference quantities for standard food staples
@@ -398,17 +440,6 @@ function seedDefaultData() {
       INSERT INTO academic_settings (min_admission_marks, boarding_threshold, auto_reject_below_min, academic_year, is_admission_open)
       VALUES (55.0, 80.0, 0, '2026-2027', 1)
     `).run();
-  }
-
-  // Check stock schedule (06:00 - 08:00 morning slot + 17:00 - 18:30 evening slot)
-  const scheduleCount = db.prepare('SELECT COUNT(*) as count FROM stock_schedules').get() as { count: number };
-  if (scheduleCount.count === 0) {
-    const insertSchedule = db.prepare(`
-      INSERT INTO stock_schedules (name, start_time, end_time, is_active, days_of_week)
-      VALUES (?, ?, ?, ?, ?)
-    `);
-    insertSchedule.run('Morning Kitchen Supply', '06:00', '08:00', 1, 'Mon,Tue,Wed,Thu,Fri,Sat,Sun');
-    insertSchedule.run('Evening Dinner Supply', '17:00', '18:30', 1, 'Mon,Tue,Wed,Thu,Fri,Sat,Sun');
   }
 
   // Check products
@@ -605,7 +636,6 @@ function seedDefaultData() {
 
     insertNotif.run('New Admission Application', 'Umutoni Grace applied for L3 Software Development with S3 marks 88.0%.', 'info', 'DIRECTOR', '/dashboard/director/admissions');
     insertNotif.run('Stock Level Nominal', 'All 8 food product reserves are currently above minimum threshold.', 'success', 'ACCOUNTANT', '/dashboard/accountant/inventory');
-    insertNotif.run('Stock Working Window Active', 'Morning kitchen issuing period 06:00 - 08:00 is active.', 'info', 'ANIMATOR', '/dashboard/animator/stock-out');
   }
 
   // Seed initial audit log
@@ -697,16 +727,16 @@ function seedDefaultData() {
   const termsCount = db.prepare('SELECT COUNT(*) as count FROM academic_terms').get() as { count: number };
   if (termsCount.count === 0) {
     const insertTerm = db.prepare(`
-      INSERT INTO academic_terms (academic_year, term_number, name, start_date, end_date, status)
-      VALUES (?, ?, ?, ?, ?, ?)
+      INSERT INTO academic_terms (academic_year, term_number, name, start_date, end_date, status, opening_initialized)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
     `);
 
     // Term 1 (Active)
-    const t1 = insertTerm.run('2026-2027', 1, 'Term 1', '2026-09-07', '2026-12-18', 'Active');
+    const t1 = insertTerm.run('2026-2027', 1, 'Term 1', '2026-09-07', '2026-12-18', 'Active', 1);
     // Term 2 (Upcoming)
-    insertTerm.run('2026-2027', 2, 'Term 2', '2027-01-11', '2027-04-02', 'Upcoming');
+    insertTerm.run('2026-2027', 2, 'Term 2', '2027-01-11', '2027-04-02', 'Upcoming', 0);
     // Term 3 (Upcoming)
-    insertTerm.run('2026-2027', 3, 'Term 3', '2027-04-19', '2027-07-16', 'Upcoming');
+    insertTerm.run('2026-2027', 3, 'Term 3', '2027-04-19', '2027-07-16', 'Upcoming', 0);
 
     const term1Id = Number(t1.lastInsertRowid);
 

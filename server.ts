@@ -19,8 +19,24 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+function resolveServerPort(): number {
+  const portFlagIndex = process.argv.indexOf('--port');
+  if (portFlagIndex !== -1 && process.argv[portFlagIndex + 1]) {
+    const cliPort = parseInt(process.argv[portFlagIndex + 1], 10);
+    if (!isNaN(cliPort)) return cliPort;
+  }
+  const envPort = process.env.PORT ? parseInt(process.env.PORT, 10) : NaN;
+  if (process.env.NODE_ENV === 'production' && !isNaN(envPort)) {
+    return envPort;
+  }
+  if (!isNaN(envPort) && envPort !== 8080) {
+    return envPort;
+  }
+  return 3000;
+}
+
 const app = express();
-const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
+const PORT = resolveServerPort();
 
 // Initialize Database & Tables
 initDatabase();
@@ -52,12 +68,17 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Ensure unknown API routes always return JSON 404 rather than SPA HTML
+app.use('/api', (req, res) => {
+  res.status(404).json({ error: 'API endpoint not found.' });
+});
+
 async function startServer() {
   if (process.env.NODE_ENV !== 'production') {
     // Mount Vite middlewares in development
     const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
-      server: { middlewareMode: true, hmr: false },
+      server: { middlewareMode: true, hmr: false, watch: null },
       appType: 'spa',
     });
     app.use(vite.middlewares);

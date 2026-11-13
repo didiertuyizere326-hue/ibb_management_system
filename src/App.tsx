@@ -23,7 +23,6 @@ import { DirectorAdmissions } from './pages/dashboard/DirectorAdmissions';
 import { ApprovedStudentsPage } from './pages/dashboard/ApprovedStudentsPage';
 import { AcademicSettingsPage } from './pages/dashboard/AcademicSettingsPage';
 import { FoodInventoryPage } from './pages/dashboard/FoodInventoryPage';
-import { StockSchedulesPage } from './pages/dashboard/StockSchedulesPage';
 import { SuppliersPage } from './pages/dashboard/SuppliersPage';
 import { StaffAccountsPage } from './pages/dashboard/StaffAccountsPage';
 import { ReportsPage } from './pages/dashboard/ReportsPage';
@@ -69,9 +68,10 @@ export function App() {
                 <Route path="academic-settings" element={<AcademicSettingsPage />} />
                 <Route path="bank-accounts" element={<SchoolBankAccountsPage />} />
                 <Route path="inventory" element={<FoodInventoryPage />} />
+                <Route path="stock-in" element={<StockInPage />} />
                 <Route path="stock-out" element={<StockOutPage />} />
                 <Route path="terms" element={<AcademicTermsPage />} />
-                <Route path="schedules" element={<StockSchedulesPage />} />
+                <Route path="transactions" element={<TransactionsLedgerPage />} />
                 <Route path="suppliers" element={<SuppliersPage />} />
                 <Route path="staff" element={<StaffAccountsPage />} />
                 <Route path="access-control" element={<StaffAccountsPage />} />
@@ -93,7 +93,6 @@ export function App() {
                 <Route path="transactions" element={<TransactionsLedgerPage />} />
                 <Route path="bank-accounts" element={<SchoolBankAccountsPage />} />
                 <Route path="suppliers" element={<SuppliersPage />} />
-                <Route path="schedules" element={<StockSchedulesPage />} />
                 <Route path="reports" element={<ReportsPage />} />
                 <Route path="messages" element={<MessagesInboxPage />} />
                 <Route path="profile" element={<ProfilePage />} />
@@ -104,9 +103,12 @@ export function App() {
               {/* ========================================= */}
               <Route path="/dashboard/animator" element={<DashboardLayout allowedRoles={['ANIMATOR', 'DIRECTOR']} />}>
                 <Route index element={<FoodInventoryPage />} />
+                <Route path="stock-in" element={<StockInPage />} />
                 <Route path="stock-out" element={<StockOutPage />} />
                 <Route path="terms" element={<AcademicTermsPage />} />
                 <Route path="history" element={<TransactionsLedgerPage />} />
+                <Route path="suppliers" element={<SuppliersPage />} />
+                <Route path="reports" element={<ReportsPage />} />
                 <Route path="messages" element={<MessagesInboxPage />} />
                 <Route path="profile" element={<ProfilePage />} />
               </Route>

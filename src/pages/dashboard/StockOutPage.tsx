@@ -2,17 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../services/api';
-import { Product, ScheduleStatus } from '../../types';
+import { Product, ActiveTermResponse } from '../../types';
 import {
   ArrowUpRight,
-  Clock,
-  AlertTriangle,
   AlertCircle,
   CheckCircle2,
+  CalendarRange,
   Lock,
-  Unlock,
-  ShieldAlert,
-  Info
+  ShieldCheck
 } from 'lucide-react';
 
 export const StockOutPage: React.FC = () => {
@@ -20,7 +17,7 @@ export const StockOutPage: React.FC = () => {
   const { user } = useAuth();
 
   const [products, setProducts] = useState<Product[]>([]);
-  const [scheduleStatus, setScheduleStatus] = useState<ScheduleStatus | null>(null);
+  const [termInfo, setTermInfo] = useState<ActiveTermResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
@@ -29,8 +26,6 @@ export const StockOutPage: React.FC = () => {
     quantity: '',
     transactionDate: new Date().toISOString().split('T')[0],
     notes: '',
-    isEmergencyOverride: false,
-    overrideReason: '',
   });
 
   const [recentStockOuts, setRecentStockOuts] = useState<any[]>([]);
@@ -40,18 +35,21 @@ export const StockOutPage: React.FC = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [prodRes, schRes, txRes] = await Promise.all([
+      const [prodRes, termRes, txRes] = await Promise.all([
         api.get('/inventory/products'),
-        api.get('/inventory/schedule-status'),
+        api.get('/inventory/active-term'),
         api.get('/inventory/transactions', { params: { type: 'OUT' } }),
       ]);
-      setProducts(prodRes.data?.products || []);
-      setScheduleStatus(schRes.data);
+      const prodList: Product[] = prodRes.data?.products || [];
+      setProducts(prodList);
+      setTermInfo(termRes.data || null);
       setRecentStockOuts(txRes.data?.transactions?.slice(0, 6) || []);
 
-      if (prodRes.data?.products?.length > 0 && !formData.productId) {
-        setFormData((prev) => ({ ...prev, productId: String(prodRes.data.products[0].id) }));
-      }
+      setFormData((prev) => ({
+        ...prev,
+        productId: prev.productId || (prodList.length > 0 ? String(prodList[0].id) : ''),
+        transactionDate: termRes.data?.kigaliDate || prev.transactionDate,
+      }));
     } catch (err) {
       console.error('Failed to load stock out data:', err);
     } finally {
@@ -61,76 +59,72 @@ export const StockOutPage: React.FC = () => {
 
   useEffect(() => {
     fetchData();
-    // Poll schedule status every 10 seconds to auto-enable button when authorized window opens!
-    const interval = setInterval(async () => {
-      try {
-        const schRes = await api.get('/inventory/schedule-status');
-        setScheduleStatus(schRes.data);
-      } catch {
-        // quiet
-      }
-    }, 10000);
-
-    return () => clearInterval(interval);
   }, []);
 
   const selectedProduct = products.find((p) => String(p.id) === String(formData.productId));
   const qty = parseFloat(formData.quantity) || 0;
-  const isDirector = user?.role === 'DIRECTOR';
-  const isAccountant = user?.role === 'ACCOUNTANT';
-  const isManagement = isDirector || isAccountant;
-  const isAnimator = user?.role === 'ANIMATOR';
-
-  // Authorization Evaluation
-  const isAuthorizedPeriod = scheduleStatus?.isPermitted === true;
-  const canSubmit = isManagement
-    ? (selectedProduct ? qty > 0 && selectedProduct.current_stock >= qty : false)
-    : (isAuthorizedPeriod || formData.isEmergencyOverride) && (selectedProduct ? qty > 0 && selectedProduct.current_stock >= qty : false);
+  const activeTerm = termInfo?.activeTerm || null;
+  const hasActiveTerm = Boolean(activeTerm && activeTerm.status === 'Active');
+  const isInsufficient = Boolean(selectedProduct && qty > selectedProduct.current_stock);
+  const canSubmit = Boolean(hasActiveTerm && selectedProduct && qty > 0 && !isInsufficient);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
     setNotice(null);
 
-    if (!formData.productId || qty <= 0) {
-      setErrorMsg('Please select a food product and enter a valid quantity.');
+    if (!hasActiveTerm || !activeTerm) {
+      setErrorMsg(t('noActiveTermNotice'));
       return;
     }
 
-    // Negative stock prevention check
-    if (selectedProduct && selectedProduct.current_stock < qty) {
+    if (!formData.productId || qty <= 0) {
       setErrorMsg(
-        `Insufficient Stock! Requested: ${qty} ${selectedProduct.unit}, but only ${selectedProduct.current_stock} ${selectedProduct.unit} available. Negative stock is strictly prohibited.`
+        language === 'rw'
+          ? 'Hitamo ikiribwa kandi ushyiremo ingano irenga zero.'
+          : 'Please select a food product and enter a positive quantity.'
       );
       return;
     }
 
-    if (isAnimator && !isAuthorizedPeriod && !formData.isEmergencyOverride) {
-      setErrorMsg(scheduleStatus?.reason || 'Stock Out is currently locked outside authorized kitchen hours. Please select Emergency Release with mandatory justification to proceed.');
-      return;
-    }
-
-    if (formData.isEmergencyOverride && (!formData.overrideReason || formData.overrideReason.trim().length < 5)) {
-      setErrorMsg('A detailed justification (minimum 5 characters) is mandatory for off-schedule stock release.');
+    if (selectedProduct && selectedProduct.current_stock < qty) {
+      setErrorMsg(
+        language === 'rw'
+          ? `Ububiko budahagije! Wasabye ${qty} ${selectedProduct.unit}, ariko hasigaye ${selectedProduct.current_stock} ${selectedProduct.unit} gusa.`
+          : `Insufficient Stock! Requested: ${qty} ${selectedProduct.unit}, but only ${selectedProduct.current_stock} ${selectedProduct.unit} available. Negative stock is strictly prohibited.`
+      );
       return;
     }
 
     setSubmitting(true);
 
     try {
-      const res = await api.post('/inventory/stock-out', formData);
-      setNotice(res.data.message || 'Daily stock out ration issued successfully.');
-      setFormData({
-        ...formData,
+      const res = await api.post('/inventory/stock-out', {
+        productId: formData.productId,
+        quantity: qty,
+        transactionDate: formData.transactionDate,
+        notes: formData.notes,
+        termId: activeTerm.id,
+      });
+      setNotice(
+        language === 'rw'
+          ? 'Ibiribwa byasohowe neza kandi byavanywe mu bubiko.'
+          : res.data.message || 'Daily stock out ration issued successfully.'
+      );
+      setFormData((prev) => ({
+        ...prev,
         quantity: '',
         notes: '',
-        isEmergencyOverride: false,
-        overrideReason: '',
-      });
+      }));
       fetchData();
+      window.dispatchEvent(new CustomEvent('ibb:notifications-updated'));
       setTimeout(() => setNotice(null), 4000);
     } catch (err: any) {
-      setErrorMsg(err.response?.data?.error || 'Failed to record Stock Out.');
+      setErrorMsg(
+        err.response?.data?.error ||
+          (language === 'rw' ? 'Kwandika ibisohoka mu bubiko byanze.' : 'Failed to record Stock Out.')
+      );
+      window.dispatchEvent(new CustomEvent('ibb:notifications-updated'));
     } finally {
       setSubmitting(false);
     }
@@ -138,7 +132,6 @@ export const StockOutPage: React.FC = () => {
 
   return (
     <div className="space-y-6 max-w-5xl animate-fadeIn">
-      
       {/* Header */}
       <div className="pb-2 border-b border-slate-200 dark:border-[#252B33]">
         <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-[#F0F3F6] tracking-tight flex items-center gap-2">
@@ -151,102 +144,88 @@ export const StockOutPage: React.FC = () => {
       </div>
 
       {notice && (
-        <div className="p-3.5 rounded-lg bg-[#0ECB81]/15 border border-[#0ECB81]/30 text-xs text-[#0ECB81] flex items-center gap-2">
+        <div className="p-3.5 rounded-lg bg-[#0ECB81]/15 border border-[#0ECB81]/30 text-xs text-[#16A34A] dark:text-[#0ECB81] flex items-center gap-2">
           <CheckCircle2 className="w-4 h-4 shrink-0" />
           <span className="font-semibold">{notice}</span>
         </div>
       )}
 
       {errorMsg && (
-        <div className="p-3.5 rounded-lg bg-[#F6465D]/15 border border-[#F6465D]/30 text-xs text-[#F6465D] flex items-center gap-2">
+        <div className="p-3.5 rounded-lg bg-[#F6465D]/15 border border-[#F6465D]/30 text-xs text-[#DC2626] dark:text-[#F6465D] flex items-center gap-2">
           <AlertCircle className="w-4 h-4 shrink-0" />
           <span className="font-semibold">{errorMsg}</span>
         </div>
       )}
 
-      {/* SCHEDULE RESTRICTION INDICATOR CARD */}
-      {isManagement ? (
-        <div className="rounded-xl p-5 border shadow-xs transition-colors flex flex-col md:flex-row items-start md:items-center justify-between gap-6 bg-[#1769FF]/10 dark:bg-[#1769FF]/15 border-[#1769FF]/30 text-slate-900 dark:text-[#F0F3F6]">
-          <div className="flex items-start gap-4">
-            <div className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0 bg-[#1769FF]/20 text-[#1769FF] dark:text-[#38BDF8]">
-              <Unlock className="w-5 h-5" />
-            </div>
-
-            <div className="space-y-1">
-              <span className="inline-block px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider bg-[#1769FF]/20 text-[#1769FF] dark:text-[#38BDF8]">
-                INSTITUTIONAL MANAGEMENT CLEARANCE
-              </span>
-
-              <p className="text-xs font-semibold">
-                {t('institutionalAuthorizedNotice')}
-              </p>
-              <span className="text-[11px] text-slate-500 dark:text-[#A0AAB8] font-mono block">
-                Active Role: <strong className="text-slate-900 dark:text-[#F0F3F6]">{user?.role}</strong> · Full stock release privileges enabled
-              </span>
-            </div>
+      {/* ACTIVE ACADEMIC TERM STATUS BANNER */}
+      <div
+        className={`rounded-xl p-5 border shadow-xs transition-colors flex flex-col md:flex-row items-start md:items-center justify-between gap-4 ${
+          hasActiveTerm
+            ? 'bg-[#EAF2FF] dark:bg-[#1769FF]/15 border-[#CBDCFD] dark:border-[#1769FF]/30 text-slate-900 dark:text-[#F0F3F6]'
+            : 'bg-rose-50 dark:bg-[#F6465D]/10 border-rose-200 dark:border-[#F6465D]/30 text-slate-900 dark:text-[#F0F3F6]'
+        }`}
+      >
+        <div className="flex items-start gap-3.5">
+          <div
+            className={`w-11 h-11 rounded-lg flex items-center justify-center shrink-0 ${
+              hasActiveTerm
+                ? 'bg-[#1769FF]/15 text-[#1769FF] dark:text-[#38BDF8]'
+                : 'bg-[#F6465D]/15 text-[#DC2626] dark:text-[#F6465D]'
+            }`}
+          >
+            {hasActiveTerm ? <ShieldCheck className="w-5 h-5" /> : <Lock className="w-5 h-5" />}
           </div>
 
-          <div className="p-3 rounded-lg bg-white dark:bg-[#181D24] border border-slate-200 dark:border-[#2B3139] shrink-0 text-right">
-            <span className="text-[10px] text-slate-400 dark:text-[#707A8A] block uppercase font-mono">Server Time</span>
-            <span className="text-lg font-bold text-slate-900 dark:text-[#F0F3F6] font-mono tabular-nums">
-              {scheduleStatus?.kigaliTime || '00:00'} CAT
+          <div className="space-y-1">
+            <span
+              className={`inline-block px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider ${
+                hasActiveTerm
+                  ? 'bg-[#1769FF]/15 text-[#1769FF] dark:text-[#38BDF8]'
+                  : 'bg-[#F6465D]/15 text-[#DC2626] dark:text-[#F6465D]'
+              }`}
+            >
+              {hasActiveTerm ? t('activeTermAuthorizationTitle') : t('termClosed')}
             </span>
-          </div>
-        </div>
-      ) : (
-        <div className={`rounded-xl p-5 border shadow-xs transition-colors flex flex-col md:flex-row items-start md:items-center justify-between gap-6 ${
-          isAuthorizedPeriod
-            ? 'bg-[#0ECB81]/10 border-[#0ECB81]/30 text-slate-900 dark:text-[#F0F3F6]'
-            : 'bg-[#F0B90B]/10 border-[#F0B90B]/30 text-slate-900 dark:text-[#F0F3F6]'
-        }`}>
-          <div className="flex items-start gap-4">
-            <div className={`w-11 h-11 rounded-lg flex items-center justify-center shrink-0 ${
-              isAuthorizedPeriod
-                ? 'bg-[#0ECB81]/20 text-[#0ECB81]'
-                : 'bg-[#F0B90B]/20 text-[#F0B90B]'
-            }`}>
-              {isAuthorizedPeriod ? <Unlock className="w-5 h-5" /> : <Lock className="w-5 h-5" />}
-            </div>
 
-            <div className="space-y-1">
-              <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider ${
-                isAuthorizedPeriod
-                  ? 'bg-[#0ECB81]/20 text-[#0ECB81]'
-                  : 'bg-[#F0B90B]/20 text-[#F0B90B]'
-              }`}>
-                {isAuthorizedPeriod ? 'KITCHEN DISPATCH WINDOW OPEN' : 'DISPATCH CURRENTLY LOCKED'}
-              </span>
-
-              <p className="text-xs font-semibold">
-                {scheduleStatus?.reason || 'Verifying Africa/Kigali server schedule...'}
-              </p>
-              {!isAuthorizedPeriod && scheduleStatus?.nextOpeningTime && (
-                <span className="text-[11px] text-slate-500 dark:text-[#A0AAB8] font-mono block">
-                  Next scheduled opening: <strong className="text-slate-900 dark:text-[#F0F3F6]">{scheduleStatus.nextOpeningTime}</strong>
+            {hasActiveTerm && activeTerm ? (
+              <>
+                <p className="text-xs font-bold text-[#172033] dark:text-[#F0F3F6]">
+                  {activeTerm.academic_year} · {activeTerm.name} ({activeTerm.start_date} → {activeTerm.end_date})
+                </p>
+                <span className="text-[11px] text-slate-600 dark:text-[#A0AAB8] font-mono block">
+                  {language === 'rw' ? 'Urwego rw’umukozi' : 'Active Role'}:{' '}
+                  <strong className="text-slate-900 dark:text-[#F0F3F6]">{user?.role}</strong> ·{' '}
+                  {language === 'rw'
+                    ? 'Uburenganzira busesuye bwo gusohora ibiribwa burafunguye'
+                    : 'Full Stock Out authorization active'}
                 </span>
-              )}
-            </div>
-          </div>
-
-          <div className="p-3 rounded-lg bg-white dark:bg-[#181D24] border border-slate-200 dark:border-[#2B3139] shrink-0 text-right">
-            <span className="text-[10px] text-slate-400 dark:text-[#707A8A] block uppercase font-mono">Server Time</span>
-            <span className="text-lg font-bold text-slate-900 dark:text-[#F0F3F6] font-mono tabular-nums">
-              {scheduleStatus?.kigaliTime || '00:00'} CAT
-            </span>
+              </>
+            ) : (
+              <p className="text-xs font-semibold text-[#DC2626] dark:text-[#F6465D]">
+                {t('noActiveTermNotice')}
+              </p>
+            )}
           </div>
         </div>
-      )}
+
+        <div className="p-3 rounded-lg bg-white dark:bg-[#181D24] border border-slate-200 dark:border-[#2B3139] shrink-0 text-right">
+          <span className="text-[10px] text-slate-400 dark:text-[#707A8A] block uppercase font-mono">
+            {t('kigaliTime')}
+          </span>
+          <span className="text-lg font-bold text-slate-900 dark:text-[#F0F3F6] font-mono tabular-nums">
+            {termInfo?.kigaliTime || '--:--'} CAT
+          </span>
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        {/* STOCK OUT FORM (Level 3 Surface) */}
+        {/* STOCK OUT FORM */}
         <div className="lg:col-span-2 bg-white dark:bg-[#181D24] rounded-xl p-6 sm:p-7 border border-slate-200 dark:border-[#2B3139] shadow-xs">
           <form onSubmit={handleSubmit} className="space-y-4">
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="sm:col-span-1">
                 <label className="block text-xs font-semibold text-slate-700 dark:text-[#A0AAB8] mb-1.5">
-                  Food Product to Issue *
+                  {t('productToIssueLabel')}
                 </label>
                 <select
                   value={formData.productId}
@@ -256,7 +235,7 @@ export const StockOutPage: React.FC = () => {
                 >
                   {products.map((p) => (
                     <option key={p.id} value={p.id}>
-                      {p.name} (Available: {p.current_stock} {p.unit})
+                      {p.name} ({p.current_stock} {p.unit})
                     </option>
                   ))}
                 </select>
@@ -264,7 +243,7 @@ export const StockOutPage: React.FC = () => {
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 dark:text-[#A0AAB8] mb-1.5">
-                  Quantity to Release *
+                  {t('quantityToReleaseLabel')}
                 </label>
                 <div className="relative">
                   <input
@@ -283,128 +262,129 @@ export const StockOutPage: React.FC = () => {
                   </span>
                 </div>
               </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-[#A0AAB8] mb-1.5">
+                  {t('date')} *
+                </label>
+                <input
+                  type="date"
+                  value={formData.transactionDate}
+                  min={activeTerm?.start_date}
+                  max={activeTerm?.end_date}
+                  onChange={(e) => setFormData({ ...formData, transactionDate: e.target.value })}
+                  required
+                  className="w-full px-3 py-2 text-xs rounded-lg bg-slate-50 dark:bg-[#11151B] border border-slate-200 dark:border-[#2B3139] text-slate-900 dark:text-[#F0F3F6] focus:outline-none focus:border-[#FCD535]"
+                />
+              </div>
             </div>
 
             {/* Current Balance Bar */}
             {selectedProduct && (
               <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#202630] border border-slate-200 dark:border-[#2B3139] flex items-center justify-between text-xs">
                 <div>
-                  <span className="text-slate-500 dark:text-[#707A8A] block text-[10px]">Current Available Reserve:</span>
+                  <span className="text-slate-500 dark:text-[#707A8A] block text-[10px]">
+                    {t('currentReserveLabel')}
+                  </span>
                   <strong className="text-slate-900 dark:text-[#F0F3F6] font-mono">
                     {selectedProduct.current_stock} {selectedProduct.unit}
                   </strong>
                 </div>
-                <div>
-                  <span className="text-slate-500 dark:text-[#707A8A] block text-[10px]">Balance After Release:</span>
-                  <strong className={`font-mono ${selectedProduct.current_stock - qty < 0 ? 'text-[#F6465D]' : 'text-[#0ECB81]'}`}>
+                <div className="text-right">
+                  <span className="text-slate-500 dark:text-[#707A8A] block text-[10px]">
+                    {t('balanceAfterLabel')}
+                  </span>
+                  <strong
+                    className={`font-mono ${
+                      selectedProduct.current_stock - qty < 0
+                        ? 'text-[#DC2626] dark:text-[#F6465D]'
+                        : 'text-[#16A34A] dark:text-[#0ECB81]'
+                    }`}
+                  >
                     {(selectedProduct.current_stock - qty).toFixed(1)} {selectedProduct.unit}
                   </strong>
                 </div>
               </div>
             )}
 
+            {isInsufficient && (
+              <div className="p-3 rounded-lg bg-rose-50 dark:bg-[#F6465D]/10 border border-rose-200 dark:border-[#F6465D]/30 text-xs text-[#DC2626] dark:text-[#F6465D] font-semibold">
+                {t('insufficientStockAlert')}
+              </div>
+            )}
+
             <div>
               <label className="block text-xs font-semibold text-slate-700 dark:text-[#A0AAB8] mb-1.5">
-                Ration Notes / Meal Purpose
+                {t('rationNotesLabel')}
               </label>
               <textarea
                 rows={2}
                 value={formData.notes}
                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                placeholder="e.g. Breakfast porridge preparation for 420 students"
+                placeholder={t('rationNotesPlaceholder')}
                 className="w-full p-2.5 text-xs rounded-lg bg-slate-50 dark:bg-[#11151B] border border-slate-200 dark:border-[#2B3139] text-slate-900 dark:text-[#F0F3F6] focus:outline-none focus:border-[#FCD535]"
               />
             </div>
 
-            {/* EMERGENCY OVERRIDE SECTION FOR ANIMATOR OUTSIDE WINDOW */}
-            {!isAuthorizedPeriod && isAnimator && (
-              <div className="p-4 rounded-xl border border-[#F6465D]/30 bg-[#F6465D]/10 space-y-3">
-                <div className="flex items-center gap-2 text-[#F6465D] font-bold text-xs">
-                  <ShieldAlert className="w-4 h-4" />
-                  <span>Animator Emergency Schedule Override</span>
-                </div>
-                <p className="text-[11px] text-slate-600 dark:text-[#A0AAB8] leading-relaxed">
-                  The kitchen dispatch window is currently closed. If student dining or emergency meal preparation requires immediate release, authorize this override and provide mandatory justification. Every override is permanently logged in system audit trails.
-                </p>
-
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={formData.isEmergencyOverride}
-                    onChange={(e) => setFormData({ ...formData, isEmergencyOverride: e.target.checked })}
-                    className="w-4 h-4 rounded text-[#F6465D] focus:ring-[#F6465D]"
-                  />
-                  <span className="text-xs font-bold text-slate-800 dark:text-[#F0F3F6]">
-                    Authorize Emergency Release
-                  </span>
-                </label>
-
-                {formData.isEmergencyOverride && (
-                  <div>
-                    <label className="block text-[11px] font-bold text-[#F6465D] mb-1">
-                      Mandatory Justification Reason *
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.overrideReason}
-                      onChange={(e) => setFormData({ ...formData, overrideReason: e.target.value })}
-                      placeholder="e.g. Late weekend sports tournament dinner preparation"
-                      required
-                      className="w-full px-3 py-2 text-xs rounded-lg bg-white dark:bg-[#11151B] border border-[#F6465D]/40 text-slate-900 dark:text-[#F0F3F6] focus:outline-none"
-                    />
-                  </div>
-                )}
-              </div>
-            )}
-
             {/* SUBMIT BUTTON */}
-            <div className="pt-2 flex items-center justify-between">
-              {!isAuthorizedPeriod && isAnimator && !formData.isEmergencyOverride && (
-                <span className="text-[11px] text-[#F0B90B] flex items-center gap-1 font-mono font-medium">
-                  <Lock className="w-3.5 h-3.5" />
-                  <span>Locked outside authorized hours</span>
+            <div className="pt-2 flex items-center justify-between gap-3">
+              {!hasActiveTerm && (
+                <span className="text-[11px] text-[#DC2626] dark:text-[#F6465D] flex items-center gap-1 font-mono font-medium">
+                  <CalendarRange className="w-3.5 h-3.5" />
+                  <span>{t('termClosed')}</span>
                 </span>
               )}
 
               <button
                 type="submit"
-                disabled={submitting || !canSubmit}
-                className="ml-auto inline-flex items-center gap-2 px-6 py-2.5 text-xs font-bold text-slate-950 bg-[#F0B90B] hover:bg-[#d9a508] disabled:opacity-30 disabled:cursor-not-allowed rounded-lg shadow-sm transition-all duration-150 cursor-pointer"
+                disabled={submitting || !canSubmit || loading}
+                className="ml-auto inline-flex items-center gap-2 px-6 py-2.5 text-xs font-bold text-slate-950 bg-[#F0B90B] hover:bg-[#d9a508] disabled:opacity-40 disabled:cursor-not-allowed rounded-lg shadow-sm transition-all duration-150 cursor-pointer"
               >
                 <ArrowUpRight className="w-4 h-4 stroke-[2.5]" />
-                <span>{submitting ? 'Recording Issue...' : 'Release Daily Stock Out'}</span>
+                <span>{submitting ? t('recordingIssueBtn') : t('recordStockOutSubmitBtn')}</span>
               </button>
             </div>
-
           </form>
         </div>
 
-        {/* RECENT ISSUES CARD (Level 3 Surface) */}
+        {/* RECENT ISSUES CARD */}
         <div className="bg-white dark:bg-[#181D24] rounded-xl p-6 border border-slate-200 dark:border-[#2B3139] shadow-xs space-y-4">
           <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-[#F0F3F6]">
-            Recent Kitchen Releases
+            {t('recentReleasesTitle')}
           </h3>
           <p className="text-xs text-slate-600 dark:text-[#A0AAB8] leading-relaxed">
-            Animator records are timestamped in Africa/Kigali time and deducted immediately from student dining supplies.
+            {t('recentReleasesDesc')}
           </p>
 
           <div className="space-y-2 pt-2">
-            {recentStockOuts.map((tx) => (
-              <div key={tx.id} className="p-2.5 rounded-lg border border-slate-100 dark:border-[#252B33] bg-slate-50/60 dark:bg-[#11151B] flex justify-between items-center">
-                <div>
-                  <span className="font-bold text-slate-900 dark:text-[#F0F3F6] block text-xs">{tx.product_name}</span>
-                  <span className="text-[10px] text-slate-400 dark:text-[#707A8A] font-mono">{tx.time} · {tx.date}</span>
+            {recentStockOuts.length === 0 ? (
+              <p className="text-xs text-slate-400 dark:text-[#707A8A] py-4 text-center">
+                {t('emptyState')}
+              </p>
+            ) : (
+              recentStockOuts.map((tx) => (
+                <div
+                  key={tx.id}
+                  className="p-2.5 rounded-lg border border-slate-100 dark:border-[#252B33] bg-slate-50/60 dark:bg-[#11151B] flex justify-between items-center gap-2"
+                >
+                  <div className="min-w-0">
+                    <span className="font-bold text-slate-900 dark:text-[#F0F3F6] block text-xs truncate">
+                      {tx.product_name}
+                    </span>
+                    <span className="text-[10px] text-slate-400 dark:text-[#707A8A] font-mono block truncate">
+                      {tx.time} · {tx.date}
+                      {tx.recorded_by_name ? ` · ${tx.recorded_by_name}` : ''}
+                    </span>
+                  </div>
+                  <div className="text-right font-mono font-bold text-[#D97706] dark:text-[#F0B90B] text-xs shrink-0">
+                    -{tx.quantity} {tx.unit}
+                  </div>
                 </div>
-                <div className="text-right font-mono font-bold text-[#F0B90B] text-xs">
-                  -{tx.quantity} {tx.unit}
-                </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
-
       </div>
-
     </div>
   );
 };

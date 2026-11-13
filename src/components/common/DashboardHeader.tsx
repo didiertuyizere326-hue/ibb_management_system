@@ -7,23 +7,22 @@ import { api } from '../../services/api';
 import { NotificationItem } from '../../types';
 import { ConfirmationModal } from './ConfirmationModal';
 import { LanguageSwitcher } from './LanguageSwitcher';
+import { formatNotificationContent } from '../../utils/notificationFormatter';
 import {
   Menu,
   Bell,
   Sun,
   Moon,
   Globe,
-  Clock,
   ExternalLink,
   ChevronRight,
-  Shield,
-  Search,
-  CheckCircle2,
   UserCircle,
   LogOut,
   ChevronDown,
   PanelLeftClose,
-  PanelLeftOpen
+  PanelLeftOpen,
+  User,
+  Check
 } from 'lucide-react';
 
 interface DashboardHeaderProps {
@@ -40,7 +39,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   onToggleCollapse,
 }) => {
   const { user, logout } = useAuth();
-  const { language, setLanguage, t } = useLanguage();
+  const { language, t } = useLanguage();
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
@@ -77,7 +76,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
     return () => clearInterval(interval);
   }, []);
 
-  // Fetch Notifications
+  // Fetch Notifications cleanly (on mount, periodic 30s, and when stock/term actions emit ibb:notifications-updated)
   const fetchNotifications = async () => {
     try {
       const res = await api.get('/notifications');
@@ -90,8 +89,13 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
 
   useEffect(() => {
     fetchNotifications();
-    const interval = setInterval(fetchNotifications, 15000);
-    return () => clearInterval(interval);
+    const interval = setInterval(fetchNotifications, 30000);
+    const onRefresh = () => fetchNotifications();
+    window.addEventListener('ibb:notifications-updated', onRefresh);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('ibb:notifications-updated', onRefresh);
+    };
   }, []);
 
   // Close menus on outside click
@@ -112,7 +116,6 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
     const target = notifications.find((n) => n.id === id);
     if (!target || target.is_read === 1) return;
 
-    // Optimistically update badge count and notification appearance immediately
     setNotifications((prev) =>
       prev.map((n) => (n.id === id ? { ...n, is_read: 1 } : n))
     );
@@ -122,6 +125,14 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
       await api.put(`/notifications/${id}/read`);
     } catch (err) {
       console.error('Failed to mark notification as read:', err);
+    }
+  };
+
+  const handleOpenNotification = async (id: number, destination: string | null) => {
+    await markSingleAsRead(id);
+    if (destination) {
+      setShowNotifMenu(false);
+      navigate(destination);
     }
   };
 
@@ -270,7 +281,11 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           {/* Notifications Dropdown */}
           <div className="relative" ref={notifMenuRef}>
             <button
-              onClick={() => setShowNotifMenu(!showNotifMenu)}
+              onClick={() => {
+                const next = !showNotifMenu;
+                setShowNotifMenu(next);
+                if (next) fetchNotifications();
+              }}
               className="p-2 text-slate-600 dark:text-[#A0AAB8] hover:bg-slate-100 dark:hover:bg-[#181D24] hover:text-slate-900 dark:hover:text-[#F0F3F6] rounded-lg relative border border-[#E2E8F0] dark:border-[#2B3139] transition-colors cursor-pointer"
               aria-label="View notifications"
             >
@@ -283,7 +298,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
             </button>
 
             {showNotifMenu && (
-              <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white dark:bg-[#202630] rounded-xl shadow-2xl border border-[#E2E8F0] dark:border-[#2B3139] py-2 z-50 animate-fadeIn">
+              <div className="absolute right-0 mt-2 w-80 sm:w-[420px] bg-white dark:bg-[#202630] rounded-xl shadow-2xl border border-[#E2E8F0] dark:border-[#2B3139] py-2 z-50 animate-fadeIn">
                 <div className="px-4 py-2.5 border-b border-[#E8EDF4] dark:border-[#252B33] flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-bold text-[#172033] dark:text-[#F0F3F6] uppercase tracking-wider">
@@ -305,55 +320,103 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
                   )}
                 </div>
 
-                <div className="max-h-80 overflow-y-auto divide-y divide-[#E8EDF4] dark:divide-[#252B33]">
+                <div className="max-h-96 overflow-y-auto divide-y divide-[#E8EDF4] dark:divide-[#252B33]">
                   {notifications.length === 0 ? (
                     <div className="p-6 text-center text-xs text-slate-400 dark:text-[#707A8A]">
                       {t('noNotifications')}
                     </div>
                   ) : (
-                    notifications.map((n) => (
-                      <div
-                        key={n.id}
-                        onClick={() => markSingleAsRead(n.id)}
-                        className={`p-3.5 text-xs transition-colors cursor-pointer ${
-                          n.is_read === 0
-                            ? 'bg-amber-50/60 dark:bg-[#FCD535]/5 border-l-2 border-[#1769FF] dark:border-[#FCD535]'
-                            : 'hover:bg-slate-50 dark:hover:bg-[#181D24] opacity-80 hover:opacity-100'
-                        }`}
-                        title={n.is_read === 0 ? 'Click to mark as read' : undefined}
-                      >
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="flex items-center gap-1.5 min-w-0">
-                            {n.is_read === 0 && (
-                              <span className="w-1.5 h-1.5 rounded-full bg-[#1769FF] dark:bg-[#FCD535] shrink-0" />
-                            )}
-                            <span className="font-bold text-[#172033] dark:text-[#F0F3F6] truncate">
-                              {n.title}
+                    notifications.map((n) => {
+                      const formatted = formatNotificationContent(n, language, user?.role);
+                      const badgeTone =
+                        n.type === 'alert'
+                          ? 'bg-rose-500/10 text-[#DC2626] dark:text-[#F6465D]'
+                          : n.type === 'warning'
+                          ? 'bg-amber-500/15 text-[#B45309] dark:text-[#F0B90B]'
+                          : n.type === 'success'
+                          ? 'bg-emerald-500/15 text-[#15803D] dark:text-[#0ECB81]'
+                          : 'bg-[#1769FF]/10 text-[#1769FF] dark:text-[#38BDF8]';
+
+                      return (
+                        <div
+                          key={n.id}
+                          onClick={() => handleOpenNotification(n.id, formatted.destination)}
+                          className={`p-3.5 text-xs transition-colors cursor-pointer ${
+                            n.is_read === 0
+                              ? 'bg-amber-50/60 dark:bg-[#FCD535]/5 border-l-2 border-[#1769FF] dark:border-[#FCD535]'
+                              : 'hover:bg-slate-50 dark:hover:bg-[#181D24] opacity-85 hover:opacity-100'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between gap-2 mb-1">
+                            <div className="flex items-center gap-1.5 min-w-0">
+                              {n.is_read === 0 && (
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#1769FF] dark:bg-[#FCD535] shrink-0" />
+                              )}
+                              <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold shrink-0 ${badgeTone}`}>
+                                {formatted.badgeLabel}
+                              </span>
+                              {formatted.contextTag && (
+                                <span className="text-[10px] font-semibold text-slate-500 dark:text-[#A0AAB8] truncate">
+                                  {formatted.contextTag}
+                                </span>
+                              )}
+                            </div>
+                            <span className="text-[10px] text-slate-400 dark:text-[#707A8A] shrink-0 font-mono">
+                              {formatted.formattedTime}
                             </span>
                           </div>
-                          <span className="text-[10px] text-slate-400 dark:text-[#707A8A] shrink-0 font-mono">
-                            {new Date(n.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                          </span>
+
+                          <div className="font-bold text-[#172033] dark:text-[#F0F3F6] leading-snug">
+                            {formatted.title}
+                          </div>
+
+                          <p className="text-[#64748B] dark:text-[#A0AAB8] mt-1 text-[11px] leading-relaxed">
+                            {formatted.message}
+                          </p>
+
+                          <div className="mt-2 flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-2 min-w-0">
+                              {formatted.actorLabel && (
+                                <span className="inline-flex items-center gap-1 text-[10px] text-slate-500 dark:text-[#707A8A] truncate">
+                                  <User className="w-3 h-3 shrink-0" />
+                                  <span className="truncate">{formatted.actorLabel}</span>
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="flex items-center gap-2.5 shrink-0">
+                              {n.is_read === 0 && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    markSingleAsRead(n.id);
+                                  }}
+                                  className="inline-flex items-center gap-1 text-[10px] font-semibold text-slate-500 hover:text-slate-900 dark:text-[#A0AAB8] dark:hover:text-[#F0F3F6] cursor-pointer"
+                                >
+                                  <Check className="w-3 h-3" />
+                                  <span>{t('markAsReadBtn')}</span>
+                                </button>
+                              )}
+                              {formatted.destination && (
+                                <Link
+                                  to={formatted.destination}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    markSingleAsRead(n.id);
+                                    setShowNotifMenu(false);
+                                  }}
+                                  className="inline-flex items-center gap-1 text-[11px] text-[#1769FF] dark:text-[#FCD535] font-semibold hover:underline"
+                                >
+                                  <span>{t('openModule')}</span>
+                                  <ExternalLink className="w-3 h-3" />
+                                </Link>
+                              )}
+                            </div>
+                          </div>
                         </div>
-                        <p className="text-[#64748B] dark:text-[#A0AAB8] mt-1 text-[11px] leading-relaxed">
-                          {n.message}
-                        </p>
-                        {n.link && (
-                          <Link
-                            to={n.link}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              markSingleAsRead(n.id);
-                              setShowNotifMenu(false);
-                            }}
-                            className="inline-flex items-center gap-1 text-[11px] text-[#1769FF] dark:text-[#FCD535] font-semibold mt-2 hover:underline"
-                          >
-                            <span>{t('openModule')}</span>
-                            <ExternalLink className="w-3 h-3" />
-                          </Link>
-                        )}
-                      </div>
-                    ))
+                      );
+                    })
                   )}
                 </div>
               </div>
